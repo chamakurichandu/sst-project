@@ -1,0 +1,9 @@
+{
+    "baseurl": "http://localhost:3000",
+    "cognito-pool-id": "ap-south-1_EH6LoIlGK",
+    "cognito-client-id": "6kph096kij0p51kub858hae3hr",
+    "cognito-region": "ap-south-1",
+    "websocketurl": "wss://vexhibit.live:8765",
+    "org": 3,
+    "event": 36
+}
