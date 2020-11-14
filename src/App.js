@@ -43,6 +43,7 @@ import EventFeed from './components/eventFeed';
 import EditStall from './components/editStall';
 // import Fab from '@material-ui/core/Fab';
 // import AddIcon from '@material-ui/icons/Add';
+import axios from 'axios';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -596,7 +597,9 @@ function App(props) {
     async function checkAuth() {
       console.log("useEffect");
       try {
-        let user = await Auth.currentAuthenticatedUser();
+        const url = config["baseurl"] + "/checkauth";
+        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+        const response = await axios.get(url);
         onAuthSuccess(false);
       }
       catch (error) {

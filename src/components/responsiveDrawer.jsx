@@ -14,17 +14,17 @@ import ListItemText from '@material-ui/core/ListItemText';
 import logo from '../assets/svg/logos/logo.svg';
 import lstrings from '../lstrings.js';
 import LanguageSelect from './languageSelect';
-import exhibitionLogo from '../assets/svg/ss/exhibition.svg';
-import auditoriumLogo from '../assets/svg/ss/hall.svg';
-import agendaLogo from '../assets/svg/ss/checklist.svg';
-import networkingRoomsLogo from '../assets/svg/ss/breakout.svg';
-import attendeesLogo from '../assets/svg/ss/team.svg';
-import infoLogo from '../assets/svg/ss/ask.svg';
-import mentorLogo from '../assets/svg/ss/freedom.svg';
-import feedLogo from '../assets/svg/ss/memo.svg';
+import infoLogo from '../assets/svg/ss/question.svg';
 import { useHistory } from "react-router-dom";
-import PanelImage from '../assets/svg/ss/panel.svg';
-import LaptopImage from '../assets/svg/ss/laptop.svg';
+import InventoryImage from '../assets/svg/ss/inventory-3.svg';
+import DashboardImage from '../assets/svg/ss/dashboard-2.svg';
+import ProcurementImage from '../assets/svg/ss/commercial-2.svg';
+import PaymentStatusImage from '../assets/svg/ss/money-bag-2.svg';
+import ProjectsImage from '../assets/svg/ss/brief-2.svg';
+import ShipImage from '../assets/svg/ss/water-supply.svg';
+import ProductionImage from '../assets/svg/ss/architect-3.svg';
+import WarehouseImage from '../assets/svg/ss/warehouse-2.svg';
+import GroupImage from '../assets/svg/ss/team-3.svg';
 
 const drawerWidth = 240;
 
@@ -188,74 +188,69 @@ export default function ResponsiveDrawer(props) {
                         </IconButton>
                     </div>
 
-                    {props.isManagePanels &&
-                        <div>
-                            <Divider />
-                            <Typography className={clsx(classes.dividerFullWidth, theme.direction === 'rtl' ? classes.textStyle : classes.textNormal)} color="textSecondary" display="block" variant="caption">
-                                {lstrings.Manage}
-                            </Typography>
-                            <List>
-                                {props.isExhibitor && <ListItem button key={lstrings.ExhibitorPanel} onClick={() => history.push("/exhibitorpanel")}>
-                                    <ListItemIcon><img src={PanelImage} height='25' alt="" /></ListItemIcon>
-                                    <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.ExhibitorPanel} />
-                                </ListItem>}
-                                {props.isSalesMen && <ListItem button key={lstrings.SalesPanel} onClick={() => history.push("/salespanel")}>
-                                    <ListItemIcon><img src={LaptopImage} height='25' alt="" /></ListItemIcon>
-                                    <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.SalesPanel} />
-                                </ListItem>}
-                            </List>
-                        </div>
-                    }
+                    <div>
+                        <Divider />
+                        <Typography className={clsx(classes.dividerFullWidth, theme.direction === 'rtl' ? classes.textStyle : classes.textNormal)} color="textSecondary" display="block" variant="caption">
+                            {lstrings.Dashboard}
+                        </Typography>
+                        <List>
+                            <ListItem button key={lstrings.ProjectsDashboard} onClick={() => history.push("/exhibitorpanel")}>
+                                <ListItemIcon><img src={DashboardImage} height='25' alt="" /></ListItemIcon>
+                                <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.ProjectsDashboard} />
+                            </ListItem>
+                            <ListItem button key={lstrings.Inventory} onClick={() => history.push("/salespanel")}>
+                                <ListItemIcon><img src={InventoryImage} height='25' alt="" /></ListItemIcon>
+                                <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Inventory} />
+                            </ListItem>
+                            <ListItem button key={lstrings.Procurement} onClick={() => history.push("/salespanel")}>
+                                <ListItemIcon><img src={ProcurementImage} height='25' alt="" /></ListItemIcon>
+                                <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Procurement} />
+                            </ListItem>
+                            <ListItem button key={lstrings.PaymentStatus} onClick={() => history.push("/salespanel")}>
+                                <ListItemIcon><img src={PaymentStatusImage} height='25' alt="" /></ListItemIcon>
+                                <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.PaymentStatus} />
+                            </ListItem>
+                        </List>
+                    </div>
 
                     <Divider />
                     <Typography className={clsx(classes.dividerFullWidth, theme.direction === 'rtl' ? classes.textStyle : classes.textNormal)} color="textSecondary" display="block" variant="caption">
-                        {lstrings.EventFeed}
+                        {lstrings.ProjectManagement}
                     </Typography>
                     <List>
-                        <ListItem button key={lstrings.EventFeed} onClick={() => history.push("/eventfeed")}>
-                            <ListItemIcon><img src={feedLogo} height='25' alt="" /></ListItemIcon>
-                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.EventFeed} />
+                        <ListItem button key={lstrings.Projects} onClick={() => history.push("/eventfeed")}>
+                            <ListItemIcon><img src={ProjectsImage} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Projects} />
+                        </ListItem>
+                        <ListItem button key={lstrings.SupplyVendors} onClick={() => history.push("/eventfeed")}>
+                            <ListItemIcon><img src={ShipImage} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.SupplyVendors} />
+                        </ListItem>
+                        <ListItem button key={lstrings.ServiceVendors} onClick={() => history.push("/eventfeed")}>
+                            <ListItemIcon><img src={ProductionImage} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.ServiceVendors} />
                         </ListItem>
                     </List>
 
                     <Divider />
                     <Typography className={clsx(classes.dividerFullWidth, theme.direction === 'rtl' ? classes.textStyle : classes.textNormal)} color="textSecondary" display="block" variant="caption">
-                        {lstrings.Spaces}
+                        {lstrings.Warehouse}
                     </Typography>
                     <List>
-                        <ListItem button key={lstrings.ExhibitionStalls} onClick={() => history.push("/exhibitionbooths")}>
-                            <ListItemIcon><img src={exhibitionLogo} height='25' alt="" /></ListItemIcon>
-                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.ExhibitionStalls} />
-                        </ListItem>
-                        <ListItem button key={lstrings.Auditorium} onClick={() => history.push("/auditorium")}>
-                            <ListItemIcon><img src={auditoriumLogo} height='25' alt="" /></ListItemIcon>
-                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Auditorium} />
-                        </ListItem>
-                        <ListItem button key={lstrings.NetworkingRooms} onClick={() => history.push("/networkingrooms")}>
-                            <ListItemIcon><img src={networkingRoomsLogo} height='25' alt="" /></ListItemIcon>
-                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.NetworkingRooms} />
-                        </ListItem>
-                        <ListItem button key={lstrings.mentoringrooms} onClick={() => history.push("/mentoringrooms")}>
-                            <ListItemIcon><img src={mentorLogo} height='25' alt="" /></ListItemIcon>
-                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.MentoringRooms} />
+                        <ListItem button key={lstrings.Warehouses} onClick={() => history.push("/exhibitionbooths")}>
+                            <ListItemIcon><img src={WarehouseImage} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Warehouses} />
                         </ListItem>
                     </List>
+
                     <Divider />
                     <Typography className={clsx(classes.dividerFullWidth, theme.direction === 'rtl' ? classes.textStyle : classes.textNormal)} color="textSecondary" display="block" variant="caption">
-                        {lstrings.Catalogues}
+                        {lstrings.UserManagement}
                     </Typography>
                     <List>
-                        <ListItem button key={lstrings.Agenda} onClick={() => history.push("/agenda")}>
-                            <ListItemIcon><img src={agendaLogo} height='25' alt="" /></ListItemIcon>
-                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Agenda} />
-                        </ListItem>
-                        <ListItem button key={lstrings.Exhibitors} onClick={() => history.push("/exhibitors")}>
-                            <ListItemIcon><img src={exhibitionLogo} height='25' alt="" /></ListItemIcon>
-                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Exhibitors} />
-                        </ListItem>
-                        <ListItem button key={lstrings.Attendees} onClick={() => history.push("/attendees")}>
-                            <ListItemIcon><img src={attendeesLogo} height='25' alt="" /></ListItemIcon>
-                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Attendees} />
+                        <ListItem button key={lstrings.Users} onClick={() => history.push("/agenda")}>
+                            <ListItemIcon><img src={GroupImage} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Users} />
                         </ListItem>
                     </List>
                     <Divider />
