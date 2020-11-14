@@ -44,6 +44,9 @@ import EditStall from './components/editStall';
 // import Fab from '@material-ui/core/Fab';
 // import AddIcon from '@material-ui/icons/Add';
 import axios from 'axios';
+import Users from './components/users';
+import AddNewUser from './components/addNewUser';
+import EditUser from './components/editUser';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -82,6 +85,8 @@ function App(props) {
   const [projectManagerRole, setProjectManagerRole] = useState(false);
   const [engineeringManagerRole, setEngineeringManagerRole] = useState(false);
   const [supervisorRole, setSupervisorRole] = useState(false);
+
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const [pingTimer, setPingTimer] = useState(null);
   const [mentorAppliedRequests, setMentorAppliedRequests] = useState([]);
@@ -597,9 +602,10 @@ function App(props) {
     async function checkAuth() {
       console.log("useEffect");
       try {
-        const url = config["baseurl"] + "/checkauth";
+        const url = config["baseurl"] + "/api/user/checkauth";
         axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
         const response = await axios.get(url);
+        console.log("checkAuth: response: ", response);
         onAuthSuccess(false);
       }
       catch (error) {
@@ -687,6 +693,7 @@ function App(props) {
     acceptAttendeeForSalesCall(user_id, "reject");
   };
 
+  console.log("authSuccess: ", authSuccess);
   return (
     <React.Fragment>
       <FullScreen handle={fullScreenHandle}>
@@ -721,6 +728,9 @@ function App(props) {
                   {isAttendee && <Route exact path="/agenda" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Agenda refreshUI={refreshUI} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/attendees" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Attendees refreshUI={refreshUI} sendChat={sendChat} newMessages={newMessages} loadPreviousMessages={loadPreviousMessages} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/exhibitors" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Exhibitors refreshUI={refreshUI} {...props} /> </div>} />}
+                  {adminRole && <Route exact path="/users" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Users refreshUI={refreshUI} onAuthFailure={onAuthFailure} setSelectedUser={setSelectedUser} {...props} /> </div>} />}
+                  {adminRole && <Route exact path="/addnewuser" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddNewUser refreshUI={refreshUI} onAuthFailure={onAuthFailure} {...props} /> </div>} />}
+                  {adminRole && selectedUser && <Route exact path="/edituser" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditUser refreshUI={refreshUI} onAuthFailure={onAuthFailure} selectedUser={selectedUser} {...props} /> </div>} />}
                   {isMentor && <Route exact path="/mentoringrooms" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <MentorPanel refreshUI={refreshUI} sendGetListForMentoring={sendGetListForMentoring} sendAcceptForMentoring={sendAcceptForMentoring} sendRejectForMentoring={sendRejectForMentoring} mentorRequests={mentorRequests} {...props} /> </div>} />}
                   {!isMentor && isAttendee && <Route exact path="/mentoringrooms" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Mentors refreshUI={refreshUI} applyForMentoring={applyForMentoring} getListOfAppliedMentoring={getListOfAppliedMentoring} mentorAppliedRequests={mentorAppliedRequests} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/networkingrooms" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <NetworkingRooms refreshUI={refreshUI} joinNetworkingRoom={joinNetworkingRoom} {...props} /> </div>} />}

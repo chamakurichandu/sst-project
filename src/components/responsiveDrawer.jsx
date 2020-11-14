@@ -248,7 +248,7 @@ export default function ResponsiveDrawer(props) {
                         {lstrings.UserManagement}
                     </Typography>
                     <List>
-                        <ListItem button key={lstrings.Users} onClick={() => history.push("/agenda")}>
+                        <ListItem button key={lstrings.Users} onClick={() => history.push("/users")}>
                             <ListItemIcon><img src={GroupImage} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Users} />
                         </ListItem>
