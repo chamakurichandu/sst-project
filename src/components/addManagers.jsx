@@ -14,7 +14,6 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import exhibitorsLogo from '../assets/svg/ss/exhibition.svg';
-import notFoundImage from '../assets/svg/ss/page-not-found.svg';
 import profileLogo from '../assets/svg/ss/profile.svg';
 import Button from '@material-ui/core/Button';
 import InputBase from '@material-ui/core/InputBase';
@@ -24,10 +23,12 @@ import axios from 'axios';
 import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import MentoringApplyForm from './mentoringApplyForm';
 import Image, { Shimmer } from 'react-shimmer'
 import { useHistory } from 'react-router-dom';
 import lstrings from '../lstrings';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import Link from '@material-ui/core/Link';
+import Typography from '@material-ui/core/Typography';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -117,7 +118,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function Users(props) {
+export default function AddManagers(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -255,15 +256,14 @@ export default function Users(props) {
   const [rows, setRows] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [totalVisited, setTotalVisited] = React.useState(0);
-  const history = useHistory();
+  const [contactingServer, setContactingServer] = React.useState(false);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
   async function getList(numberOfRows) {
     try {
-      let url = config["baseurl"] + "/api/user/list";
+      let url = config["baseurl"] + "/api/user/list" + "?role=warehouse";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
@@ -286,7 +286,7 @@ export default function Users(props) {
       setErrorMessage("Error in getting users list");
       setShowError(true);
     }
-  }
+  };
 
   useEffect(() => {
     getList(rowsPerPage);
@@ -349,15 +349,53 @@ export default function Users(props) {
     getList(newRowsPerPage);
   };
 
-  const handleEdit = (userdata) => {
+  const handleSelect = async (userdata) => {
     console.log("handleEdit: ", userdata);
 
-    props.setSelectedUser(userdata);
-    props.history.push("/edituser");
+    setContactingServer(true);
+    try {
+      let url = config["baseurl"] + "/api/warehouse/update";
+
+      let postObj = {};
+      postObj["managers"] = [...props.selectedWarehouse.managers, userdata._id];
+
+      console.log("postObj: ", postObj);
+
+      let updateObj = { _id: props.selectedWarehouse._id, updateParams: postObj };
+
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+
+      const updatedWarehouse = await axios.patch(url, updateObj);
+      console.log(updatedWarehouse);
+      props.setSelectedWarehouse(updatedWarehouse.data);
+
+      console.log("successfully Saved");
+      setContactingServer(false);
+      props.history.push("/editwarehouse");
+    }
+    catch (e) {
+      if (e.response) {
+        console.log("Error in creating new user");
+        setErrorMessage(e.response.data["message"]);
+      }
+      else {
+        console.log("Error in creating new user");
+        setErrorMessage("Error in creating new user: ", e.message);
+      }
+      setShowError(true);
+      setContactingServer(false);
+    }
+
+    // props.setSelectedUser(userdata);
+    // props.history.push("/edituser");
   };
 
-  const handleAddUser = () => {
-    props.history.push("/addnewuser");
+  const handleBreadCrum1Click = () => {
+    props.history.push("/warehouses");
+  };
+
+  const handleBreadCrum2Click = () => {
+    props.history.push("/editwarehouse");
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -392,19 +430,18 @@ export default function Users(props) {
       {props.refreshUI &&
 
         <div className={classes.paper}>
-          <EnhancedTableToolbar title={lstrings.Users} />
-          <Paper className={classes.grid}>
-            <Grid container spacing={2}>
-              <Grid item className={classes.totalAttendes}>
-                <img src={exhibitorsLogo} width='25' alt="" />
-                <h1 className={classes.h1}>{totalCount}</h1>
-                <span>{lstrings.Users}</span>
-              </Grid>
-              <Grid item className={classes.addButton}>
-                <Button onClick={() => handleAddUser()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddUser}</Button>
-              </Grid>
-            </Grid>
-          </Paper>
+          <EnhancedTableToolbar title={"Add Manager"} />
+
+          <Breadcrumbs aria-label="breadcrumb">
+            <Link color="inherit" onClick={handleBreadCrum1Click}>
+              {lstrings.Warehouses}
+            </Link>
+            <Link color="inherit" onClick={handleBreadCrum2Click}>
+              {props.selectedWarehouse.name}
+            </Link>
+            <Typography color="textPrimary">{"Add Manager"}</Typography>
+          </Breadcrumbs>
+
           <Paper className={classes.grid}>
             <div className={classes.search}>
               <div className={classes.searchIcon}>
@@ -466,7 +503,7 @@ export default function Users(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.phone}</span><br></br><span>{row.data.email}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(row.data.role)}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                            <div><Button onClick={() => handleSelect(row.data)} style={{ background: props.selectedWarehouse.managers.includes(row.data._id) ? "#AAAAAA" : "#314293", color: "#FFFFFF" }} variant="contained" disabled={contactingServer || props.selectedWarehouse.managers.includes(row.data._id)} className={classes.button}>{"Select"}</Button></div>
                           </TableCell>
                         </TableRow>
                       );

@@ -237,7 +237,7 @@ export default function ResponsiveDrawer(props) {
                         {lstrings.Warehouse}
                     </Typography>
                     <List>
-                        <ListItem button key={lstrings.Warehouses} onClick={() => history.push("/exhibitionbooths")}>
+                        <ListItem button key={lstrings.Warehouses} onClick={() => history.push("/warehouses")}>
                             <ListItemIcon><img src={WarehouseImage} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Warehouses} />
                         </ListItem>

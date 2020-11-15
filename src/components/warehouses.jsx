@@ -28,6 +28,7 @@ import MentoringApplyForm from './mentoringApplyForm';
 import Image, { Shimmer } from 'react-shimmer'
 import { useHistory } from 'react-router-dom';
 import lstrings from '../lstrings';
+import WarehouseImage from '../assets/svg/ss/warehouse-2.svg';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -69,9 +70,10 @@ function EnhancedTableHead(props) {
 
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL NO' },
-    { id: 'name', numeric: false, disablePadding: false, label: 'User Name' },
-    { id: 'email', numeric: false, disablePadding: false, label: 'Coordinates' },
-    { id: 'roles', numeric: false, disablePadding: false, label: 'Roles' },
+    { id: 'name', numeric: false, disablePadding: false, label: 'Warehouse Name' },
+    { id: 'managers', numeric: false, disablePadding: false, label: 'Managers' },
+    { id: 'city', numeric: false, disablePadding: false, label: 'city' },
+    { id: 'address', numeric: false, disablePadding: false, label: 'Address' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
   ];
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -117,7 +119,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function Users(props) {
+export default function Warehouses(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -255,26 +257,24 @@ export default function Users(props) {
   const [rows, setRows] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [totalVisited, setTotalVisited] = React.useState(0);
-  const history = useHistory();
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
   async function getList(numberOfRows) {
     try {
-      let url = config["baseurl"] + "/api/user/list";
+      let url = config["baseurl"] + "/api/warehouse/list";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
       console.log(data.count);
       setTotalCount(data.count);
-      console.log(data.users);
+      console.log(data.list);
       let newRows = [];
       for (let i = 0; i < data.count; ++i) {
         console.log("getList: 1");
         newRows.push(createData((offset + i + 1),
-          data.users[i]
+          data.list[i]
         ));
         console.log("getList: 2");
       }
@@ -349,15 +349,15 @@ export default function Users(props) {
     getList(newRowsPerPage);
   };
 
-  const handleEdit = (userdata) => {
-    console.log("handleEdit: ", userdata);
+  const handleEdit = (data) => {
+    console.log("handleEdit: ", data);
 
-    props.setSelectedUser(userdata);
-    props.history.push("/edituser");
+    props.setSelectedWarehouse(data);
+    props.history.push("/editwarehouse");
   };
 
-  const handleAddUser = () => {
-    props.history.push("/addnewuser");
+  const handleAdd = () => {
+    props.history.push("/addwarehouse");
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -392,16 +392,16 @@ export default function Users(props) {
       {props.refreshUI &&
 
         <div className={classes.paper}>
-          <EnhancedTableToolbar title={lstrings.Users} />
+          <EnhancedTableToolbar title={lstrings.Warehouses} />
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>
                 <img src={exhibitorsLogo} width='25' alt="" />
                 <h1 className={classes.h1}>{totalCount}</h1>
-                <span>{lstrings.Users}</span>
+                <span>{lstrings.Warehouses}</span>
               </Grid>
               <Grid item className={classes.addButton}>
-                <Button onClick={() => handleAddUser()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddUser}</Button>
+                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Warehouse"}</Button>
               </Grid>
             </Grid>
           </Paper>
@@ -453,7 +453,7 @@ export default function Users(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                             <div className={classes.flex}>
                               <Image
-                                src={row.logo_url ? row.logo_url : profileLogo}
+                                src={WarehouseImage}
                                 NativeImgProps={{ className: classes.exhibitor_image, width: 40, height: 40 }}
                                 style={{ objectFit: 'cover' }}
                                 fallback={<Shimmer width={50} height={50} />} />
@@ -463,8 +463,9 @@ export default function Users(props) {
                               </span>
                             </div>
                           </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.phone}</span><br></br><span>{row.data.email}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(row.data.role)}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(row.data.managers)}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.city}</span><br></br><span>{row.data.state}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.address}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                             <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
                           </TableCell>

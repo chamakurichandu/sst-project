@@ -47,6 +47,10 @@ import axios from 'axios';
 import Users from './components/users';
 import AddNewUser from './components/addNewUser';
 import EditUser from './components/editUser';
+import Warehouses from './components/warehouses';
+import AddNewWarehouse from './components/addNewWarehouse';
+import EditWarehouse from './components/editWarehouse';
+import AddManagers from './components/addManagers';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -87,6 +91,7 @@ function App(props) {
   const [supervisorRole, setSupervisorRole] = useState(false);
 
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
   const [pingTimer, setPingTimer] = useState(null);
   const [mentorAppliedRequests, setMentorAppliedRequests] = useState([]);
@@ -728,6 +733,11 @@ function App(props) {
                   {isAttendee && <Route exact path="/agenda" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Agenda refreshUI={refreshUI} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/attendees" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Attendees refreshUI={refreshUI} sendChat={sendChat} newMessages={newMessages} loadPreviousMessages={loadPreviousMessages} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/exhibitors" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Exhibitors refreshUI={refreshUI} {...props} /> </div>} />}
+
+                  {adminRole && <Route exact path="/addmanagers" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddManagers refreshUI={refreshUI} onAuthFailure={onAuthFailure} selectedWarehouse={selectedWarehouse} setSelectedWarehouse={setSelectedWarehouse} {...props} /> </div>} />}
+                  {adminRole && <Route exact path="/addwarehouse" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddNewWarehouse refreshUI={refreshUI} onAuthFailure={onAuthFailure} selectedWarehouse={selectedWarehouse} {...props} /> </div>} />}
+                  {adminRole && selectedWarehouse && <Route exact path="/editwarehouse" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditWarehouse refreshUI={refreshUI} onAuthFailure={onAuthFailure} selectedWarehouse={selectedWarehouse} setSelectedWarehouse={setSelectedWarehouse} {...props} /> </div>} />}
+                  {(warehouseRole || adminRole) && <Route exact path="/warehouses" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Warehouses refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} setSelectedWarehouse={setSelectedWarehouse} {...props} /> </div>} />}
                   {adminRole && <Route exact path="/users" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Users refreshUI={refreshUI} onAuthFailure={onAuthFailure} setSelectedUser={setSelectedUser} {...props} /> </div>} />}
                   {adminRole && <Route exact path="/addnewuser" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddNewUser refreshUI={refreshUI} onAuthFailure={onAuthFailure} {...props} /> </div>} />}
                   {adminRole && selectedUser && <Route exact path="/edituser" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditUser refreshUI={refreshUI} onAuthFailure={onAuthFailure} selectedUser={selectedUser} {...props} /> </div>} />}
