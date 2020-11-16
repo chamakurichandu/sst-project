@@ -3,9 +3,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import './App.css';
 import NavBar from './components/navbar';
 import ResponsiveDrawer from './components/responsiveDrawer';
-import Game from './components/game';
-import Exhibitors from './components/exhibitors';
-import Attendees from './components/attendees';
+// import Game from './components/game';
+// import Exhibitors from './components/exhibitors';
+// import Attendees from './components/attendees';
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import clsx from 'clsx';
 import SignInSide from './components/signInSidePage';
@@ -17,30 +17,30 @@ import SetPassword from './components/setPassword';
 // import Auditoriumcss3d from './components/auditoriumcss3d';
 // import FlatAuditorium from './components/flatAuditorium';
 import NotFound from './components/notfound';
-import Agenda from './components/agenda';
+// import Agenda from './components/agenda';
 import { Auth } from 'aws-amplify';
 import { useHistory } from 'react-router-dom';
-import Mentors from './components/mentors';
+// import Mentors from './components/mentors';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import { AlertTitle } from '@material-ui/lab';
 import Button from '@material-ui/core/Button';
 import { useSnackbar } from 'notistack';
 import BusinessCard from './components/businessCard';
-import VideoApp from './twilioproj/videoApp';
+// import VideoApp from './twilioproj/videoApp';
 import AppStateProvider from './twilioproj/state';
-import NetworkingRooms from './components/networkingRooms';
+// import NetworkingRooms from './components/networkingRooms';
 // import SSWebSocket from './components/ssWebSocket';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import config from './config.json';
 import { Message } from "react-chat-ui";
-import MentorPanel from './components/mentorPanel';
+// import MentorPanel from './components/mentorPanel';
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
-import FlatYoutubeAuditorium from './components/flatYoutubeAuditorium';
-import SalesPanel from './components/salesPanel';
-import ExhibitorPanel from './components/exhibitorPanel';
-import EventFeed from './components/eventFeed';
-import EditStall from './components/editStall';
+// import FlatYoutubeAuditorium from './components/flatYoutubeAuditorium';
+// import SalesPanel from './components/salesPanel';
+// import ExhibitorPanel from './components/exhibitorPanel';
+// import EventFeed from './components/eventFeed';
+// import EditStall from './components/editStall';
 // import Fab from '@material-ui/core/Fab';
 // import AddIcon from '@material-ui/icons/Add';
 import axios from 'axios';
@@ -725,14 +725,14 @@ function App(props) {
                 <NavBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} handleSignOut={handleSignOut} showBusinessCard={showBusinessCard} fullScreenHandleEnter={fullScreenHandle.enter} videoCallWaiting={videoCallWaiting} videoCallWaitingQueueSize={videoCallWaitingQueueSize} videoCallWaitingQueuePosition={videoCallWaitingQueuePosition} />
                 <ResponsiveDrawer drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} isSalesMen={isSalesMen} isExhibitor={isExhibitor} isManagePanels={isSalesMen || isExhibitor} themeChangedInApp={themeChanged} />
                 <Switch>
-                  {isExhibitor && <Route exact path="/exhibitorpanel" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ExhibitorPanel refreshUI={refreshUI} onAuthFailure={onAuthFailure} salesCallRequests={salesCallRequests} setCurrentExhibitorStallInfo={setCurrentExhibitorStallInfo} {...props} /> </div>} />}
+                  {/* {isExhibitor && <Route exact path="/exhibitorpanel" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ExhibitorPanel refreshUI={refreshUI} onAuthFailure={onAuthFailure} salesCallRequests={salesCallRequests} setCurrentExhibitorStallInfo={setCurrentExhibitorStallInfo} {...props} /> </div>} />}
                   {isExhibitor && <Route exact path="/exhibitor-edit-stall" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditStall refreshUI={refreshUI} onAuthFailure={onAuthFailure} stallInfo={currentExhibitorStallInfo} {...props} /> </div>} />}
                   {isSalesMen && <Route exact path="/salespanel" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <SalesPanel refreshUI={refreshUI} salesCallRequests={salesCallRequests} sendGetSalesVideoCallQueue={sendGetSalesVideoCallQueue} salesVideoCallMembers={salesVideoCallMembers} salesVideoCallMembersNames={salesVideoCallMembersNames} sendAcceptForSalesCall={sendAcceptForSalesCall} sendRejectForSalesCall={sendRejectForSalesCall} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/eventfeed" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EventFeed refreshUI={refreshUI} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/auditorium" component={FlatYoutubeAuditorium} />}
                   {isAttendee && <Route exact path="/agenda" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Agenda refreshUI={refreshUI} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/attendees" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Attendees refreshUI={refreshUI} sendChat={sendChat} newMessages={newMessages} loadPreviousMessages={loadPreviousMessages} {...props} /> </div>} />}
-                  {isAttendee && <Route exact path="/exhibitors" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Exhibitors refreshUI={refreshUI} {...props} /> </div>} />}
+                  {isAttendee && <Route exact path="/exhibitors" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Exhibitors refreshUI={refreshUI} {...props} /> </div>} />} */}
 
                   {adminRole && <Route exact path="/addmanagers" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddManagers refreshUI={refreshUI} onAuthFailure={onAuthFailure} selectedWarehouse={selectedWarehouse} setSelectedWarehouse={setSelectedWarehouse} {...props} /> </div>} />}
                   {adminRole && <Route exact path="/addwarehouse" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddNewWarehouse refreshUI={refreshUI} onAuthFailure={onAuthFailure} selectedWarehouse={selectedWarehouse} {...props} /> </div>} />}
@@ -741,21 +741,23 @@ function App(props) {
                   {adminRole && <Route exact path="/users" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Users refreshUI={refreshUI} onAuthFailure={onAuthFailure} setSelectedUser={setSelectedUser} {...props} /> </div>} />}
                   {adminRole && <Route exact path="/addnewuser" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddNewUser refreshUI={refreshUI} onAuthFailure={onAuthFailure} {...props} /> </div>} />}
                   {adminRole && selectedUser && <Route exact path="/edituser" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditUser refreshUI={refreshUI} onAuthFailure={onAuthFailure} selectedUser={selectedUser} {...props} /> </div>} />}
-                  {isMentor && <Route exact path="/mentoringrooms" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <MentorPanel refreshUI={refreshUI} sendGetListForMentoring={sendGetListForMentoring} sendAcceptForMentoring={sendAcceptForMentoring} sendRejectForMentoring={sendRejectForMentoring} mentorRequests={mentorRequests} {...props} /> </div>} />}
+                  {/* {isMentor && <Route exact path="/mentoringrooms" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <MentorPanel refreshUI={refreshUI} sendGetListForMentoring={sendGetListForMentoring} sendAcceptForMentoring={sendAcceptForMentoring} sendRejectForMentoring={sendRejectForMentoring} mentorRequests={mentorRequests} {...props} /> </div>} />}
                   {!isMentor && isAttendee && <Route exact path="/mentoringrooms" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Mentors refreshUI={refreshUI} applyForMentoring={applyForMentoring} getListOfAppliedMentoring={getListOfAppliedMentoring} mentorAppliedRequests={mentorAppliedRequests} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/networkingrooms" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <NetworkingRooms refreshUI={refreshUI} joinNetworkingRoom={joinNetworkingRoom} {...props} /> </div>} />}
-                  {isAttendee && <Route exact path="/exhibitionbooths" render={(props) => <Game applyForSalesVideoCall={applyForSalesVideoCall} {...props} />} />}
+                  {isAttendee && <Route exact path="/exhibitionbooths" render={(props) => <Game applyForSalesVideoCall={applyForSalesVideoCall} {...props} />} />} */}
                   <Route exact path="/not-found" component={NotFound} />
-                  <Route exact path="/index.html" render={(props) => <Game applyForSalesVideoCall={applyForSalesVideoCall} {...props} />} />
-                  {isAttendee && !isSalesMen && <Route exact path="/" render={(props) => <Game applyForSalesVideoCall={applyForSalesVideoCall} {...props} />} />}
+                  {/* <Route exact path="/index.html" render={(props) => <Game applyForSalesVideoCall={applyForSalesVideoCall} {...props} />} /> */}
+                  <Route exact path="/index.html" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Users refreshUI={refreshUI} onAuthFailure={onAuthFailure} setSelectedUser={setSelectedUser} {...props} /> </div>} />
+                  <Route render={() => <Redirect to="/index.html" />} />
+                  {/* {isAttendee && !isSalesMen && <Route exact path="/" render={(props) => <Game applyForSalesVideoCall={applyForSalesVideoCall} {...props} />} />}
                   {isSalesMen && <Route exact path="/salespanel" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <SalesPanel refreshUI={refreshUI} component={SalesPanel} salesCallRequests={salesCallRequests} {...props} /> </div>} />}
                   {isSalesMen && <Route render={() => <Redirect to="/salespanel" />} />}
                   {isAttendee && !isSalesMen && !isExhibitor && <Route render={() => <Redirect to="/index.html" />} />}
-                  {isExhibitor && <Route render={() => <Redirect to="/exhibitorpanel" />} />}
+                  {isExhibitor && <Route render={() => <Redirect to="/exhibitorpanel" />} />} */}
                 </Switch>
               </BrowserRouter>
             }
-            {
+            {/* {
               authSuccess && showMentorVideo && !showNetworkingVideo && !showSalesVideoCall &&
               <AppStateProvider>
                 <VideoApp closeVideoApp={closeVideoApp} caption="Mentoring Room" roomName="12345678" />
@@ -772,7 +774,7 @@ function App(props) {
               <AppStateProvider>
                 <VideoApp closeVideoApp={closeVideoApp} caption="Exhibitor Stall Calling" roomName={salesPersonCalling} />
               </AppStateProvider>
-            }
+            } */}
 
             {
               authSuccess && createBusinessCard && <BusinessCard onAuthFailure={onAuthFailure} closeBusinessCard={closeBusinessCard} businessCardStep={businessCardStep} />
