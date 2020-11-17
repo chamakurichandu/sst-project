@@ -396,7 +396,7 @@ export default function Warehouses(props) {
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>
-                <img src={exhibitorsLogo} width='25' alt="" />
+                <img src={WarehouseImage} width='25' alt="" />
                 <h1 className={classes.h1}>{totalCount}</h1>
                 <span>{lstrings.Warehouses}</span>
               </Grid>

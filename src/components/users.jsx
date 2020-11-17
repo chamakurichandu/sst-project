@@ -396,7 +396,7 @@ export default function Users(props) {
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>
-                <img src={exhibitorsLogo} width='25' alt="" />
+                <img src={profileLogo} width='25' alt="" />
                 <h1 className={classes.h1}>{totalCount}</h1>
                 <span>{lstrings.Users}</span>
               </Grid>
