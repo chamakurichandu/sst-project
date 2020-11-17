@@ -29,6 +29,7 @@ import Image, { Shimmer } from 'react-shimmer'
 import { useHistory } from 'react-router-dom';
 import lstrings from '../lstrings';
 import WarehouseImage from '../assets/svg/ss/warehouse-2.svg';
+import Link from '@material-ui/core/Link';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -69,7 +70,7 @@ function EnhancedTableHead(props) {
   const setDir = (dir === 'rtl' ? true : false);
 
   const headCells = [
-    { id: 'slno', numeric: true, disablePadding: true, label: 'SL NO' },
+    { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Warehouse Name' },
     { id: 'managers', numeric: false, disablePadding: false, label: 'Managers' },
     { id: 'city', numeric: false, disablePadding: false, label: 'city' },
@@ -251,7 +252,7 @@ export default function Warehouses(props) {
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [dense] = React.useState(false);
+  const [dense] = React.useState(true);
   const [showError, setShowError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
   const [rows, setRows] = React.useState([]);
@@ -387,6 +388,10 @@ export default function Warehouses(props) {
     return val;
   }
 
+  const onGoNextLevel = (data) => {
+
+  };
+
   return (
     <div className={clsx(classes.root)}>
       {props.refreshUI &&
@@ -459,7 +464,11 @@ export default function Warehouses(props) {
                                 fallback={<Shimmer width={50} height={50} />} />
 
                               <span>
-                                {row.data.name}
+                                <Link color="inherit" href="#" onClick={() => onGoNextLevel(row.data)} >
+                                  {row.data.name}
+                                </Link>
+
+                                {/* {row.data.name} */}
                               </span>
                             </div>
                           </TableCell>
@@ -493,6 +502,6 @@ export default function Warehouses(props) {
           {errorMessage}
         </Alert>
       </Snackbar>
-    </div>
+    </div >
   );
 }

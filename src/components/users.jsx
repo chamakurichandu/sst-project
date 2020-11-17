@@ -68,7 +68,7 @@ function EnhancedTableHead(props) {
   const setDir = (dir === 'rtl' ? true : false);
 
   const headCells = [
-    { id: 'slno', numeric: true, disablePadding: true, label: 'SL NO' },
+    { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'name', numeric: false, disablePadding: false, label: 'User Name' },
     { id: 'email', numeric: false, disablePadding: false, label: 'Coordinates' },
     { id: 'roles', numeric: false, disablePadding: false, label: 'Roles' },
@@ -249,7 +249,7 @@ export default function Users(props) {
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [dense] = React.useState(false);
+  const [dense] = React.useState(true);
   const [showError, setShowError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
   const [rows, setRows] = React.useState([]);
