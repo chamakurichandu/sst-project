@@ -28,8 +28,8 @@ import MentoringApplyForm from './mentoringApplyForm';
 import Image, { Shimmer } from 'react-shimmer'
 import { useHistory } from 'react-router-dom';
 import lstrings from '../lstrings';
-import WarehouseImage from '../assets/svg/ss/warehouse-2.svg';
 import Link from '@material-ui/core/Link';
+import MaterialsImage from '../assets/svg/ss/cement.svg';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -71,10 +71,11 @@ function EnhancedTableHead(props) {
 
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
-    { id: 'name', numeric: false, disablePadding: false, label: 'Warehouse Name' },
-    { id: 'managers', numeric: false, disablePadding: false, label: 'Managers' },
-    { id: 'city', numeric: false, disablePadding: false, label: 'city' },
-    { id: 'address', numeric: false, disablePadding: false, label: 'Address' },
+    { id: 'itemcode', numeric: false, disablePadding: false, label: 'Item Code' },
+    { id: 'itemname', numeric: false, disablePadding: false, label: 'Item Name' },
+    { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
+    { id: 'productcategory', numeric: false, disablePadding: false, label: 'Product Category' },
+    { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
   ];
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -120,7 +121,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function Warehouses(props) {
+export default function Materials(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -262,22 +263,19 @@ export default function Warehouses(props) {
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
-  async function getList(numberOfRows) {
+  async function getList(numberOfRows, search = "") {
     try {
-      let url = config["baseurl"] + "/api/warehouse/list";
+      console.log("page: ", page);
+      let url = config["baseurl"] + "/api/material/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
-      console.log(data.count);
-      setTotalCount(data.count);
-      console.log(data.list);
+      setTotalCount(data.list.totalDocs);
       let newRows = [];
-      for (let i = 0; i < data.count; ++i) {
-        console.log("getList: 1");
+      for (let i = 0; i < data.list.docs.length; ++i) {
         newRows.push(createData((offset + i + 1),
-          data.list[i]
+          data.list.docs[i]
         ));
-        console.log("getList: 2");
       }
 
       setRows(newRows);
@@ -289,8 +287,40 @@ export default function Warehouses(props) {
     }
   }
 
+  async function getPCList() {
+    try {
+      let url = config["baseurl"] + "/api/productcategory/list";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      props.setProductCategories(data.list);
+
+      getUOMList();
+    }
+    catch (e) {
+      console.log("Error in getting product categories list");
+      setErrorMessage("Error in getting product categories list");
+      setShowError(true);
+    }
+  }
+
+  async function getUOMList() {
+    try {
+      let url = config["baseurl"] + "/api/uom/list";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      props.setUOMs(data.list);
+
+      getList(rowsPerPage);
+    }
+    catch (e) {
+      console.log("Error in getting UOMs list");
+      setErrorMessage("Error in getting UOMs list");
+      setShowError(true);
+    }
+  }
+
   useEffect(() => {
-    getList(rowsPerPage);
+    getPCList();
   }, []);
 
   const handleClose = (event, reason) => {
@@ -353,12 +383,12 @@ export default function Warehouses(props) {
   const handleEdit = (data) => {
     console.log("handleEdit: ", data);
 
-    props.setSelectedWarehouse(data);
-    props.history.push("/editwarehouse");
+    props.setSelectedMaterial(data);
+    props.history.push("/editmaterial");
   };
 
   const handleAdd = () => {
-    props.history.push("/addwarehouse");
+    props.history.push("/addmaterial");
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -388,8 +418,27 @@ export default function Warehouses(props) {
     return val;
   }
 
-  const onGoNextLevel = (data) => {
+  const getProductCategory = (id) => {
+    for (let i = 0; i < props.productCategories.length; ++i) {
+      if (props.productCategories[i]._id === id)
+        return props.productCategories[i].name;
+    }
+    return id;
+  };
 
+  const getUOM = (id) => {
+    for (let i = 0; i < props.UOMs.length; ++i) {
+      if (props.UOMs[i]._id === id)
+        return props.UOMs[i].name;
+    }
+
+    return id;
+  };
+
+  const onSearchChange = (event) => {
+    console.log(event.target.value);
+
+    getList(rowsPerPage, event.target.value);
   };
 
   return (
@@ -397,16 +446,16 @@ export default function Warehouses(props) {
       {props.refreshUI &&
 
         <div className={classes.paper}>
-          <EnhancedTableToolbar title={lstrings.Warehouses} />
+          <EnhancedTableToolbar title={lstrings.Materials} />
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>
-                <img src={WarehouseImage} width='25' alt="" />
+                <img src={MaterialsImage} width='25' alt="" />
                 <h1 className={classes.h1}>{totalCount}</h1>
-                <span>{lstrings.Warehouses}</span>
+                <span>{lstrings.Materials}</span>
               </Grid>
               <Grid item className={classes.addButton}>
-                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Warehouse"}</Button>
+                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddMaterial}</Button>
               </Grid>
             </Grid>
           </Paper>
@@ -422,6 +471,7 @@ export default function Warehouses(props) {
                   input: classes.inputInput,
                 }}
                 inputProps={{ 'aria-label': 'search' }}
+                onChange={onSearchChange}
               />
             </div>
             <TableContainer>
@@ -447,34 +497,13 @@ export default function Warehouses(props) {
                       const isItemSelected = isSelected(row.name);
                       const labelId = `enhanced-table-checkbox-${index}`;
                       return (
-                        <TableRow
-                          hover
-                          tabIndex={-1}
-                          key={row.slno}
-                        >
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">
-                            {row.slno}
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div className={classes.flex}>
-                              <Image
-                                src={WarehouseImage}
-                                NativeImgProps={{ className: classes.exhibitor_image, width: 25, height: 25 }}
-                                style={{ objectFit: 'cover' }}
-                                fallback={<Shimmer width={25} height={25} />} />
-
-                              <span>
-                                <Link color="inherit" href="#" onClick={() => onGoNextLevel(row.data)} >
-                                  {row.data.name}
-                                </Link>
-
-                                {/* {row.data.name} */}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(row.data.managers)}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.city}</span><br></br><span>{row.data.state}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.address}</span></TableCell>
+                        <TableRow hover tabIndex={-1} key={row.slno}>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProductCategory(row.data.productCategoryId)}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.data.uomId)}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                             <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
                           </TableCell>

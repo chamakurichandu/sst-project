@@ -454,9 +454,9 @@ export default function Users(props) {
                             <div className={classes.flex}>
                               <Image
                                 src={row.logo_url ? row.logo_url : profileLogo}
-                                NativeImgProps={{ className: classes.exhibitor_image, width: 40, height: 40 }}
+                                NativeImgProps={{ className: classes.exhibitor_image, width: 25, height: 25 }}
                                 style={{ objectFit: 'cover' }}
-                                fallback={<Shimmer width={50} height={50} />} />
+                                fallback={<Shimmer width={25} height={25} />} />
 
                               <span>
                                 {row.data.name}

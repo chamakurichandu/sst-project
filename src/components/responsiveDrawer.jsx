@@ -25,6 +25,7 @@ import ShipImage from '../assets/svg/ss/water-supply.svg';
 import ProductionImage from '../assets/svg/ss/architect-3.svg';
 import WarehouseImage from '../assets/svg/ss/warehouse-2.svg';
 import GroupImage from '../assets/svg/ss/team-3.svg';
+import MaterialsImage from '../assets/svg/ss/cement.svg';
 
 const drawerWidth = 240;
 
@@ -240,6 +241,10 @@ export default function ResponsiveDrawer(props) {
                         <ListItem button key={lstrings.Warehouses} onClick={() => history.push("/warehouses")}>
                             <ListItemIcon><img src={WarehouseImage} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Warehouses} />
+                        </ListItem>
+                        <ListItem button key={lstrings.Materials} onClick={() => history.push("/materials")}>
+                            <ListItemIcon><img src={MaterialsImage} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Materials} />
                         </ListItem>
                     </List>
 
