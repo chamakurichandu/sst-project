@@ -26,6 +26,8 @@ import ProductionImage from '../assets/svg/ss/architect-3.svg';
 import WarehouseImage from '../assets/svg/ss/warehouse-2.svg';
 import GroupImage from '../assets/svg/ss/team-3.svg';
 import MaterialsImage from '../assets/svg/ss/cement.svg';
+import MeasureIcon from '../assets/svg/ss/measure-tape.svg';
+import CategoriesIcon from '../assets/svg/ss/categories.svg';
 
 const drawerWidth = 240;
 
@@ -76,6 +78,7 @@ const useStyles = makeStyles((theme) => ({
         left: 'auto',
         // width: '72px !important',
         transition: theme
+
             .transitions.create('width', {
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.leavingScreen,
@@ -245,6 +248,14 @@ export default function ResponsiveDrawer(props) {
                         <ListItem button key={lstrings.Materials} onClick={() => history.push("/materials")}>
                             <ListItemIcon><img src={MaterialsImage} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Materials} />
+                        </ListItem>
+                        <ListItem button key={lstrings.UOMs} onClick={() => history.push("/uoms")}>
+                            <ListItemIcon><img src={MeasureIcon} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.UOMs} />
+                        </ListItem>
+                        <ListItem button key={lstrings.ProductCategory} onClick={() => history.push("/product-category")}>
+                            <ListItemIcon><img src={CategoriesIcon} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.ProductCategory} />
                         </ListItem>
                     </List>
 

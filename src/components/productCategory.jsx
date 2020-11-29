@@ -13,9 +13,6 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import exhibitorsLogo from '../assets/svg/ss/exhibition.svg';
-import notFoundImage from '../assets/svg/ss/page-not-found.svg';
-import profileLogo from '../assets/svg/ss/profile.svg';
 import Button from '@material-ui/core/Button';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
@@ -24,15 +21,10 @@ import axios from 'axios';
 import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import MentoringApplyForm from './mentoringApplyForm';
-import Image, { Shimmer } from 'react-shimmer'
-import { useHistory } from 'react-router-dom';
 import lstrings from '../lstrings';
-import Link from '@material-ui/core/Link';
-import MaterialsImage from '../assets/svg/ss/cement.svg';
-import MeasureIcon from '../assets/svg/ss/measure-tape.svg';
-import AddUOM from './addUOM';
-import EditUOM from './editUOM';
+import EditProductCategory from './editProductCategory';
+import CategoriesIcon from '../assets/svg/ss/categories.svg';
+import AddProductCategory from './addProductCategory';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -124,7 +116,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function UOM(props) {
+export default function ProductCategory(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -264,7 +256,7 @@ export default function UOM(props) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [showNewUOM, setShowNewUOM] = React.useState(false);
   const [showEditUOM, setShowEditUOM] = React.useState(false);
-  const [selectedUOM, setSelectedUOM] = React.useState(null);
+  const [selectedProductCategory, setSelectedProductCategory] = React.useState(null);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -272,7 +264,7 @@ export default function UOM(props) {
   async function getList(numberOfRows, search = "") {
     try {
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/uom/list";
+      let url = config["baseurl"] + "/api/productcategory/list";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
@@ -284,7 +276,7 @@ export default function UOM(props) {
         ));
       }
 
-      props.setUOMs(data.list);
+      props.setProductCategories(data.list);
 
       setRows(newRows);
     }
@@ -359,7 +351,7 @@ export default function UOM(props) {
   const handleEdit = (data) => {
     console.log("handleEdit: ", data);
 
-    setSelectedUOM(data);
+    setSelectedProductCategory(data);
     setShowEditUOM(true);
   };
 
@@ -367,7 +359,7 @@ export default function UOM(props) {
     setShowNewUOM(true);
   };
 
-  const closeNewUOMDialogAction = () => {
+  const closeNewProductDialogAction = () => {
     setShowNewUOM(false);
   };
 
@@ -375,7 +367,7 @@ export default function UOM(props) {
     setShowEditUOM(false);
   };
 
-  const onNewUOMSaved = () => {
+  const onNewSaved = () => {
     setShowNewUOM(false);
     setShowEditUOM(false);
     getList();
@@ -436,16 +428,16 @@ export default function UOM(props) {
       {props.refreshUI &&
 
         <div className={classes.paper}>
-          <EnhancedTableToolbar title={lstrings.UOMs} />
+          <EnhancedTableToolbar title={lstrings.ProductCategory} />
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>
-                <img src={MeasureIcon} width='25' alt="" />
+                <img src={CategoriesIcon} width='25' alt="" />
                 <h1 className={classes.h1}>{totalCount}</h1>
-                <span>{lstrings.UOMs}</span>
+                <span>{lstrings.ProductCategory}</span>
               </Grid>
               <Grid item className={classes.addButton}>
-                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddUOMs}</Button>
+                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddProductCategory}</Button>
               </Grid>
             </Grid>
           </Paper>
@@ -503,8 +495,8 @@ export default function UOM(props) {
         </div>
 
       }
-      {showNewUOM && <AddUOM closeAction={closeNewUOMDialogAction} onNewSaved={onNewUOMSaved} />}
-      {showEditUOM && <EditUOM closeAction={closeEditUOMDialogAction} onNewSaved={onNewUOMSaved} uom={selectedUOM} />}
+      {showNewUOM && <AddProductCategory closeAction={closeNewProductDialogAction} onNewSaved={onNewSaved} />}
+      {showEditUOM && <EditProductCategory closeAction={closeEditUOMDialogAction} onNewSaved={onNewSaved} productcategory={selectedProductCategory} />}
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}

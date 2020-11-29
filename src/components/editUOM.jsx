@@ -7,12 +7,14 @@ import MuiDialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import MuiDialogActions from '@material-ui/core/DialogActions';
 import Typography from '@material-ui/core/Typography';
+import AlertIcon from '../assets/svg/ss/bell.svg';
+import lstrings from '../lstrings.js';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import MuiAlert from '@material-ui/lab/Alert';
+import MeasureIcon from '../assets/svg/ss/measure-tape.svg';
 import axios from 'axios';
 import config from "../config.json";
-import CategoriesIcon from '../assets/svg/ss/categories.svg';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -41,7 +43,7 @@ const DialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
     return (
         <MuiDialogTitle disableTypography className={classes.root} {...other}>
-            <img src={CategoriesIcon} className={classes.image} width='25' alt="" />
+            <img src={MeasureIcon} className={classes.image} width='25' alt="" />
             <Typography className={classes.title} variant="h6">{children}</Typography>
         </MuiDialogTitle>
     );
@@ -60,7 +62,7 @@ const DialogActions = withStyles((theme) => ({
     },
 }))(MuiDialogActions);
 
-export default function AddProductCategory(props) {
+export default function EditUOM(props) {
     const useStyles = makeStyles((theme) => ({
         root: {
             width: 'calc(100%)',
@@ -117,7 +119,7 @@ export default function AddProductCategory(props) {
     const [showError, setShowError] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState(null);
 
-    const [name, set_name] = React.useState('');
+    const [name, set_name] = React.useState(props.uom.name);
     const [name_error, set_name_error] = React.useState(null);
 
     const [contactingServer, setContactingServer] = React.useState(false);
@@ -125,28 +127,29 @@ export default function AddProductCategory(props) {
     const handleSave = async () => {
         try {
             setContactingServer(true);
-            let url = config["baseurl"] + "/api/productcategory/add";
+            let url = config["baseurl"] + "/api/uom/update";
 
             let postObj = {};
-            postObj["name"] = name.trim();
+            postObj["name"] = name;
+
+            let updateObj = { _id: props.uom._id, updateParams: postObj };
 
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
-            const response = await axios.post(url, postObj);
+            const response = await axios.patch(url, updateObj);
 
             console.log("successfully Saved");
             setContactingServer(false);
             props.onNewSaved();
-            // props.history.push("/materials");
         }
         catch (e) {
             if (e.response) {
-                console.log("Error in creating material");
-                setErrorMessage(e.response.data["material"]);
+                console.log("Error in editing uom");
+                setErrorMessage(e.response.data["message"]);
             }
             else {
-                console.log("Error in creating material");
-                setErrorMessage("Error in creating material: ", e.message);
+                console.log("Error in editing uom");
+                setErrorMessage("Error in editing uom: ", e.message);
             }
             setShowError(true);
             setContactingServer(false);
@@ -156,7 +159,7 @@ export default function AddProductCategory(props) {
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={open}>
-                <DialogTitle id="alert-dialog-title">{"New Product Category"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"Edit UOM (Unit Of Measurement)"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
 

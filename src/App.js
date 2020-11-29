@@ -54,6 +54,8 @@ import AddManagers from './components/addManagers';
 import Materials from './components/materials';
 import AddMaterial from './components/addMaterial';
 import EditMaterial from './components/editMaterial';
+import UOM from './components/uom';
+import ProductCategory from './components/productCategory';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -96,6 +98,7 @@ function App(props) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [selectedUOM, setSelectedUOM] = React.useState(null);
 
   const [pingTimer, setPingTimer] = useState(null);
   const [mentorAppliedRequests, setMentorAppliedRequests] = useState([]);
@@ -749,6 +752,10 @@ function App(props) {
                   {(warehouseRole || adminRole) && <Route exact path="/addmaterial" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddMaterial refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} productCategories={productCategories} setProductCategories={setProductCategories} UOMs={UOMs} setUOMs={setUOMs} {...props} /> </div>} />}
                   {(warehouseRole || adminRole) && <Route exact path="/editmaterial" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditMaterial refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} productCategories={productCategories} setProductCategories={setProductCategories} UOMs={UOMs} setUOMs={setUOMs} selectedMaterial={selectedMaterial} {...props} /> </div>} />}
                   {(warehouseRole || adminRole) && <Route exact path="/materials" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Materials refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} productCategories={productCategories} setProductCategories={setProductCategories} UOMs={UOMs} setUOMs={setUOMs} setSelectedMaterial={setSelectedMaterial} {...props} /> </div>} />}
+
+                  {(warehouseRole || adminRole) && <Route exact path="/uoms" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <UOM refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} UOMs={UOMs} setUOMs={setUOMs} {...props} /> </div>} />}
+
+                  {(warehouseRole || adminRole) && <Route exact path="/product-category" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProductCategory refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} productCategories={productCategories} setProductCategories={setProductCategories} {...props} /> </div>} />}
 
                   {adminRole && <Route exact path="/users" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Users refreshUI={refreshUI} onAuthFailure={onAuthFailure} setSelectedUser={setSelectedUser} {...props} /> </div>} />}
                   {adminRole && <Route exact path="/addnewuser" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddNewUser refreshUI={refreshUI} onAuthFailure={onAuthFailure} {...props} /> </div>} />}
