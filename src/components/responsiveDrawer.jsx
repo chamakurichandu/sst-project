@@ -28,6 +28,7 @@ import GroupImage from '../assets/svg/ss/team-3.svg';
 import MaterialsImage from '../assets/svg/ss/cement.svg';
 import MeasureIcon from '../assets/svg/ss/measure-tape.svg';
 import CategoriesIcon from '../assets/svg/ss/categories.svg';
+import CustomerIcon from '../assets/svg/ss/customer.svg';
 
 const drawerWidth = 240;
 
@@ -222,9 +223,13 @@ export default function ResponsiveDrawer(props) {
                         {lstrings.ProjectManagement}
                     </Typography>
                     <List>
-                        <ListItem button key={lstrings.Projects} onClick={() => history.push("/eventfeed")}>
+                        <ListItem button key={lstrings.Projects} onClick={() => history.push("/projects")}>
                             <ListItemIcon><img src={ProjectsImage} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Projects} />
+                        </ListItem>
+                        <ListItem button key={lstrings.Customers} onClick={() => history.push("/customers")}>
+                            <ListItemIcon><img src={CustomerIcon} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Customers} />
                         </ListItem>
                         <ListItem button key={lstrings.SupplyVendors} onClick={() => history.push("/supplyvendors")}>
                             <ListItemIcon><img src={ShipImage} height='25' alt="" /></ListItemIcon>

@@ -18,12 +18,13 @@ import TextField from '@material-ui/core/TextField';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import ConfirmationDialog from './confirmationDialog';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import AddUOM from './addUOM';
+import AddProductCategory from './addProductCategory';
 
 const Joi = require('joi');
 
@@ -31,7 +32,7 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-export default function EditServiceVendor(props) {
+export default function AddCustomer(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -69,15 +70,18 @@ export default function EditServiceVendor(props) {
     inputFields: {
       marginTop: 10,
     },
-    formControl: {
-      marginTop: theme.spacing(1),
-      minWidth: 120,
-    },
     submit: {
       display: 'flex',
       justifyContent: 'flex-end',
       marginTop: '15px',
       margin: '5px',
+    },
+    formControl: {
+      marginTop: theme.spacing(1),
+      minWidth: 120,
+    },
+    selectEmpty: {
+      marginTop: theme.spacing(2),
     },
   }));
 
@@ -85,53 +89,49 @@ export default function EditServiceVendor(props) {
   const [showError, setShowError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
 
-  const [code, set_code] = React.useState(props.selectedServiceVendor.code);
-
-  const [name, set_name] = React.useState(props.selectedServiceVendor.name);
+  const [name, set_name] = React.useState('');
   const [name_error, set_name_error] = React.useState(null);
 
-  const [website, set_website] = React.useState(props.selectedServiceVendor.website);
+  const [website, set_website] = React.useState('');
   const [website_error, set_website_error] = React.useState(null);
 
-  const [address, set_address] = React.useState(props.selectedServiceVendor.address);
+  const [address, set_address] = React.useState('');
   const [address_error, set_address_error] = React.useState(null);
 
-  const [billingAddress, set_billingAddress] = React.useState(props.selectedServiceVendor.billingAddress);
+  const [billingAddress, set_billingAddress] = React.useState('');
   const [billingAddress_error, set_billingAddress_error] = React.useState(null);
 
-  const [officePhone, set_officePhone] = React.useState(props.selectedServiceVendor.officePhone);
+  const [officePhone, set_officePhone] = React.useState('');
   const [officePhone_error, set_officePhone_error] = React.useState(null);
 
-  const [gst, set_gst] = React.useState(props.selectedServiceVendor.gst);
+  const [gst, set_gst] = React.useState('');
   const [gst_error, set_gst_error] = React.useState(null);
 
-  const [contactName, set_contactName] = React.useState(props.selectedServiceVendor.contactName);
+  const [contactName, set_contactName] = React.useState('');
   const [contactName_error, set_contactName_error] = React.useState(null);
 
-  const [contactEmail, set_contactEmail] = React.useState(props.selectedServiceVendor.contactEmail);
+  const [contactEmail, set_contactEmail] = React.useState('');
   const [contactEmail_error, set_contactEmail_error] = React.useState(null);
 
-  const [contactPhone, set_contactPhone] = React.useState(props.selectedServiceVendor.contactPhone);
+  const [contactPhone, set_contactPhone] = React.useState('');
   const [contactPhone_error, set_contactPhone_error] = React.useState(null);
 
-  const [city, set_city] = React.useState(props.selectedServiceVendor.city);
+  const [city, set_city] = React.useState('');
   const [city_error, set_city_error] = React.useState(null);
 
-  const [district, set_district] = React.useState(props.selectedServiceVendor.district);
+  const [district, set_district] = React.useState('');
   const [district_error, set_district_error] = React.useState(null);
 
-  const [state, set_state] = React.useState(props.selectedServiceVendor.state);
+  const [state, set_state] = React.useState('');
   const [state_error, set_state_error] = React.useState(null);
 
-  const [country, set_country] = React.useState(props.selectedServiceVendor.country);
+  const [country, set_country] = React.useState('');
   const [country_error, set_country_error] = React.useState(null);
 
-  const [latlong, set_latlong] = React.useState(props.selectedServiceVendor.latlong);
+  const [latlong, set_latlong] = React.useState('');
   const [latlong_error, set_latlong_error] = React.useState(null);
 
   const [contactingServer, setContactingServer] = React.useState(false);
-
-  const [showConfirmationDialog, setShowConfirmationDialog] = React.useState(false);
 
   useEffect(() => {
   }, []);
@@ -144,12 +144,12 @@ export default function EditServiceVendor(props) {
     setShowError(false);
   };
 
-  const handleBreadCrumUsersClick = () => {
-    props.history.push("/servicevendors");
+  const handleBreadCrumClick = () => {
+    props.history.push("/customers");
   };
 
   const handleCancel = () => {
-    props.history.push("/servicevendors");
+    props.history.push("/customers");
   };
 
   const validateData = () => {
@@ -264,105 +264,53 @@ export default function EditServiceVendor(props) {
       errorOccured = true;
     }
 
+    console.log("1");
     if (errorOccured)
       return;
-
+    console.log("2");
     try {
       setContactingServer(true);
-      const url = config["baseurl"] + "/api/user/checkauth";
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      await axios.get(url);
-
-      try {
-        let url = config["baseurl"] + "/api/servicevendor/update";
-
-        let postObj = {};
-        postObj["name"] = name.trim();
-        postObj["website"] = website.trim();
-        postObj["address"] = address.trim();
-        postObj["billingAddress"] = billingAddress.trim();
-        postObj["officePhone"] = officePhone.trim();
-        postObj["gst"] = gst.trim();
-        postObj["contactName"] = contactName.trim();
-        postObj["contactEmail"] = contactEmail.trim();
-        postObj["contactPhone"] = contactPhone.trim();
-        postObj["city"] = city.trim();
-        postObj["state"] = state.trim();
-        postObj["district"] = district.trim();
-        postObj["country"] = country.trim();
-        postObj["latlong"] = latlong.trim();
-
-        console.log("props.selectedServiceVendor._id: ", props.selectedServiceVendor._id);
-        let updateObj = { _id: props.selectedServiceVendor._id, updateParams: postObj };
-
-        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-
-        const response = await axios.patch(url, updateObj);
-
-        console.log("successfully Saved");
-        setContactingServer(false);
-        props.history.push("/servicevendors");
-      }
-      catch (e) {
-        if (e.response) {
-          console.log("Error in updating, ", e.response);
-          setErrorMessage(e.response.data["message"]);
-        }
-        else {
-          console.log("Error in updating: ", e);
-          setErrorMessage("Error in updating vendor: ", e.message);
-        }
-        setShowError(true);
-        setContactingServer(false);
-      }
-    }
-    catch (e) {
-      console.log("Error in Auth: logout");
-      setContactingServer(false);
-      props.onAuthFailure();
-    }
-  };
-
-  const handleDelete = async () => {
-    setContactingServer(true);
-
-    try {
-      let url = config["baseurl"] + "/api/servicevendor/delete";
+      let url = config["baseurl"] + "/api/customer/add";
 
       let postObj = {};
-      postObj["_id"] = props.selectedServiceVendor["_id"];
+      postObj["name"] = name.trim();
+      postObj["website"] = website.trim();
+      postObj["address"] = address.trim();
+      postObj["billingAddress"] = billingAddress.trim();
+      postObj["officePhone"] = officePhone.trim();
+      postObj["gst"] = gst.trim();
+      postObj["contactName"] = contactName.trim();
+      postObj["contactEmail"] = contactEmail.trim();
+      postObj["contactPhone"] = contactPhone.trim();
+      postObj["city"] = city.trim();
+      postObj["state"] = state.trim();
+      postObj["district"] = district.trim();
+      postObj["country"] = country.trim();
+      postObj["latlong"] = latlong.trim();
+
       console.log("postObj: ", postObj);
 
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-
+      console.log("3");
       const response = await axios.post(url, postObj);
-
-      console.log("Seleted successfully");
+      console.log("4");
+      console.log("successfully Saved");
       setContactingServer(false);
-      props.history.push("/servicevendors");
+      props.history.push("/customers");
     }
     catch (e) {
+      console.log("5");
       if (e.response) {
-        console.log("Error in deleting");
+        console.log("Error in creating");
         setErrorMessage(e.response.data["message"]);
       }
       else {
-        console.log("Error in deleting");
-        setErrorMessage("Error in deleting: ", e.message);
+        console.log("Error in creating");
+        setErrorMessage("Error in creating: ", e.message);
       }
       setShowError(true);
       setContactingServer(false);
     }
-  };
-
-  const noConfirmationDialogAction = () => {
-    setShowConfirmationDialog(false);
-  };
-
-  const yesConfirmationDialogAction = () => {
-    setShowConfirmationDialog(false);
-
-    handleDelete();
   };
 
   return (
@@ -371,23 +319,20 @@ export default function EditServiceVendor(props) {
 
         <div className={classes.paper}>
 
-          <EnhancedTableToolbar title={lstrings.EditServiceVendor} />
+          <EnhancedTableToolbar title={lstrings.AddCustomer} />
 
           <Breadcrumbs aria-label="breadcrumb">
-            <Link color="inherit" onClick={handleBreadCrumUsersClick}>
-              {lstrings.ServiceVendors}
+            <Link color="inherit" onClick={handleBreadCrumClick}>
+              {lstrings.Customers}
             </Link>
-            <Typography color="textPrimary">{lstrings.EditServiceVendor}</Typography>
+            <Typography color="textPrimary">{lstrings.AddCustomer}</Typography>
           </Breadcrumbs>
 
           {/* <Paper className={classes.grid}> */}
           <form className={classes.papernew} autoComplete="off" noValidate>
-            <TextField className={classes.inputFields} id="formControl_code" defaultValue={code}
-              label="Description *" variant="outlined" disabled />
-
             {/* name */}
             <TextField className={classes.inputFields} id="formControl_name" defaultValue={name}
-              label="Vendor Name *" variant="outlined"
+              label="Customer Name *" variant="outlined"
               onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />
             {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
 
@@ -451,15 +396,13 @@ export default function EditServiceVendor(props) {
               onChange={(event) => { set_country(event.target.value); set_country_error(null); }} />
             {country_error && <Alert className={classes.alert} severity="error"> {country_error} </Alert>}
 
-
             <div className={classes.submit}>
-              <Button variant="contained" color="secondary" onClick={() => { setShowConfirmationDialog(true); }} disabled={contactingServer}>{lstrings.Delete}</Button>
-              <Button style={{ marginLeft: 50 }} variant="contained" color="primary" onClick={handleCancel} disabled={contactingServer}>{lstrings.Cancel}</Button>
-              <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>{lstrings.Save}</Button>
+              <Button variant="contained" color="primary" onClick={handleCancel} disabled={contactingServer}>Cancel</Button>
+              <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
             </div>
+
           </form>
           {/* </Paper> */}
-          {showConfirmationDialog && <ConfirmationDialog noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={lstrings.DeletingUserConfirmationMessage} title={lstrings.DeletingUser} />}
         </div>
       }
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>

@@ -31,7 +31,7 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-export default function EditServiceVendor(props) {
+export default function EditCustomer(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -85,48 +85,48 @@ export default function EditServiceVendor(props) {
   const [showError, setShowError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
 
-  const [code, set_code] = React.useState(props.selectedServiceVendor.code);
+  const [code, set_code] = React.useState(props.selectedCustomer.code);
 
-  const [name, set_name] = React.useState(props.selectedServiceVendor.name);
+  const [name, set_name] = React.useState(props.selectedCustomer.name);
   const [name_error, set_name_error] = React.useState(null);
 
-  const [website, set_website] = React.useState(props.selectedServiceVendor.website);
+  const [website, set_website] = React.useState(props.selectedCustomer.website);
   const [website_error, set_website_error] = React.useState(null);
 
-  const [address, set_address] = React.useState(props.selectedServiceVendor.address);
+  const [address, set_address] = React.useState(props.selectedCustomer.address);
   const [address_error, set_address_error] = React.useState(null);
 
-  const [billingAddress, set_billingAddress] = React.useState(props.selectedServiceVendor.billingAddress);
+  const [billingAddress, set_billingAddress] = React.useState(props.selectedCustomer.billingAddress);
   const [billingAddress_error, set_billingAddress_error] = React.useState(null);
 
-  const [officePhone, set_officePhone] = React.useState(props.selectedServiceVendor.officePhone);
+  const [officePhone, set_officePhone] = React.useState(props.selectedCustomer.officePhone);
   const [officePhone_error, set_officePhone_error] = React.useState(null);
 
-  const [gst, set_gst] = React.useState(props.selectedServiceVendor.gst);
+  const [gst, set_gst] = React.useState(props.selectedCustomer.gst);
   const [gst_error, set_gst_error] = React.useState(null);
 
-  const [contactName, set_contactName] = React.useState(props.selectedServiceVendor.contactName);
+  const [contactName, set_contactName] = React.useState(props.selectedCustomer.contactName);
   const [contactName_error, set_contactName_error] = React.useState(null);
 
-  const [contactEmail, set_contactEmail] = React.useState(props.selectedServiceVendor.contactEmail);
+  const [contactEmail, set_contactEmail] = React.useState(props.selectedCustomer.contactEmail);
   const [contactEmail_error, set_contactEmail_error] = React.useState(null);
 
-  const [contactPhone, set_contactPhone] = React.useState(props.selectedServiceVendor.contactPhone);
+  const [contactPhone, set_contactPhone] = React.useState(props.selectedCustomer.contactPhone);
   const [contactPhone_error, set_contactPhone_error] = React.useState(null);
 
-  const [city, set_city] = React.useState(props.selectedServiceVendor.city);
+  const [city, set_city] = React.useState(props.selectedCustomer.city);
   const [city_error, set_city_error] = React.useState(null);
 
-  const [district, set_district] = React.useState(props.selectedServiceVendor.district);
+  const [district, set_district] = React.useState(props.selectedCustomer.district);
   const [district_error, set_district_error] = React.useState(null);
 
-  const [state, set_state] = React.useState(props.selectedServiceVendor.state);
+  const [state, set_state] = React.useState(props.selectedCustomer.state);
   const [state_error, set_state_error] = React.useState(null);
 
-  const [country, set_country] = React.useState(props.selectedServiceVendor.country);
+  const [country, set_country] = React.useState(props.selectedCustomer.country);
   const [country_error, set_country_error] = React.useState(null);
 
-  const [latlong, set_latlong] = React.useState(props.selectedServiceVendor.latlong);
+  const [latlong, set_latlong] = React.useState(props.selectedCustomer.latlong);
   const [latlong_error, set_latlong_error] = React.useState(null);
 
   const [contactingServer, setContactingServer] = React.useState(false);
@@ -145,11 +145,11 @@ export default function EditServiceVendor(props) {
   };
 
   const handleBreadCrumUsersClick = () => {
-    props.history.push("/servicevendors");
+    props.history.push("/customers");
   };
 
   const handleCancel = () => {
-    props.history.push("/servicevendors");
+    props.history.push("/customers");
   };
 
   const validateData = () => {
@@ -268,13 +268,14 @@ export default function EditServiceVendor(props) {
       return;
 
     try {
+      console.log("1");
       setContactingServer(true);
       const url = config["baseurl"] + "/api/user/checkauth";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       await axios.get(url);
-
+      console.log("2");
       try {
-        let url = config["baseurl"] + "/api/servicevendor/update";
+        let url = config["baseurl"] + "/api/customer/update";
 
         let postObj = {};
         postObj["name"] = name.trim();
@@ -291,26 +292,26 @@ export default function EditServiceVendor(props) {
         postObj["district"] = district.trim();
         postObj["country"] = country.trim();
         postObj["latlong"] = latlong.trim();
-
-        console.log("props.selectedServiceVendor._id: ", props.selectedServiceVendor._id);
-        let updateObj = { _id: props.selectedServiceVendor._id, updateParams: postObj };
-
+        console.log("3");
+        let updateObj = { _id: props.selectedCustomer._id, updateParams: postObj };
+        console.log("4");
         axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
         const response = await axios.patch(url, updateObj);
-
+        console.log("5");
         console.log("successfully Saved");
         setContactingServer(false);
-        props.history.push("/servicevendors");
+        props.history.push("/customers");
       }
       catch (e) {
+        console.log("6");
         if (e.response) {
           console.log("Error in updating, ", e.response);
           setErrorMessage(e.response.data["message"]);
         }
         else {
           console.log("Error in updating: ", e);
-          setErrorMessage("Error in updating vendor: ", e.message);
+          setErrorMessage("Error in updating: ", e.message);
         }
         setShowError(true);
         setContactingServer(false);
@@ -327,10 +328,10 @@ export default function EditServiceVendor(props) {
     setContactingServer(true);
 
     try {
-      let url = config["baseurl"] + "/api/servicevendor/delete";
+      let url = config["baseurl"] + "/api/customer/delete";
 
       let postObj = {};
-      postObj["_id"] = props.selectedServiceVendor["_id"];
+      postObj["_id"] = props.selectedCustomer["_id"];
       console.log("postObj: ", postObj);
 
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
@@ -339,7 +340,7 @@ export default function EditServiceVendor(props) {
 
       console.log("Seleted successfully");
       setContactingServer(false);
-      props.history.push("/servicevendors");
+      props.history.push("/customers");
     }
     catch (e) {
       if (e.response) {
@@ -371,13 +372,13 @@ export default function EditServiceVendor(props) {
 
         <div className={classes.paper}>
 
-          <EnhancedTableToolbar title={lstrings.EditServiceVendor} />
+          <EnhancedTableToolbar title={lstrings.EditCustomer} />
 
           <Breadcrumbs aria-label="breadcrumb">
             <Link color="inherit" onClick={handleBreadCrumUsersClick}>
-              {lstrings.ServiceVendors}
+              {lstrings.Customers}
             </Link>
-            <Typography color="textPrimary">{lstrings.EditServiceVendor}</Typography>
+            <Typography color="textPrimary">{lstrings.EditCustomer}</Typography>
           </Breadcrumbs>
 
           {/* <Paper className={classes.grid}> */}
@@ -387,7 +388,7 @@ export default function EditServiceVendor(props) {
 
             {/* name */}
             <TextField className={classes.inputFields} id="formControl_name" defaultValue={name}
-              label="Vendor Name *" variant="outlined"
+              label="Customer Name *" variant="outlined"
               onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />
             {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
 

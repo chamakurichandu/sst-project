@@ -62,6 +62,10 @@ import EditSupplyVendor from './components/editSupplyVendor';
 import ServiceVendors from './components/serviceVendors';
 import AddServiceVendor from './components/addServiceVendor';
 import EditServiceVendor from './components/editServiceVendor';
+import Projects from './components/projects';
+import Customers from './components/customers';
+import AddCustomer from './components/addCustomer';
+import EditCustomer from './components/editCustomer';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -107,6 +111,8 @@ function App(props) {
   const [selectedUOM, setSelectedUOM] = React.useState(null);
   const [selectedSupplyVendor, setSelectedSupplyVendor] = React.useState(null);
   const [selectedServiceVendor, setSelectedServiceVendor] = React.useState(null);
+  const [selectedProject, setSelectedProject] = React.useState(null);
+  const [selectedCustomer, setSelectedCustomer] = React.useState(null);
 
   const [pingTimer, setPingTimer] = useState(null);
   const [mentorAppliedRequests, setMentorAppliedRequests] = useState([]);
@@ -750,6 +756,12 @@ function App(props) {
                   {isAttendee && <Route exact path="/agenda" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Agenda refreshUI={refreshUI} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/attendees" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Attendees refreshUI={refreshUI} sendChat={sendChat} newMessages={newMessages} loadPreviousMessages={loadPreviousMessages} {...props} /> </div>} />}
                   {isAttendee && <Route exact path="/exhibitors" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Exhibitors refreshUI={refreshUI} {...props} /> </div>} />} */}
+
+                  {<Route exact path="/projects" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Projects refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedProject={setSelectedProject}  {...props} /> </div>} />}
+
+                  {<Route exact path="/customers" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Customers refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedCustomer={setSelectedCustomer}  {...props} /> </div>} />}
+                  {<Route exact path="/addcustomer" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddCustomer refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} {...props} /> </div>} />}
+                  {<Route exact path="/editcustomer" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditCustomer refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} selectedCustomer={selectedCustomer} {...props} /> </div>} />}
 
                   {<Route exact path="/servicevendors" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ServiceVendors refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedServiceVendor={setSelectedServiceVendor}  {...props} /> </div>} />}
                   {<Route exact path="/addservicevendor" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddServiceVendor refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} {...props} /> </div>} />}

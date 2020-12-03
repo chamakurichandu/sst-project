@@ -22,7 +22,7 @@ import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import lstrings from '../lstrings';
-import ProductionImage from '../assets/svg/ss/architect-3.svg';
+import CustomerIcon from '../assets/svg/ss/customer.svg';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -69,7 +69,7 @@ function EnhancedTableHead(props) {
     { id: 'address', numeric: false, disablePadding: false, label: 'Address' },
     { id: 'billingaddress', numeric: false, disablePadding: false, label: 'Billing Address' },
     { id: 'officephone', numeric: false, disablePadding: false, label: 'Office Phone' },
-    { id: 'GST', numeric: false, disablePadding: false, label: 'GST' },
+    { id: 'gst', numeric: false, disablePadding: false, label: 'GST' },
     { id: 'contactperson', numeric: false, disablePadding: false, label: 'Contact Person' },
     { id: 'location', numeric: false, disablePadding: false, label: 'Location' },
     { id: 'website', numeric: false, disablePadding: false, label: 'Website' },
@@ -119,7 +119,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function ServiceVendors(props) {
+export default function Customers(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -264,7 +264,7 @@ export default function ServiceVendors(props) {
   async function getList(numberOfRows, search = "") {
     try {
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/servicevendor/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/customer/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
@@ -354,12 +354,12 @@ export default function ServiceVendors(props) {
   const handleEdit = (data) => {
     console.log("handleEdit: ", data);
 
-    props.setSelectedServiceVendor(data);
-    props.history.push("/editservicevendor");
+    props.setSelectedCustomer(data);
+    props.history.push("/editcustomer");
   };
 
   const handleAdd = () => {
-    props.history.push("/addservicevendor");
+    props.history.push("/addcustomer");
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -400,16 +400,16 @@ export default function ServiceVendors(props) {
       {props.refreshUI &&
 
         <div className={classes.paper}>
-          <EnhancedTableToolbar title={lstrings.ServiceVendor} />
+          <EnhancedTableToolbar title={lstrings.Customers} />
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>
-                <img src={ProductionImage} width='25' alt="" />
+                <img src={CustomerIcon} width='25' alt="" />
                 <h1 className={classes.h1}>{totalCount}</h1>
-                <span>{lstrings.ServiceVendor}</span>
+                <span>{lstrings.Customers}</span>
               </Grid>
               <Grid item className={classes.addButton}>
-                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddServiceVendor}</Button>
+                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddCustomer}</Button>
               </Grid>
             </Grid>
           </Paper>

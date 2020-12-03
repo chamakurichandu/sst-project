@@ -104,6 +104,9 @@ export default function AddSupplyVendor(props) {
   const [officePhone, set_officePhone] = React.useState('');
   const [officePhone_error, set_officePhone_error] = React.useState(null);
 
+  const [gst, set_gst] = React.useState('');
+  const [gst_error, set_gst_error] = React.useState(null);
+
   const [contactName, set_contactName] = React.useState('');
   const [contactName_error, set_contactName_error] = React.useState(null);
 
@@ -156,6 +159,7 @@ export default function AddSupplyVendor(props) {
       address: Joi.string().min(0).max(1024).required(),
       billingAddress: Joi.string().min(0).max(1024).required(),
       officePhone: Joi.string().min(2).max(500).required(),
+      gst: Joi.string().min(2).max(500).required(),
       contactName: Joi.string().min(2).max(500).required(),
       contactEmail: Joi.string().required().email({ tlds: { allow: false } }),
       contactPhone: Joi.string().min(2).max(500).required(),
@@ -171,6 +175,7 @@ export default function AddSupplyVendor(props) {
       address: address.trim(),
       billingAddress: billingAddress.trim(),
       officePhone: officePhone.trim(),
+      gst: gst.trim(),
       contactName: contactName.trim(),
       contactEmail: contactEmail.trim(),
       contactPhone: contactPhone.trim(),
@@ -197,6 +202,7 @@ export default function AddSupplyVendor(props) {
     set_address_error(null);
     set_billingAddress_error(null);
     set_officePhone_error(null);
+    set_gst_error(null);
     set_contactName_error(null);
     set_contactEmail_error(null);
     set_contactPhone_error(null);
@@ -223,6 +229,10 @@ export default function AddSupplyVendor(props) {
     }
     if (errors["officePhone"]) {
       set_officePhone_error(errors["officePhone"]);
+      errorOccured = true;
+    }
+    if (errors["gst"]) {
+      set_gst_error(errors["gst"]);
       errorOccured = true;
     }
     if (errors["contactName"]) {
@@ -268,6 +278,7 @@ export default function AddSupplyVendor(props) {
       postObj["address"] = address.trim();
       postObj["billingAddress"] = billingAddress.trim();
       postObj["officePhone"] = officePhone.trim();
+      postObj["gst"] = gst.trim();
       postObj["contactName"] = contactName.trim();
       postObj["contactEmail"] = contactEmail.trim();
       postObj["contactPhone"] = contactPhone.trim();
@@ -344,6 +355,11 @@ export default function AddSupplyVendor(props) {
               label="Office Phone *" variant="outlined"
               onChange={(event) => { set_officePhone(event.target.value); set_officePhone_error(null); }} />
             {officePhone_error && <Alert className={classes.alert} severity="error"> {officePhone_error} </Alert>}
+
+            <TextField className={classes.inputFields} id="formControl_gst" defaultValue={gst}
+              label="GST *" variant="outlined"
+              onChange={(event) => { set_gst(event.target.value); set_gst_error(null); }} />
+            {gst_error && <Alert className={classes.alert} severity="error"> {gst_error} </Alert>}
 
             <TextField className={classes.inputFields} id="formControl_contactName" defaultValue={contactName}
               label="Contact Name *" variant="outlined"

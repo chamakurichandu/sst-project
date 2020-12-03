@@ -69,6 +69,7 @@ function EnhancedTableHead(props) {
     { id: 'address', numeric: false, disablePadding: false, label: 'Address' },
     { id: 'billingaddress', numeric: false, disablePadding: false, label: 'Billing Address' },
     { id: 'officephone', numeric: false, disablePadding: false, label: 'Office Phone' },
+    { id: 'gst', numeric: false, disablePadding: false, label: 'GST' },
     { id: 'contactperson', numeric: false, disablePadding: false, label: 'Contact Person' },
     { id: 'location', numeric: false, disablePadding: false, label: 'Location' },
     { id: 'website', numeric: false, disablePadding: false, label: 'Website' },
@@ -457,6 +458,7 @@ export default function SupplyVendors(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.address}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.billingAddress}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.officePhone}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.gst}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><div>{row.data.contactName}</div>
                             <div>{row.data.contactEmail}</div>
                             <div>{row.data.contactPhone}</div>
