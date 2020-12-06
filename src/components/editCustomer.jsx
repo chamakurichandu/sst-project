@@ -24,6 +24,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import Chip from '@material-ui/core/Chip';
+import { v4 as uuidv4 } from 'uuid';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const Joi = require('joi');
 
@@ -129,7 +133,11 @@ export default function EditCustomer(props) {
   const [latlong, set_latlong] = React.useState(props.selectedCustomer.latlong);
   const [latlong_error, set_latlong_error] = React.useState(null);
 
+  const [files, set_files] = React.useState(props.selectedCustomer.docs);
+
   const [contactingServer, setContactingServer] = React.useState(false);
+
+  const [showBackDrop, setShowBackDrop] = React.useState(false);
 
   const [showConfirmationDialog, setShowConfirmationDialog] = React.useState(false);
 
@@ -292,6 +300,12 @@ export default function EditCustomer(props) {
         postObj["district"] = district.trim();
         postObj["country"] = country.trim();
         postObj["latlong"] = latlong.trim();
+        postObj["docs"] = [];
+        console.log(files);
+        for (let i = 0; i < files.length; ++i) {
+          postObj["docs"].push({ name: files[i].name, path: files[i].uploadedURL });
+        }
+
         console.log("3");
         let updateObj = { _id: props.selectedCustomer._id, updateParams: postObj };
         console.log("4");
@@ -364,6 +378,75 @@ export default function EditCustomer(props) {
     setShowConfirmationDialog(false);
 
     handleDelete();
+  };
+
+  const handleDocsDelete = (index) => {
+    console.log("handleDocsDelete: index: ", index);
+    let newFiles = [...files];
+    newFiles.splice(index, 1);
+    set_files(newFiles);
+  };
+
+  const onFileSelected = (event) => {
+    console.log(event.target.files[0]);
+
+    let fileParts = event.target.files[0].name.split('.');
+    console.log(fileParts);
+    let file = { file: event.target.files[0], name: uuidv4() + "." + fileParts[1] };
+
+    uploadFile(file)
+  };
+
+  const uploadFile = async (myfile) => {
+    setShowBackDrop(true);
+
+    console.log("Preparing the upload");
+    let url = config["baseurl"] + "/api/cloud/sign_s3";
+    axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+    const profileInfo = JSON.parse(window.localStorage.getItem("profile"));
+    try {
+      const response = await axios.post(url, {
+        fileName: myfile.name,
+        fileType: myfile.file.fileType,
+        folder: "customer_docs"
+      });
+
+      if (response) {
+        var returnData = response.data.data.returnData;
+        var signedRequest = returnData.signedRequest;
+
+        // Put the fileType in the headers for the upload
+        var options = { headers: { 'x-amz-acl': 'public-read', 'Content-Type': myfile.file.type } };
+        try {
+          const result = await axios.put(signedRequest, myfile.file, options);
+
+          let newFiles = [...files];
+          myfile.uploadedURL = returnData.url;
+          myfile.name = myfile.file.name;
+          console.log("myfile: ", myfile);
+          newFiles.push(myfile);
+          set_files(newFiles);
+
+          setShowBackDrop(false);
+
+          console.log("Response from s3 Success: ", returnData.url);
+        }
+        catch (error) {
+          console.log("ERROR: ", JSON.stringify(error));
+          setShowBackDrop(false);
+          alert("ERROR " + JSON.stringify(error));
+        }
+      }
+    }
+    catch (error) {
+      console.log("error: ", error);
+      setShowBackDrop(false);
+      alert(JSON.stringify(error));
+    }
+  };
+
+  const handleCloseBackDrop = () => {
+
   };
 
   return (
@@ -452,6 +535,19 @@ export default function EditCustomer(props) {
               onChange={(event) => { set_country(event.target.value); set_country_error(null); }} />
             {country_error && <Alert className={classes.alert} severity="error"> {country_error} </Alert>}
 
+            <div style={{ marginTop: 10 }}>
+              <div>
+                {files.map((file, index) => {
+                  return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onDelete={() => handleDocsDelete(index)} />);
+                })}
+              </div>
+              <div style={{ marginTop: 5 }}>
+                <Button variant="contained" component="label" onChange={onFileSelected}>
+                  Upload Document
+                  <input type="file" hidden />
+                </Button>
+              </div>
+            </div>
 
             <div className={classes.submit}>
               <Button variant="contained" color="secondary" onClick={() => { setShowConfirmationDialog(true); }} disabled={contactingServer}>{lstrings.Delete}</Button>
@@ -468,6 +564,11 @@ export default function EditCustomer(props) {
           {errorMessage}
         </Alert>
       </Snackbar>
+
+      <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
     </div >
   );
 }
