@@ -23,6 +23,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import lstrings from '../lstrings';
 import CustomerIcon from '../assets/svg/ss/customer.svg';
+import Chip from '@material-ui/core/Chip';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -73,6 +74,7 @@ function EnhancedTableHead(props) {
     { id: 'contactperson', numeric: false, disablePadding: false, label: 'Contact Person' },
     { id: 'location', numeric: false, disablePadding: false, label: 'Location' },
     { id: 'website', numeric: false, disablePadding: false, label: 'Website' },
+    { id: 'documents', numeric: false, disablePadding: false, label: 'Documents' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
   ];
 
@@ -395,6 +397,12 @@ export default function Customers(props) {
     getList(rowsPerPage, event.target.value);
   };
 
+  const handleOpenDoc = (data, index) => {
+    const file = data.data.docs[index];
+    console.log(file);
+    window.open(file.path, '_blank');
+  };
+
   return (
     <div className={clsx(classes.root)}>
       {props.refreshUI &&
@@ -468,6 +476,12 @@ export default function Customers(props) {
                             <div>{row.data.country}</div>
                           </TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.website}</span></TableCell>
+                          <div style={{ marginTop: 10 }}>
+                            {row.data.docs.map((file, fileindex) => {
+                              return (<Chip size="small" style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(row, fileindex)} />);
+                            })}
+                          </div>
+
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                             <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
                           </TableCell>

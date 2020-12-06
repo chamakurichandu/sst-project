@@ -15,15 +15,7 @@ import Link from '@material-ui/core/Link';
 import { Auth } from 'aws-amplify';
 import 'date-fns';
 import TextField from '@material-ui/core/TextField';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import ConfirmationDialog from './confirmationDialog';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import Chip from '@material-ui/core/Chip';
 import { v4 as uuidv4 } from 'uuid';
 import Backdrop from '@material-ui/core/Backdrop';
@@ -83,6 +75,11 @@ export default function EditCustomer(props) {
       marginTop: '15px',
       margin: '5px',
     },
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
+    },
+
   }));
 
   const classes = useStyles();
@@ -303,7 +300,7 @@ export default function EditCustomer(props) {
         postObj["docs"] = [];
         console.log(files);
         for (let i = 0; i < files.length; ++i) {
-          postObj["docs"].push({ name: files[i].name, path: files[i].uploadedURL });
+          postObj["docs"].push({ name: files[i].name, path: files[i].path });
         }
 
         console.log("3");
@@ -387,6 +384,12 @@ export default function EditCustomer(props) {
     set_files(newFiles);
   };
 
+  const handleOpenDoc = (index) => {
+    const file = files[index];
+    console.log(file);
+    window.open(file.path, '_blank');
+  };
+
   const onFileSelected = (event) => {
     console.log(event.target.files[0]);
 
@@ -421,7 +424,7 @@ export default function EditCustomer(props) {
           const result = await axios.put(signedRequest, myfile.file, options);
 
           let newFiles = [...files];
-          myfile.uploadedURL = returnData.url;
+          myfile.path = returnData.url;
           myfile.name = myfile.file.name;
           console.log("myfile: ", myfile);
           newFiles.push(myfile);
@@ -538,11 +541,11 @@ export default function EditCustomer(props) {
             <div style={{ marginTop: 10 }}>
               <div>
                 {files.map((file, index) => {
-                  return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onDelete={() => handleDocsDelete(index)} />);
+                  return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDocsDelete(index)} />);
                 })}
               </div>
               <div style={{ marginTop: 5 }}>
-                <Button variant="contained" component="label" onChange={onFileSelected}>
+                <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
                   Upload Document
                   <input type="file" hidden />
                 </Button>
