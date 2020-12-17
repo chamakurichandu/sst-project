@@ -476,12 +476,13 @@ export default function Customers(props) {
                             <div>{row.data.country}</div>
                           </TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.website}</span></TableCell>
-                          <div style={{ marginTop: 10 }}>
-                            {row.data.docs.map((file, fileindex) => {
-                              return (<Chip size="small" style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(row, fileindex)} />);
-                            })}
-                          </div>
-
+                          <TableCell>
+                            <div style={{ marginTop: 10 }}>
+                              {row.data.docs.map((file, fileindex) => {
+                                return (<Chip size="small" style={{ marginTop: 5, marginRight: 5 }} key={"chip" + fileindex} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(row, fileindex)} />);
+                              })}
+                            </div>
+                          </TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                             <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
                           </TableCell>

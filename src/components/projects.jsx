@@ -66,14 +66,13 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'code', numeric: false, disablePadding: false, label: 'Code' },
-    { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'address', numeric: false, disablePadding: false, label: 'Address' },
-    { id: 'billingaddress', numeric: false, disablePadding: false, label: 'Billing Address' },
-    { id: 'officephone', numeric: false, disablePadding: false, label: 'Office Phone' },
-    { id: 'contactperson', numeric: false, disablePadding: false, label: 'Contact Person' },
-    { id: 'location', numeric: false, disablePadding: false, label: 'Location' },
-    { id: 'website', numeric: false, disablePadding: false, label: 'Website' },
-    { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
+    { id: 'name', numeric: false, disablePadding: false, label: 'Project Name' },
+    { id: 'division', numeric: false, disablePadding: false, label: 'Divisions' },
+    { id: 'subdivisions', numeric: false, disablePadding: false, label: 'Sub Divisions' },
+    { id: 'o&msections', numeric: false, disablePadding: false, label: 'O&M Sections' },
+    { id: 'startdate', numeric: false, disablePadding: false, label: 'Start Date' },
+    { id: 'expectedenddate', numeric: false, disablePadding: false, label: 'Expected End Date' },
+    { id: 'status', numeric: false, disablePadding: false, label: 'Status' }
   ];
 
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -467,10 +466,6 @@ export default function Projects(props) {
                             <div>{row.data.country}</div>
                           </TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.website}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
-                          </TableCell>
-
                         </TableRow>
                       );
                     })}

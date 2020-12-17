@@ -397,29 +397,38 @@ export default function EditCustomer(props) {
     console.log(fileParts);
     let file = { file: event.target.files[0], name: uuidv4() + "." + fileParts[1] };
 
-    uploadFile(file)
+    uploadFile(file, fileParts[1])
   };
 
-  const uploadFile = async (myfile) => {
+  const uploadFile = async (myfile, fileType) => {
     setShowBackDrop(true);
 
     console.log("Preparing the upload");
     let url = config["baseurl"] + "/api/cloud/sign_s3";
+    // let url = "https://kmfjpm1167.execute-api.ap-south-1.amazonaws.com/dev/get-s3-signed-url";
+    // delete axios.defaults.headers.common["authToken"];
     axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
     const profileInfo = JSON.parse(window.localStorage.getItem("profile"));
     try {
-      const response = await axios.post(url, {
+      console.log("post data: ", {
         fileName: myfile.name,
-        fileType: myfile.file.fileType,
+        fileType: fileType,
         folder: "customer_docs"
       });
+      const response = await axios.post(url, {
+        "fileName": myfile.name,
+        "fileType": fileType,
+        "folder": "customer_docs"
+      });
+
+      console.log("response: ", response);
 
       if (response) {
         var returnData = response.data.data.returnData;
         var signedRequest = returnData.signedRequest;
 
         // Put the fileType in the headers for the upload
-        var options = { headers: { 'x-amz-acl': 'public-read', 'Content-Type': myfile.file.type } };
+        var options = { headers: { 'x-amz-acl': 'public-read', 'Content-Type': fileType } };
         try {
           const result = await axios.put(signedRequest, myfile.file, options);
 
@@ -443,6 +452,7 @@ export default function EditCustomer(props) {
     }
     catch (error) {
       console.log("error: ", error);
+      console.log("error: ", error.response);
       setShowBackDrop(false);
       alert(JSON.stringify(error));
     }
