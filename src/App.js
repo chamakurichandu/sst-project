@@ -66,6 +66,7 @@ import Projects from './components/projects';
 import Customers from './components/customers';
 import AddCustomer from './components/addCustomer';
 import EditCustomer from './components/editCustomer';
+import ProjectUtils from './components/projectUtils';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -758,6 +759,7 @@ function App(props) {
                   {isAttendee && <Route exact path="/exhibitors" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Exhibitors refreshUI={refreshUI} {...props} /> </div>} />} */}
 
                   {<Route exact path="/projects" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Projects refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedProject={setSelectedProject}  {...props} /> </div>} />}
+                  {<Route exact path="/projects-utils" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProjectUtils refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
 
                   {<Route exact path="/customers" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Customers refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedCustomer={setSelectedCustomer}  {...props} /> </div>} />}
                   {<Route exact path="/addcustomer" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddCustomer refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} {...props} /> </div>} />}

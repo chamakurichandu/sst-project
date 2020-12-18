@@ -227,6 +227,11 @@ export default function ResponsiveDrawer(props) {
                             <ListItemIcon><img src={ProjectsImage} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Projects} />
                         </ListItem>
+                        <ListItem button key={"projects-utils"} onClick={() => history.push("/projects-utils")}>
+                            <ListItemIcon><img src={ProjectsImage} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary="Project Utils" />
+                        </ListItem>
+
                         <ListItem button key={lstrings.Customers} onClick={() => history.push("/customers")}>
                             <ListItemIcon><img src={CustomerIcon} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Customers} />
