@@ -22,8 +22,11 @@ import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import lstrings from '../lstrings';
-import ShipImage from '../assets/svg/ss/water-supply.svg';
 import ProjectsImage from '../assets/svg/ss/brief-2.svg';
+import Link from '@material-ui/core/Link';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import DateFnsUtils from '@date-io/date-fns';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -67,12 +70,11 @@ function EnhancedTableHead(props) {
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'code', numeric: false, disablePadding: false, label: 'Code' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Project Name' },
-    { id: 'division', numeric: false, disablePadding: false, label: 'Divisions' },
-    { id: 'subdivisions', numeric: false, disablePadding: false, label: 'Sub Divisions' },
-    { id: 'o&msections', numeric: false, disablePadding: false, label: 'O&M Sections' },
+    { id: 'customer', numeric: false, disablePadding: false, label: 'Customer' },
+    { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
     { id: 'startdate', numeric: false, disablePadding: false, label: 'Start Date' },
     { id: 'expectedenddate', numeric: false, disablePadding: false, label: 'Expected End Date' },
-    { id: 'status', numeric: false, disablePadding: false, label: 'Status' }
+    { id: 'remarks', numeric: false, disablePadding: false, label: 'Remarks' }
   ];
 
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -242,6 +244,10 @@ export default function Projects(props) {
         width: "300px",
       }
     },
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
+    },
 
   }));
 
@@ -256,6 +262,9 @@ export default function Projects(props) {
   const [rows, setRows] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [customers, setCustomers] = React.useState([]);
+
+  const [showBackDrop, setShowBackDrop] = React.useState(false);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -263,15 +272,19 @@ export default function Projects(props) {
   async function getList(numberOfRows, search = "") {
     try {
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/projects/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/project/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
-      setTotalCount(data.list.totalDocs);
       let newRows = [];
+      setTotalCount(data.list.totalDocs);
+      const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.docs.length; ++i) {
+        data.list.docs[i].startdate_conv = dateFns.date(data.list.docs[i].startdate);
+        data.list.docs[i].exp_enddate_conv = dateFns.date(data.list.docs[i].exp_enddate);
         newRows.push(createData((offset + i + 1),
           data.list.docs[i]
+
         ));
       }
 
@@ -289,7 +302,31 @@ export default function Projects(props) {
     }
   }
 
+  async function getCustomerList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/customer/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+
+      setCustomers(data.list.docs);
+      setShowBackDrop(false);
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
+
   useEffect(() => {
+    getCustomerList();
     getList(rowsPerPage);
   }, []);
 
@@ -394,6 +431,22 @@ export default function Projects(props) {
     getList(rowsPerPage, event.target.value);
   };
 
+  const onDetails = (index) => {
+
+  };
+
+  const handleCloseBackDrop = () => {
+
+  };
+
+  const getCustomer = (customerId) => {
+    for (let i = 0; i < customers.length; ++i) {
+      if (customers[i]._id === customerId)
+        return customers[i].name;
+    }
+    return customerId;
+  };
+
   return (
     <div className={clsx(classes.root)}>
       {props.refreshUI &&
@@ -452,20 +505,13 @@ export default function Projects(props) {
                       return (
                         <TableRow hover tabIndex={-1} key={row.slno}>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.address}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.billingAddress}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.officePhone}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><div>{row.data.contactName}</div>
-                            <div>{row.data.contactEmail}</div>
-                            <div>{row.data.contactPhone}</div>
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><div>{row.data.city}</div>
-                            <div>{row.data.district}</div>
-                            <div>{row.data.country}</div>
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.website}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} ><Link href="#" onClick={() => onDetails(index)} color="inherit">{row.data.code}</Link></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><Link href="#" onClick={() => onDetails(index)} color="inherit">{row.data.name}</Link></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getCustomer(row.data.customer)}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.status}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.startdate_conv.toDateString()}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.exp_enddate_conv.toDateString()}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.remark}</span></TableCell>
                         </TableRow>
                       );
                     })}
@@ -490,6 +536,11 @@ export default function Projects(props) {
           {errorMessage}
         </Alert>
       </Snackbar>
+
+      <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
     </div >
   );
 }
