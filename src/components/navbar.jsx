@@ -25,14 +25,15 @@ const useStyles = makeStyles((theme) => ({
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
         }),
-        background: 'transparent',
-        boxShadow: 'none',
+        // background: 'transparent',
+        backgroundColor: 'white',
+        // boxShadow: 'true',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        height: '65px',
+        height: '48px',
         '@media (max-width: 420px)': {
-            height: "56px",
+            height: "39px",
         }
     },
     appBarRight: {

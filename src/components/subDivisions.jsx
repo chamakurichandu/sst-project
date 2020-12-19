@@ -551,7 +551,7 @@ export default function SubDivision(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                          <div><Button size='small' onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
                         </TableCell>
                       </TableRow>
                     );
