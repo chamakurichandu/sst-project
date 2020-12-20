@@ -34,6 +34,7 @@ import AddActivity from './addActivity';
 import EditActivity from './editActivity';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import ConfirmationDialog from './confirmationDialog';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -268,6 +269,7 @@ export default function Activities(props) {
   const [showEditItem, setShowEditItem] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState(null);
   const [showBackdrop, setShowBackdrop] = React.useState(false);
+  const [showDeleteConfirmationDialog, setShowDeleteConfirmationDialog] = React.useState(false);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -276,7 +278,7 @@ export default function Activities(props) {
     try {
       setShowBackdrop(true);
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/activity/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/activity/list?count=" + 10000 + "&offset=" + 0 + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
@@ -388,43 +390,63 @@ export default function Activities(props) {
     setShowEditItem(false);
   };
 
+  const deleteAction = () => {
+    console.log(selectedItem);
+    setShowDeleteConfirmationDialog(true);
+    setShowEditItem(false);
+  }
+
   const onNewSaved = () => {
     setShowNewItem(false);
     setShowEditItem(false);
     getList(rowsPerPage);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
-
-  const BorderLinearProgress = withStyles((theme) => ({
-    root: {
-      height: 10,
-      borderRadius: 5,
-    },
-    colorPrimary: {
-      backgroundColor: theme.palette.grey[theme.palette.type === 'light' ? 200 : 700],
-    },
-    bar: {
-      borderRadius: 5,
-      backgroundColor: '#1a90ff',
-    },
-
-  }))(LinearProgress);
-
-  const getStringForArray = (data) => {
-    let val = "";
-    for (let i = 0; i < data.length; ++i) {
-      if (i > 0)
-        val += ", ";
-      val += data[i];
-    }
-    return val;
-  }
-
   const onSearchChange = (event) => {
     console.log(event.target.value);
 
     getList(rowsPerPage, event.target.value);
+  };
+
+  const noConfirmationDialogAction = () => {
+    setShowDeleteConfirmationDialog(false);
+  };
+
+  const yesConfirmationDialogAction = () => {
+    setShowDeleteConfirmationDialog(false);
+
+    handleDelete();
+  };
+
+  const handleDelete = async () => {
+    try {
+      setShowBackdrop(true);
+      let url = config["baseurl"] + "/api/activity/delete";
+
+      let postObj = {};
+      postObj["_id"] = selectedItem._id;
+
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+
+      const response = await axios.post(url, postObj);
+
+      console.log("successfully Saved");
+      setShowBackdrop(false);
+
+      getList(rowsPerPage);
+    }
+    catch (e) {
+      if (e.response) {
+        console.log("Error in creating");
+        setErrorMessage(e.response.data["message"]);
+      }
+      else {
+        console.log("Error in creating material");
+        setErrorMessage("Error in creating material: ", e.message);
+      }
+      setShowError(true);
+      setShowBackdrop(false);
+    }
   };
 
   return (
@@ -477,7 +499,6 @@ export default function Activities(props) {
               <TableBody>
                 {stableSort(rows, getComparator(order, orderBy))
                   .map((row, index) => {
-                    const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
                     return (
                       <TableRow hover tabIndex={-1} key={row.slno}>
@@ -495,7 +516,9 @@ export default function Activities(props) {
         </Paper>
       </div>
       {showNewItem && <AddActivity closeAction={closeNewDialogAction} onNewSaved={onNewSaved} />}
-      {showEditItem && <EditActivity closeAction={closeEditDialogAction} onNewSaved={onNewSaved} item={selectedItem} />}
+      {showEditItem && <EditActivity closeAction={closeEditDialogAction} deleteAction={deleteAction} onNewSaved={onNewSaved} item={selectedItem} />}
+      {showDeleteConfirmationDialog && <ConfirmationDialog noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={"Are you sure you want to delete activity: " + selectedItem.name} title={"Deleting Activity"} />}
+
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}

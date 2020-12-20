@@ -431,8 +431,10 @@ export default function Projects(props) {
     getList(rowsPerPage, event.target.value);
   };
 
-  const onDetails = (index) => {
-
+  const onDetails = (data) => {
+    props.setProject(data);
+    props.setCustomers(customers);
+    props.history.push("/projectdetails");
   };
 
   const handleCloseBackDrop = () => {
@@ -505,8 +507,8 @@ export default function Projects(props) {
                       return (
                         <TableRow hover tabIndex={-1} key={row.slno}>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} ><Link href="#" onClick={() => onDetails(index)} color="inherit">{row.data.code}</Link></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><Link href="#" onClick={() => onDetails(index)} color="inherit">{row.data.name}</Link></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} ><Link href="#" onClick={() => onDetails(row.data)} color="inherit">{row.data.code}</Link></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><Link href="#" onClick={() => onDetails(row.data)} color="inherit">{row.data.name}</Link></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getCustomer(row.data.customer)}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.status}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.startdate_conv.toDateString()}</span></TableCell>

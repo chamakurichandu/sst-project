@@ -166,11 +166,10 @@ export default function EditSection(props) {
         setShowError(false);
     };
 
-
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={open}>
-                <DialogTitle id="alert-dialog-title">{"Edit SubDivision"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"Edit Section"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
 
@@ -185,6 +184,7 @@ export default function EditSection(props) {
                 </DialogContent>
 
                 <DialogActions>
+                    <Button variant="contained" color="secondary" onClick={props.deleteAction} disabled={contactingServer}>Delete</Button>
                     <Button variant="contained" color="primary" onClick={props.closeAction} disabled={contactingServer}>Cancel</Button>
                     <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
                 </DialogActions>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -15,6 +15,18 @@ import MuiAlert from '@material-ui/lab/Alert';
 import MeasureIcon from '../assets/svg/ss/measure-tape.svg';
 import axios from 'axios';
 import config from "../config.json";
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Snackbar from '@material-ui/core/Snackbar';
 
 function Alert(props) {
@@ -24,27 +36,27 @@ function Alert(props) {
 const styles = (theme) => ({
     root: {
         margin: 0,
-        padding: theme.spacing(2),
-    },
-    image: {
-        position: 'absolute',
-        left: theme.spacing(2),
-        top: theme.spacing(2.5),
-        color: theme.palette.grey[500],
+        padding: theme.spacing(1),
     },
     textarea: {
         resize: "both"
     },
     title: {
-        marginLeft: 30
-    }
+        marginLeft: 10
+    },
+    paper: {
+        width: '100%',
+        marginBottom: theme.spacing(1),
+        paddingLeft: 20,
+        paddingRight: 20,
+    },
+
 });
 
 const DialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
     return (
         <MuiDialogTitle disableTypography className={classes.root} {...other}>
-            {/* <img src={MeasureIcon} className={classes.image} width='25' alt="" /> */}
             <Typography className={classes.title} variant="h6">{children}</Typography>
         </MuiDialogTitle>
     );
@@ -63,7 +75,9 @@ const DialogActions = withStyles((theme) => ({
     },
 }))(MuiDialogActions);
 
-export default function EditActivity(props) {
+export default function SelectActivity(props) {
+    const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
+
     const useStyles = makeStyles((theme) => ({
         root: {
             width: 'calc(100%)',
@@ -111,54 +125,64 @@ export default function EditActivity(props) {
         selectEmpty: {
             marginTop: theme.spacing(2),
         },
+        smalltable: {
+            minWidth: 150,
+        },
+        container: {
+            maxHeight: 300,
+        },
+        backdrop: {
+            zIndex: theme.zIndex.drawer + 1,
+            color: '#fff',
+        },
     }));
 
     const classes = useStyles();
 
-    const [open, setOpen] = React.useState(true);
-
     const [showError, setShowError] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState(null);
 
-    const [name, set_name] = React.useState(props.item.name);
-    const [name_error, set_name_error] = React.useState(null);
+    const [current, setCurrent] = React.useState(-1);
 
     const [contactingServer, setContactingServer] = React.useState(false);
+
+    const [showBackdrop, setShowBackdrop] = React.useState(false);
 
     const handleSave = async () => {
         try {
             setContactingServer(true);
-            let url = config["baseurl"] + "/api/activity/update";
+            let url = config["baseurl"] + "/api/projectactivity/add";
 
             let postObj = {};
-            postObj["name"] = name;
+            postObj["activity"] = props.items[current]._id;
+            postObj["section"] = props.section._id;
+            postObj["project"] = props.project._id;
 
-            let updateObj = { _id: props.item._id, updateParams: postObj };
+            console.log(postObj);
 
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
-            const response = await axios.patch(url, updateObj);
+            const response = await axios.post(url, postObj);
 
             console.log("successfully Saved");
             setContactingServer(false);
-            props.onNewSaved();
+            props.onSelect();
         }
         catch (e) {
             if (e.response) {
-                console.log("Error in editing 1");
-                console.log("e.response: ", e.response);
+                console.log("Error in creating");
                 setErrorMessage(e.response.data["message"]);
             }
             else {
-                console.log("Error in editing 2");
-                setErrorMessage("Error in editing: ", e.message);
+                console.log("Error in creating");
+                setErrorMessage("Error in creating: ", e.message);
             }
             setShowError(true);
             setContactingServer(false);
         }
     };
 
-    const handleSnackbarClose = (event, reason) => {
+    const handleCloseSnackbar = (event, reason) => {
         if (reason === 'clickaway') {
             return;
         }
@@ -166,36 +190,51 @@ export default function EditActivity(props) {
         setShowError(false);
     };
 
+    const handleCloseBackDrop = () => {
+
+    };
+
+    const handleClick = (event, index) => {
+        setCurrent(index);
+    };
 
     return (
         <div>
-            <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={open}>
-                <DialogTitle id="alert-dialog-title">{"Edit Activity"}</DialogTitle>
+            <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={true}>
+                <DialogTitle id="alert-dialog-title">{"Select " + props.type}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-
-                    </DialogContentText>
-                    {/* <DialogContentText id="alert-dialog-description">{props.message}</DialogContentText> */}
-                    <form className={classes.papernew} autoComplete="off" noValidate>
-                        <TextField className={classes.inputFields} id="formControl_name" defaultValue={name}
-                            label="Name *" variant="outlined"
-                            onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />
-                        {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
-                    </form>
+                    <Paper className={classes.paper}>
+                        <TableContainer className={classes.container}>
+                            <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
+                                <TableBody>
+                                    {props.items.map((row, index) => {
+                                        return (
+                                            <TableRow hover tabIndex={-1} key={"" + index} selected={index === current} onClick={(event) => handleClick(event, index)} >
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
                 </DialogContent>
 
                 <DialogActions>
-                    <Button variant="contained" color="secondary" onClick={props.deleteAction} disabled={contactingServer}>Delete</Button>
                     <Button variant="contained" color="primary" onClick={props.closeAction} disabled={contactingServer}>Cancel</Button>
                     <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
                 </DialogActions>
             </Dialog>
 
-            <Snackbar open={showError} autoHideDuration={6000} onClose={handleSnackbarClose}>
-                <Alert onClose={handleSnackbarClose} severity="error">
+            <Snackbar open={showError} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                <Alert onClose={handleCloseSnackbar} severity="error">
                     {errorMessage}
                 </Alert>
             </Snackbar>
+
+            <Backdrop className={classes.backdrop} open={showBackdrop} onClick={handleCloseBackDrop}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
 
         </div>
     );

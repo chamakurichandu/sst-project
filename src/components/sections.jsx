@@ -39,6 +39,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { Typography } from '@material-ui/core';
+import ConfirmationDialog from './confirmationDialog';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -277,6 +278,7 @@ export default function Sections(props) {
   const [showBackdrop, setShowBackdrop] = React.useState(false);
   const [currentDivision, setCurrentDivision] = React.useState(-1);
   const [currentSubDivision, setCurrentSubDivision] = React.useState(-1);
+  const [showDeleteConfirmationDialog, setShowDeleteConfirmationDialog] = React.useState(false);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -345,7 +347,7 @@ export default function Sections(props) {
 
       const index = currentSubDivision === -1 ? 0 : currentSubDivision;
 
-      let url = config["baseurl"] + "/api/section/list?subdivision=" + subDivisions[index]._id + "&count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/section/list?subdivision=" + subDivisions[index]._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       // console.log(data);
@@ -514,6 +516,53 @@ export default function Sections(props) {
     setCurrentSubDivision(event.target.value);
   };
 
+  const deleteAction = () => {
+    console.log(selectedItem);
+    setShowDeleteConfirmationDialog(true);
+    setShowEditItem(false);
+  }
+
+  const noConfirmationDialogAction = () => {
+    setShowDeleteConfirmationDialog(false);
+  };
+
+  const yesConfirmationDialogAction = () => {
+    setShowDeleteConfirmationDialog(false);
+
+    handleDelete();
+  };
+
+  const handleDelete = async () => {
+    try {
+      setShowBackdrop(true);
+      let url = config["baseurl"] + "/api/section/delete";
+
+      let postObj = {};
+      postObj["_id"] = selectedItem._id;
+
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+
+      const response = await axios.post(url, postObj);
+
+      console.log("successfully Saved");
+      setShowBackdrop(false);
+
+      getList(rowsPerPage);
+    }
+    catch (e) {
+      if (e.response) {
+        console.log("Error in creating");
+        setErrorMessage(e.response.data["message"]);
+      }
+      else {
+        console.log("Error in creating material");
+        setErrorMessage("Error in creating material: ", e.message);
+      }
+      setShowError(true);
+      setShowBackdrop(false);
+    }
+  };
+
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
@@ -610,7 +659,8 @@ export default function Sections(props) {
         </Paper>
       </div>
       {showNewItem && <AddSection closeAction={closeNewDialogAction} onNewSaved={onNewSaved} subdivision={subDivisions[currentSubDivision]} />}
-      {showEditItem && <EditSection closeAction={closeEditDialogAction} onNewSaved={onNewSaved} item={selectedItem} />}
+      {showEditItem && <EditSection closeAction={closeEditDialogAction} deleteAction={deleteAction} onNewSaved={onNewSaved} item={selectedItem} />}
+      {showDeleteConfirmationDialog && <ConfirmationDialog noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={"Are you sure you want to delete section: " + selectedItem.name} title={"Deleting Section"} />}
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}

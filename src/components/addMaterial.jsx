@@ -236,11 +236,11 @@ export default function AddMaterial(props) {
     catch (e) {
       if (e.response) {
         console.log("Error in creating material");
-        setErrorMessage(e.response.data["material"]);
+        setErrorMessage(e.response.data["message"]);
       }
       else {
-        console.log("Error in creating material");
-        setErrorMessage("Error in creating material: ", e.message);
+        console.log("Error in creating");
+        setErrorMessage("Error in creating: ", e.message);
       }
       setShowError(true);
       setContactingServer(false);

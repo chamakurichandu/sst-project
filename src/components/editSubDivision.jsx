@@ -185,6 +185,7 @@ export default function EditSubDivision(props) {
                 </DialogContent>
 
                 <DialogActions>
+                    <Button variant="contained" color="secondary" onClick={props.deleteAction} disabled={contactingServer}>Delete</Button>
                     <Button variant="contained" color="primary" onClick={props.closeAction} disabled={contactingServer}>Cancel</Button>
                     <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
                 </DialogActions>

@@ -184,13 +184,6 @@ export default function AddProject(props) {
   const handleSave = async (e) => {
     e.preventDefault();
 
-    // const dateFns = new DateFnsUtils();
-    // console.log(startDate.toUTCString());
-    // const initialDateFnsDate = dateFns.date(startDate.toUTCString());
-    // console.log(initialDateFnsDate);
-    // console.log(startDate);
-    // console.log(Date.parse(startDate.toUTCString()));
-
     set_name_error(null);
     set_remarks_error(null);
 
