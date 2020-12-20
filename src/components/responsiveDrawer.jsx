@@ -291,7 +291,7 @@ export default function ResponsiveDrawer(props) {
                         </ListItem>
                     </List>
                 </div>
-                {drawerOpen && <LanguageSelect language={language} themeChanged={themeChanged}></LanguageSelect>}
+                {/* {drawerOpen && <LanguageSelect language={language} themeChanged={themeChanged}></LanguageSelect>} */}
             </Drawer>
         </div >
     );

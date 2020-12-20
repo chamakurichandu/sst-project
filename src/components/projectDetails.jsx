@@ -35,6 +35,8 @@ import IconButton from '@material-ui/core/IconButton';
 import AddImage from '@material-ui/icons/Add';
 import SelectPlace from './selectPlace';
 import SelectActivity from './selectActivity';
+import AddFeeder from './addFeeder';
+import EditFeeder from './editFeeder';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -68,6 +70,54 @@ function stableSort(array, comparator) {
     return a[1] - b[1];
   });
   return stabilizedThis.map((el) => el[0]);
+}
+
+function EnhancedTableHead2(props) {
+  const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
+  const setDir = (dir === 'rtl' ? true : false);
+
+  const headCells = [
+    { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
+    { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
+    { id: 'survey', numeric: false, disablePadding: false, label: 'Survey' },
+    { id: 'installation', numeric: false, disablePadding: false, label: 'Installation' },
+    { id: 'commissioning', numeric: false, disablePadding: false, label: 'Commissioning & Testing' },
+    { id: 'acceptance', numeric: false, disablePadding: false, label: 'Acceptance' },
+    { id: 'handover', numeric: false, disablePadding: false, label: 'Hand Over' },
+    { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' },
+  ];
+
+  const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  const createSortHandler = (property) => (event) => {
+    onRequestSort(event, property);
+  };
+  return (
+    <TableHead>
+      <TableRow>
+        {headCells.map((headCell) => (
+          <TableCell
+            key={headCell.id}
+            align={!setDir ? 'left' : 'right'}
+            padding={headCell.disablePadding ? 'none' : 'default'}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : 'asc'}
+              onClick={createSortHandler(headCell.id)}
+            >
+              {headCell.label}
+              {orderBy === headCell.id ? (
+                <span className={classes.visuallyHidden}>
+                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                </span>
+              ) : null}
+            </TableSortLabel>
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
 }
 
 function EnhancedTableHead(props) {
@@ -320,6 +370,11 @@ export default function ProjectDetails(props) {
   const [showSelectSubDivision, setShowSelectSubDivision] = React.useState(false);
   const [showSelectSection, setShowSelectSection] = React.useState(false);
   const [showSelectActivity, setShowSelectActivity] = React.useState(false);
+
+  const [showAddFeederDialog, setShowAddFeederDialog] = React.useState(false);
+  const [showEditFeederDialog, setShowEditFeederDialog] = React.useState(false);
+
+  const [selectedFeeder, setSelectedFeeder] = React.useState(null);
 
   const [showBackdrop, setShowBackdrop] = React.useState(false);
 
@@ -648,6 +703,51 @@ export default function ProjectDetails(props) {
     }
   }
 
+  const getFeeders = async (nRows, search = "") => {
+    console.log("getFeeders called");
+    setRows([]);
+    if (projectActivities.length === 0 || currentActivity === -1)
+      return;
+    console.log("getFeeders called 2");
+    console.log("projectActivities: ", projectActivities);
+    console.log("currentActivity: ", currentActivity);
+    console.log("projectActivities[currentActivity]._id: ", projectActivities[currentActivity]._id);
+    try {
+      setShowBackdrop(true);
+      // console.log("page: ", page);      
+
+      let url = config["baseurl"] + "/api/work/list?activity_ref_id=" + projectActivities[currentActivity]._id + "&count=" + nRows + "&offset=" + offset + "&search=" + search;
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+
+      setTotalCount(data.list.totalDocs);
+      let newRows = [];
+      for (let i = 0; i < data.list.docs.length; ++i) {
+        newRows.push(createData((offset + i + 1),
+          data.list.docs[i]
+        ));
+      }
+
+      console.log(newRows);
+
+      setRows(newRows);
+
+      setShowBackdrop(false);
+    }
+    catch (e) {
+      console.log(e.response);
+      setShowBackdrop(false);
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting feeders for project");
+      }
+      console.log("Error in getting feeders for project");
+      setShowError(true);
+    }
+  };
+
   useEffect(() => {
     getDivisionList();
   }, []);
@@ -686,6 +786,11 @@ export default function ProjectDetails(props) {
     if (activities.length > 0)
       getActivitiesListForProject();
   }, [activities]);
+
+  useEffect(() => {
+    if (projectActivities.length > 0)
+      getFeeders(rowsPerPage);
+  }, [projectActivities, currentActivity]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -733,7 +838,7 @@ export default function ProjectDetails(props) {
   const handleChangePage = (event, newPage) => {
     offset = newPage * rowsPerPage;
     setPage(newPage);
-    // getList(rowsPerPage);
+    getFeeders(rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -741,18 +846,18 @@ export default function ProjectDetails(props) {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
     offset = 0;
-    // getList(newRowsPerPage);
+    getFeeders(newRowsPerPage);
   };
 
-  const handleEdit = (data) => {
-    console.log("handleEdit: ", data);
+  const handleEditFeeder = (data) => {
+    console.log("handleEditFeeder: ", data);
 
-    props.setSelectedSupplyVendor(data);
-    props.history.push("/editproject");
+    setSelectedFeeder(data);
+    setShowEditFeederDialog(true);
   };
 
-  const handleAdd = () => {
-    props.history.push("/addproject");
+  const handleAddFeeder = () => {
+    setShowAddFeederDialog(true);
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -785,7 +890,7 @@ export default function ProjectDetails(props) {
   const onSearchChange = (event) => {
     console.log(event.target.value);
 
-    // getList(rowsPerPage, event.target.value);
+    getFeeders(rowsPerPage, event.target.value);
   };
 
   const onDetails = (index) => {
@@ -873,6 +978,92 @@ export default function ProjectDetails(props) {
         return divisions[i].name;
     }
     return place;
+  };
+
+  const closeAddFeederAction = () => {
+    setShowAddFeederDialog(false);
+  };
+
+  const onNewFeederSavedAction = () => {
+    setShowAddFeederDialog(false);
+    getFeeders(rowsPerPage);
+  };
+
+  const closeEditFeederAction = () => {
+    setShowEditFeederDialog(false);
+  };
+
+  const deleteFeederAction = async () => {
+    setShowEditFeederDialog(false);
+
+    try {
+      setShowBackdrop(true);
+      let url = config["baseurl"] + "/api/work/delete";
+
+      let postObj = {};
+      postObj["_id"] = selectedFeeder._id;
+
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+
+      const response = await axios.post(url, postObj);
+
+      console.log("successfully Saved");
+      setShowBackdrop(false);
+
+      getFeeders(rowsPerPage);
+    }
+    catch (e) {
+      if (e.response) {
+        console.log("Error in editing 1");
+        console.log("e.response: ", e.response);
+        setErrorMessage(e.response.data["message"]);
+      }
+      else {
+        console.log("Error in editing 2");
+        setErrorMessage("Error in editing: ", e.message);
+      }
+      setShowError(true);
+      setShowBackdrop(false);
+    }
+  };
+
+  const onEditFeederSavedAction = () => {
+    setShowEditFeederDialog(false);
+    getFeeders(rowsPerPage);
+  };
+
+  const getFeederStatus = (status) => {
+    let retStatus = "Not Started";
+    switch (status) {
+      case 0:
+        retStatus = "Not Started";
+        break;
+      case 1:
+        retStatus = "WIP";
+        break;
+      case 2:
+        retStatus = "Completed";
+        break;
+    }
+
+    return retStatus;
+  };
+
+  const getFeederColor = (status) => {
+    let retStatus = "red";
+    switch (status) {
+      case 0:
+        retStatus = "red";
+        break;
+      case 1:
+        retStatus = "orange";
+        break;
+      case 2:
+        retStatus = "green";
+        break;
+    }
+
+    return retStatus;
   };
 
   return (
@@ -1001,6 +1192,86 @@ export default function ProjectDetails(props) {
               </Grid>
             </Paper>
           </div>
+          {(projectActivities.length > 0) &&
+            <div className={classes.paper}>
+              <Paper className={classes.grid}>
+                <Grid container spacing={2}>
+                  <Grid item className={classes.totalAttendes}>
+                    {/* <img src={ProjectsImage} width='25' alt="" /> */}
+                    <h1 className={classes.h1}>{totalCount}</h1>
+                    <span>{"Feeders"}</span>
+                  </Grid>
+                  <Grid item className={classes.addButton}>
+                    <Button onClick={() => handleAddFeeder()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Feeder"}</Button>
+                  </Grid>
+                </Grid>
+              </Paper>
+              <Paper className={classes.grid}>
+                <div className={classes.search}>
+                  <div className={classes.searchIcon}>
+                    <SearchIcon />
+                  </div>
+                  <InputBase
+                    placeholder="Search"
+                    classes={{
+                      root: classes.inputRoot,
+                      input: classes.inputInput,
+                    }}
+                    inputProps={{ 'aria-label': 'search' }}
+                    onChange={onSearchChange}
+                  />
+                </div>
+                <TableContainer>
+                  <Table
+                    className={classes.table}
+                    aria-labelledby="tableTitle"
+                    size='small'
+                    aria-label="enhanced table"
+                  >
+                    <EnhancedTableHead2
+                      classes={classes}
+                      numSelected={selected.length}
+                      order={order}
+                      orderBy={orderBy}
+                      onSelectAllClick={handleSelectAllClick}
+                      onRequestSort={handleRequestSort}
+                      rowCount={rows.length}
+                    />
+
+                    <TableBody>
+                      {rows.map((row, index) => {
+                        const isItemSelected = isSelected(row.name);
+                        const labelId = `enhanced-table-checkbox-${index}`;
+                        return (
+                          <TableRow hover tabIndex={-1} key={row.slno}>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.name}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getFeederColor(row.data.step_status[0]) }}>{getFeederStatus(row.data.step_status[0])}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getFeederColor(row.data.step_status[1]) }}>{getFeederStatus(row.data.step_status[1])}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getFeederColor(row.data.step_status[2]) }}>{getFeederStatus(row.data.step_status[2])}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getFeederColor(row.data.step_status[3]) }}>{getFeederStatus(row.data.step_status[3])}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getFeederColor(row.data.step_status[4]) }}>{getFeederStatus(row.data.step_status[4])}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                              <div><Button size='small' onClick={() => handleEditFeeder(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button> </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <TablePagination
+                  rowsPerPageOptions={pageLimits}
+                  component="div"
+                  count={totalCount}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onChangePage={handleChangePage}
+                  onChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+              </Paper>
+            </div>
+          }
         </div>
       }
 
@@ -1008,7 +1279,8 @@ export default function ProjectDetails(props) {
       {showSelectSubDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSubDivision} project={props.project} items={subDivisions} type={"subdivision"} />}
       {showSelectSection && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSection} project={props.project} items={sections} type={"section"} />}
       {showSelectActivity && (projectSections.length > 0) && <SelectActivity closeAction={closeSelectPlaceDialogAction} onSelect={onSelectActivity} project={props.project} items={activities} type={"activity"} section={projectSections[currentSection]} projectActivities={projectActivities} />}
-
+      {showAddFeederDialog && (projectActivities.length > 0) && (currentActivity !== -1) && <AddFeeder closeAction={closeAddFeederAction} onSavedAction={onNewFeederSavedAction} activity_ref_id={projectActivities[currentActivity]._id} />}
+      {showEditFeederDialog && <EditFeeder closeAction={closeEditFeederAction} deleteAction={deleteFeederAction} onSavedAction={onEditFeederSavedAction} feeder={selectedFeeder} />}
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}
