@@ -133,6 +133,8 @@ export default function EditSection(props) {
 
     const [contactingServer, setContactingServer] = React.useState(false);
 
+    const statusStrings = ["Not Started", "WIP", "Completed", "Hold"];
+
     const handleSave = async () => {
         try {
             setContactingServer(true);
@@ -219,7 +221,7 @@ export default function EditSection(props) {
                             onChange={(event) => handleChange(event, 0)}
                             variant="outlined"
                         >
-                            {["Not Started", "WIP", "Completed"].map((row, index) => {
+                            {statusStrings.map((row, index) => {
                                 return (
                                     <MenuItem key={"" + index} value={index}>{row}</MenuItem>
                                 );
@@ -234,7 +236,7 @@ export default function EditSection(props) {
                             onChange={(event) => handleChange(event, 1)}
                             variant="outlined"
                         >
-                            {["Not Started", "WIP", "Completed"].map((row, index) => {
+                            {statusStrings.map((row, index) => {
                                 return (
                                     <MenuItem key={"" + index} value={index}>{row}</MenuItem>
                                 );
@@ -249,7 +251,7 @@ export default function EditSection(props) {
                             onChange={(event) => handleChange(event, 2)}
                             variant="outlined"
                         >
-                            {["Not Started", "WIP", "Completed"].map((row, index) => {
+                            {statusStrings.map((row, index) => {
                                 return (
                                     <MenuItem key={"" + index} value={index}>{row}</MenuItem>
                                 );
@@ -264,7 +266,7 @@ export default function EditSection(props) {
                             onChange={(event) => handleChange(event, 3)}
                             variant="outlined"
                         >
-                            {["Not Started", "WIP", "Completed"].map((row, index) => {
+                            {statusStrings.map((row, index) => {
                                 return (
                                     <MenuItem key={"" + index} value={index}>{row}</MenuItem>
                                 );
@@ -279,7 +281,7 @@ export default function EditSection(props) {
                             onChange={(event) => handleChange(event, 4)}
                             variant="outlined"
                         >
-                            {["Not Started", "WIP", "Completed"].map((row, index) => {
+                            {statusStrings.map((row, index) => {
                                 return (
                                     <MenuItem key={"" + index} value={index}>{row}</MenuItem>
                                 );

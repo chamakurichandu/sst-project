@@ -1044,6 +1044,9 @@ export default function ProjectDetails(props) {
       case 2:
         retStatus = "Completed";
         break;
+      case 3:
+        retStatus = "Hold";
+        break;
     }
 
     return retStatus;
