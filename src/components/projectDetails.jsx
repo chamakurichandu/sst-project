@@ -37,6 +37,7 @@ import SelectPlace from './selectPlace';
 import SelectActivity from './selectActivity';
 import AddFeeder from './addFeeder';
 import EditFeeder from './editFeeder';
+import Chip from '@material-ui/core/Chip';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -131,7 +132,9 @@ function EnhancedTableHead(props) {
     { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
     { id: 'startdate', numeric: false, disablePadding: false, label: 'Start Date' },
     { id: 'expectedenddate', numeric: false, disablePadding: false, label: 'Expected End Date' },
-    { id: 'remarks', numeric: false, disablePadding: false, label: 'Remarks' }
+    { id: 'remarks', numeric: false, disablePadding: false, label: 'Remarks' },
+    { id: 'documents', numeric: false, disablePadding: false, label: 'Documents' },
+    { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
   ];
 
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -375,11 +378,43 @@ export default function ProjectDetails(props) {
   const [showEditFeederDialog, setShowEditFeederDialog] = React.useState(false);
 
   const [selectedFeeder, setSelectedFeeder] = React.useState(null);
+  const [currentProj, setCurrentProj] = React.useState(null);
 
   const [showBackdrop, setShowBackdrop] = React.useState(false);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
+
+  async function getProject() {
+    try {
+      let url = config["baseurl"] + "/api/project/details";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      axios.defaults.headers.common['_id'] = props.project._id;
+      const { data } = await axios.get(url);
+      delete axios.defaults.headers.common['_id'];
+      console.log(data);
+
+      const dateFns = new DateFnsUtils();
+      data.startdate_conv = dateFns.date(data.startdate);
+      data.exp_enddate_conv = dateFns.date(data.exp_enddate);
+
+      setCurrentProj(data);
+      props.setProject(data);
+
+      getDivisionList();
+    }
+    catch (e) {
+
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
+
 
   const getDivisionList = async () => {
     console.log("getDivisionList called");
@@ -438,7 +473,7 @@ export default function ProjectDetails(props) {
     try {
       setShowBackdrop(true);
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/projectPlace/list?type=division&project=" + props.project._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=division&project=" + currentProj._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       // console.log(data);
@@ -514,7 +549,7 @@ export default function ProjectDetails(props) {
       setShowBackdrop(true);
       console.log("page: ", page);
       const divisionIndex = currentDivision === -1 ? 0 : currentDivision;
-      let url = config["baseurl"] + "/api/projectPlace/list?type=subdivision&project=" + props.project._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=subdivision&project=" + currentProj._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       // console.log(data);
@@ -595,7 +630,7 @@ export default function ProjectDetails(props) {
       // console.log("page: ", page);
 
       const index = currentSubDivision === -1 ? 0 : currentSubDivision;
-      let url = config["baseurl"] + "/api/projectPlace/list?type=section&project=" + props.project._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=section&project=" + currentProj._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
 
@@ -671,7 +706,7 @@ export default function ProjectDetails(props) {
       // console.log("page: ", page);
 
       const index = currentSubDivision === -1 ? 0 : currentSubDivision;
-      let url = config["baseurl"] + "/api/projectactivity/list?section=" + projectSections[currentSection]._id + "&project=" + props.project._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectactivity/list?section=" + projectSections[currentSection]._id + "&project=" + currentProj._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
 
@@ -749,7 +784,8 @@ export default function ProjectDetails(props) {
   };
 
   useEffect(() => {
-    getDivisionList();
+    getProject();
+
   }, []);
 
   useEffect(() => {
@@ -1069,6 +1105,16 @@ export default function ProjectDetails(props) {
     return retStatus;
   };
 
+  const handleProjectEdit = () => {
+    props.history.push("/editproject");
+  };
+
+  const handleOpenDoc = (index) => {
+    const file = currentProj.docs[index];
+    console.log(file);
+    window.open(file.path, '_blank');
+  };
+
   return (
     <div className={clsx(classes.root)}>
       {props.refreshUI &&
@@ -1100,17 +1146,29 @@ export default function ProjectDetails(props) {
                     rowCount={rows.length}
                   />
 
-                  <TableBody>
-                    <TableRow hover tabIndex={-1} key={"1"}>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{props.project.code}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{props.project.name}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getCustomer(props.project.customer)}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.project.status}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.project.startdate_conv.toDateString()}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.project.exp_enddate_conv.toDateString()}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.project.remark}</span></TableCell>
-                    </TableRow>
-                  </TableBody>
+                  {currentProj &&
+                    <TableBody>
+                      <TableRow hover tabIndex={-1} key={"1"}>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{currentProj.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{currentProj.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getCustomer(currentProj.customer)}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{currentProj.status}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{currentProj.startdate_conv.toDateString()}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{currentProj.exp_enddate_conv.toDateString()}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{currentProj.remark}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          {currentProj.docs.map((file, index) => {
+                            return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} />);
+                          })}
+                        </TableCell>
+
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <div><Button onClick={() => handleProjectEdit()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                        </TableCell>
+
+                      </TableRow>
+                    </TableBody>
+                  }
                 </Table>
               </TableContainer>
             </Paper>
@@ -1195,7 +1253,8 @@ export default function ProjectDetails(props) {
               </Grid>
             </Paper>
           </div>
-          {(projectActivities.length > 0) &&
+          {
+            (projectActivities.length > 0) &&
             <div className={classes.paper}>
               <Paper className={classes.grid}>
                 <Grid container spacing={2}>
@@ -1275,15 +1334,15 @@ export default function ProjectDetails(props) {
               </Paper>
             </div>
           }
-        </div>
+        </div >
       }
 
-      {showSelectDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectDivision} project={props.project} items={divisions} type={"division"} />}
-      {showSelectSubDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSubDivision} project={props.project} items={subDivisions} type={"subdivision"} />}
-      {showSelectSection && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSection} project={props.project} items={sections} type={"section"} />}
-      {showSelectActivity && (projectSections.length > 0) && <SelectActivity closeAction={closeSelectPlaceDialogAction} onSelect={onSelectActivity} project={props.project} items={activities} type={"activity"} section={projectSections[currentSection]} projectActivities={projectActivities} />}
-      {showAddFeederDialog && (projectActivities.length > 0) && (currentActivity !== -1) && <AddFeeder closeAction={closeAddFeederAction} onSavedAction={onNewFeederSavedAction} activity_ref_id={projectActivities[currentActivity]._id} />}
-      {showEditFeederDialog && <EditFeeder closeAction={closeEditFeederAction} deleteAction={deleteFeederAction} onSavedAction={onEditFeederSavedAction} feeder={selectedFeeder} />}
+      { showSelectDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectDivision} project={currentProj} items={divisions} type={"division"} />}
+      { showSelectSubDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSubDivision} project={currentProj} items={subDivisions} type={"subdivision"} />}
+      { showSelectSection && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSection} project={currentProj} items={sections} type={"section"} />}
+      { showSelectActivity && (projectSections.length > 0) && <SelectActivity closeAction={closeSelectPlaceDialogAction} onSelect={onSelectActivity} project={currentProj} items={activities} type={"activity"} section={projectSections[currentSection]} projectActivities={projectActivities} />}
+      { showAddFeederDialog && (projectActivities.length > 0) && (currentActivity !== -1) && <AddFeeder closeAction={closeAddFeederAction} onSavedAction={onNewFeederSavedAction} activity_ref_id={projectActivities[currentActivity]._id} />}
+      { showEditFeederDialog && <EditFeeder closeAction={closeEditFeederAction} deleteAction={deleteFeederAction} onSavedAction={onEditFeederSavedAction} feeder={selectedFeeder} />}
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}

@@ -70,7 +70,6 @@ function EnhancedTableHead(props) {
   const setDir = (dir === 'rtl' ? true : false);
 
   const headCells = [
-    { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Warehouse Name' },
     { id: 'managers', numeric: false, disablePadding: false, label: 'Managers' },
     { id: 'city', numeric: false, disablePadding: false, label: 'city' },
@@ -350,10 +349,7 @@ export default function Warehouses(props) {
     getList(newRowsPerPage);
   };
 
-  const handleEdit = (data) => {
-    console.log("handleEdit: ", data);
-
-    props.setSelectedWarehouse(data);
+  const handleEdit = () => {
     props.history.push("/editwarehouse");
   };
 
@@ -389,8 +385,7 @@ export default function Warehouses(props) {
   }
 
   const onGoNextLevel = (data) => {
-    props.setSelectedWarehouse(data);
-    props.history.push("/warehousehome");
+
   };
 
   return (
@@ -400,31 +395,6 @@ export default function Warehouses(props) {
         <div className={classes.paper}>
           <EnhancedTableToolbar title={lstrings.Warehouses} />
           <Paper className={classes.grid}>
-            <Grid container spacing={2}>
-              <Grid item className={classes.totalAttendes}>
-                <img src={WarehouseImage} width='25' alt="" />
-                <h1 className={classes.h1}>{totalCount}</h1>
-                <span>{lstrings.Warehouses}</span>
-              </Grid>
-              <Grid item className={classes.addButton}>
-                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Warehouse"}</Button>
-              </Grid>
-            </Grid>
-          </Paper>
-          <Paper className={classes.grid}>
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-              <InputBase
-                placeholder="Search"
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput,
-                }}
-                inputProps={{ 'aria-label': 'search' }}
-              />
-            </div>
             <TableContainer>
               <Table
                 className={classes.table}
@@ -443,57 +413,25 @@ export default function Warehouses(props) {
                 />
 
                 <TableBody>
-                  {stableSort(rows, getComparator(order, orderBy))
-                    .map((row, index) => {
-                      const isItemSelected = isSelected(row.name);
-                      const labelId = `enhanced-table-checkbox-${index}`;
-                      return (
-                        <TableRow
-                          hover
-                          tabIndex={-1}
-                          key={row.slno}
-                        >
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">
-                            {row.slno}
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div className={classes.flex}>
-                              <Image
-                                src={WarehouseImage}
-                                NativeImgProps={{ className: classes.exhibitor_image, width: 25, height: 25 }}
-                                style={{ objectFit: 'cover' }}
-                                fallback={<Shimmer width={25} height={25} />} />
+                  <TableRow hover tabIndex={-1} key={"1"} >
+                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                      <div className={classes.flex}>
+                        <Image src={WarehouseImage} NativeImgProps={{ className: classes.exhibitor_image, width: 25, height: 25 }} style={{ objectFit: 'cover' }}
+                          fallback={<Shimmer width={25} height={25} />} />
+                        <span> {props.warehouse.name} </span>
+                      </div>
+                    </TableCell>
+                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(props.warehouse.managers)}</span></TableCell>
+                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.warehouse.city}</span><br></br><span>{props.warehouse.state}</span></TableCell>
+                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.warehouse.address}</span></TableCell>
+                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                      <div><Button onClick={() => handleEdit()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                    </TableCell>
 
-                              <span>
-                                <Link color="inherit" href="#" onClick={() => onGoNextLevel(row.data)} >
-                                  {row.data.name}
-                                </Link>
-
-                                {/* {row.data.name} */}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(row.data.managers)}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.city}</span><br></br><span>{row.data.state}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.address}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                  </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={pageLimits}
-              component="div"
-              count={totalCount}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-            />
           </Paper>
         </div>
 
