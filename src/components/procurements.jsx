@@ -32,6 +32,11 @@ import IconButton from '@material-ui/core/IconButton';
 import EditImage from '@material-ui/icons/Edit';
 import GetAppImage from '@material-ui/icons/GetApp';
 
+import ComapnyHeaderImage from '../assets/Images/CompanyHeader.png';
+
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -266,6 +271,7 @@ export default function Procurements(props) {
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [supplyVendors, setSupplyVendors] = React.useState([]);
+  const [allItems, set_allItems] = React.useState([]);
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
@@ -290,6 +296,8 @@ export default function Procurements(props) {
       }
 
       setRows(newRows);
+
+      getAllItemList();
     }
     catch (e) {
 
@@ -327,6 +335,26 @@ export default function Procurements(props) {
       setShowError(true);
     }
   }
+
+  async function getAllItemList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/material/list?count=" + 10000 + "&offset=" + 0 + "&search=";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+
+      set_allItems(data.list.docs);
+      setShowBackDrop(false);
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("Error in getting all items");
+      setErrorMessage("Error in getting all items");
+      setShowError(true);
+    }
+  }
+
 
   useEffect(() => {
     getSupplyVendorList();
@@ -443,7 +471,7 @@ export default function Procurements(props) {
 
   };
 
-  const getSupplyVendor = (id) => {
+  const getSupplyVendorName = (id) => {
     for (let i = 0; i < supplyVendors.length; ++i) {
       if (supplyVendors[i]._id === id)
         return supplyVendors[i].name;
@@ -451,13 +479,126 @@ export default function Procurements(props) {
     return id;
   };
 
+  const getSupplyVendor = (id) => {
+    for (let i = 0; i < supplyVendors.length; ++i) {
+      if (supplyVendors[i]._id === id)
+        return supplyVendors[i];
+    }
+    return null;
+  };
+
   const editAction = (data) => {
     props.setProcurement(data);
     props.history.push("/editprocurement");
   };
 
-  const downloadAction = (data) => {
+  const getItem = (id) => {
+    for (let i = 0; i < allItems.length; ++i) {
+      if (allItems[i]._id === id)
+        return allItems[i];
+    }
+    return null;
+  };
 
+  const getBase64ImageFromURL = (url) => {
+    return new Promise((resolve, reject) => {
+      var img = new Image();
+      img.setAttribute("crossOrigin", "anonymous");
+      img.onload = () => {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        var dataURL = canvas.toDataURL("image/png");
+        resolve(dataURL);
+      };
+      img.onerror = error => {
+        reject(error);
+      };
+      img.src = url;
+    });
+  };
+
+  const downloadAction = async (data) => {
+    let supplyVendor = getSupplyVendor(data.supply_vendor);
+    let enqItems = [];
+    enqItems.push([{ text: 'S.No.', style: 'tableHeader', fontSize: 11 }, { text: 'Item Type', style: 'tableHeader', fontSize: 11 }, { text: 'Item Description', style: 'tableHeader', fontSize: 11 }, { text: 'UOM', style: 'tableHeader', fontSize: 11 }, { text: 'Qty', style: 'tableHeader', fontSize: 11 }]);
+    data.items.forEach(function (item, index) {
+      let completeItem = getItem(item.item);
+      enqItems.push(["" + (index + 1), completeItem.name, completeItem.description, '4', item.qty]);
+    });
+
+    console.log("enqItems: ", enqItems);
+
+    var docDefinition = {
+      header: { image: await getBase64ImageFromURL("https://demossga.s3.ap-south-1.amazonaws.com/temp/RajashreeElectricalsHeader.png"), width: 594, height: 130, alignment: "center" },
+      // header: { text: 'Rajashree Electricals\n#154, Near R.V.Public School, Nijalingappa Layout, Davanagere - 577004\n\nprojects@rajashreeelectricals.com', alignment: "right" },
+      content: [
+        { text: "\n\n\n\n\n\n\n" },
+        {
+          style: 'tableExample',
+          color: '#444',
+          table: {
+            widths: ["*", "*", "*", "*"],
+            headerRows: 1,
+            // keepWithHeaderRows: 1,
+            body: [
+              [{ text: 'Purchase Enquiry', style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: "To, \n" + supplyVendor.name + "\n" + supplyVendor.address + "\n\n" + "Kind Attention: " + data.kind_attention, colSpan: 2, alignment: 'left' },
+              {}, { text: "Enquiry No: " + data.code + "\nEnquiry Date: " + data.createddate_conv.toDateString(), colSpan: 2, alignment: 'left' }, {}],
+              [{ text: data.description, colSpan: 4, alignment: 'left' }, {}, {}, {}],
+              [
+                {
+                  table: {
+                    widths: [30, 70, "*", 30, 30],
+                    headerRows: 1,
+                    body: enqItems
+                  },
+                  colSpan: 4
+                },
+                {}, {}, {}
+              ],
+              [{ text: "Key Remarks:\n" + data.key_remark, colSpan: 4, alignment: 'left' }, {}, {}, {}],
+
+              // ['Sample value 1', 'Sample value 2', 'Sample value 3'],
+              // [{ rowSpan: 3, text: 'rowSpan set to 3\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor' }, 'Sample value 2', 'Sample value 3'],
+              // ['', 'Sample value 2', 'Sample value 3'],
+              // ['Sample value 1', 'Sample value 2', 'Sample value 3'],
+              // ['Sample value 1', { colSpan: 2, rowSpan: 2, text: 'Both:\nrowSpan and colSpan\ncan be defined at the same time' }, ''],
+              // ['Sample value 1', '', ''],
+            ]
+          }
+        },
+        { text: 'We appreciate your response.' },
+        { text: '\nThanks and Regards,' },
+        { text: '\nRajeshree Electricals,\n99454 9500 / 99000 45235' }
+      ],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          margin: [0, 0, 0, 10]
+        },
+        subheader: {
+          fontSize: 16,
+          bold: true,
+          margin: [0, 10, 0, 5]
+        },
+        tableExample: {
+          margin: [0, 5, 0, 15]
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 13,
+          color: 'black'
+        }
+      },
+      defaultStyle: {
+        // alignment: 'justify'
+      }
+    };
+    pdfMake.createPdf(docDefinition).download();
   };
 
   return (
@@ -517,7 +658,7 @@ export default function Procurements(props) {
                       <TableRow hover tabIndex={-1} key={row.slno}>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getSupplyVendor(row.data.supply_vendor)}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getSupplyVendorName(row.data.supply_vendor)}</span></TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.status}</span></TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
