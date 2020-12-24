@@ -21,9 +21,6 @@ import axios from 'axios';
 import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import lstrings from '../lstrings';
-import ProjectsImage from '../assets/svg/ss/brief-2.svg';
-import Link from '@material-ui/core/Link';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DateFnsUtils from '@date-io/date-fns';
@@ -31,8 +28,6 @@ import ProcurementImage from '../assets/svg/ss/commercial-2.svg';
 import IconButton from '@material-ui/core/IconButton';
 import EditImage from '@material-ui/icons/Edit';
 import GetAppImage from '@material-ui/icons/GetApp';
-
-import ComapnyHeaderImage from '../assets/Images/CompanyHeader.png';
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
