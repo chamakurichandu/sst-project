@@ -208,10 +208,6 @@ export default function ResponsiveDrawer(props) {
                                 <ListItemIcon><img src={InventoryImage} height='25' alt="" /></ListItemIcon>
                                 <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Inventory} />
                             </ListItem>
-                            <ListItem button key={lstrings.Procurement} onClick={() => history.push("/salespanel")}>
-                                <ListItemIcon><img src={ProcurementImage} height='25' alt="" /></ListItemIcon>
-                                <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Procurement} />
-                            </ListItem>
                             <ListItem button key={lstrings.PaymentStatus} onClick={() => history.push("/salespanel")}>
                                 <ListItemIcon><img src={PaymentStatusImage} height='25' alt="" /></ListItemIcon>
                                 <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.PaymentStatus} />
@@ -227,6 +223,10 @@ export default function ResponsiveDrawer(props) {
                         <ListItem button key={lstrings.Projects} onClick={() => history.push("/projects")}>
                             <ListItemIcon><img src={ProjectsImage} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Projects} />
+                        </ListItem>
+                        <ListItem button key={lstrings.Procurement} onClick={() => history.push("/procurements")}>
+                            <ListItemIcon><img src={ProcurementImage} height='25' alt="" /></ListItemIcon>
+                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Procurement} />
                         </ListItem>
                         <ListItem button key={"projects-utils"} onClick={() => history.push("/projects-utils")}>
                             <ListItemIcon><img src={CollectIcon} height='25' alt="" /></ListItemIcon>
