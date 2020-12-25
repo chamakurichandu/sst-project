@@ -16,6 +16,8 @@ import MeasureIcon from '../assets/svg/ss/measure-tape.svg';
 import axios from 'axios';
 import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -81,7 +83,7 @@ export default function EditSection(props) {
             flexDirection: 'column',
             position: 'relative',
             outline: 'none',
-            // padding: '10px 20px',
+            padding: '10px 20px',
             width: '100%',
             borderRadius: '5px',
             overflow: 'auto',
@@ -120,20 +122,29 @@ export default function EditSection(props) {
     const [showError, setShowError] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState(null);
 
-    const [name, set_name] = React.useState(props.item.name);
+    const [name, set_name] = React.useState(props.feeder.name);
     const [name_error, set_name_error] = React.useState(null);
 
+    const [surveyStatus, setSurveyStatus] = React.useState(props.feeder.step_status[0]);
+    const [installationStatus, setInstallationStatus] = React.useState(props.feeder.step_status[1]);
+    const [commissioningStatus, setCommissioningStatus] = React.useState(props.feeder.step_status[2]);
+    const [acceptanceStatus, setAcceptanceStatus] = React.useState(props.feeder.step_status[3]);
+    const [handOverStatus, setHandOverStatus] = React.useState(props.feeder.step_status[4]);
+
     const [contactingServer, setContactingServer] = React.useState(false);
+
+    const statusStrings = ["Not Started", "WIP", "Completed", "Hold"];
 
     const handleSave = async () => {
         try {
             setContactingServer(true);
-            let url = config["baseurl"] + "/api/section/update";
+            let url = config["baseurl"] + "/api/work/update";
 
             let postObj = {};
             postObj["name"] = name;
+            postObj["step_status"] = [surveyStatus, installationStatus, commissioningStatus, acceptanceStatus, handOverStatus];
 
-            let updateObj = { _id: props.item._id, updateParams: postObj };
+            let updateObj = { _id: props.feeder._id, updateParams: postObj };
 
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
@@ -141,7 +152,7 @@ export default function EditSection(props) {
 
             console.log("successfully Saved");
             setContactingServer(false);
-            props.onNewSaved();
+            props.onSavedAction();
         }
         catch (e) {
             if (e.response) {
@@ -166,6 +177,27 @@ export default function EditSection(props) {
         setShowError(false);
     };
 
+    const handleChange = (event, index) => {
+
+        switch (index) {
+            case 0:
+                setSurveyStatus(event.target.value);
+                break;
+            case 1:
+                setInstallationStatus(event.target.value);
+                break;
+            case 2:
+                setCommissioningStatus(event.target.value);
+                break;
+            case 3:
+                setAcceptanceStatus(event.target.value);
+                break;
+            case 4:
+                setHandOverStatus(event.target.value);
+                break;
+        }
+    };
+
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={open}>
@@ -180,6 +212,81 @@ export default function EditSection(props) {
                             label="Name *" variant="outlined"
                             onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />
                         {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
+                        <span>{props.feeder.step[0]}:   </span>
+                        <Select
+                            label={props.feeder.step[0]}
+                            labelId="survey"
+                            id="survey"
+                            value={surveyStatus}
+                            onChange={(event) => handleChange(event, 0)}
+                            variant="outlined"
+                        >
+                            {statusStrings.map((row, index) => {
+                                return (
+                                    <MenuItem key={"" + index} value={index}>{row}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                        <span>{props.feeder.step[1]}:   </span>
+                        <Select
+                            label={props.feeder.step[1]}
+                            labelId="installation"
+                            id="installation"
+                            value={installationStatus}
+                            onChange={(event) => handleChange(event, 1)}
+                            variant="outlined"
+                        >
+                            {statusStrings.map((row, index) => {
+                                return (
+                                    <MenuItem key={"" + index} value={index}>{row}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                        <span>{props.feeder.step[2]}:   </span>
+                        <Select
+                            label={props.feeder.step[2]}
+                            labelId="commissioning"
+                            id="commissioning"
+                            value={commissioningStatus}
+                            onChange={(event) => handleChange(event, 2)}
+                            variant="outlined"
+                        >
+                            {statusStrings.map((row, index) => {
+                                return (
+                                    <MenuItem key={"" + index} value={index}>{row}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                        <span>{props.feeder.step[3]}:   </span>
+                        <Select
+                            label={props.feeder.step[3]}
+                            labelId="acceptance"
+                            id="acceptance"
+                            value={acceptanceStatus}
+                            onChange={(event) => handleChange(event, 3)}
+                            variant="outlined"
+                        >
+                            {statusStrings.map((row, index) => {
+                                return (
+                                    <MenuItem key={"" + index} value={index}>{row}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                        <span>{props.feeder.step[4]}:   </span>
+                        <Select
+                            label={props.feeder.step[4]}
+                            labelId="handover"
+                            id="handover"
+                            value={handOverStatus}
+                            onChange={(event) => handleChange(event, 4)}
+                            variant="outlined"
+                        >
+                            {statusStrings.map((row, index) => {
+                                return (
+                                    <MenuItem key={"" + index} value={index}>{row}</MenuItem>
+                                );
+                            })}
+                        </Select>
                     </form>
                 </DialogContent>
 
@@ -196,6 +303,6 @@ export default function EditSection(props) {
                 </Alert>
             </Snackbar>
 
-        </div>
+        </div >
     );
 }

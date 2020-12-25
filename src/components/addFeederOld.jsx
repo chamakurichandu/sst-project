@@ -15,7 +15,6 @@ import MuiAlert from '@material-ui/lab/Alert';
 import MeasureIcon from '../assets/svg/ss/measure-tape.svg';
 import axios from 'axios';
 import config from "../config.json";
-import Snackbar from '@material-ui/core/Snackbar';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -63,7 +62,7 @@ const DialogActions = withStyles((theme) => ({
     },
 }))(MuiDialogActions);
 
-export default function EditSection(props) {
+export default function AddFeeder(props) {
     const useStyles = makeStyles((theme) => ({
         root: {
             width: 'calc(100%)',
@@ -120,7 +119,7 @@ export default function EditSection(props) {
     const [showError, setShowError] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState(null);
 
-    const [name, set_name] = React.useState(props.item.name);
+    const [name, set_name] = React.useState('');
     const [name_error, set_name_error] = React.useState(null);
 
     const [contactingServer, setContactingServer] = React.useState(false);
@@ -128,48 +127,38 @@ export default function EditSection(props) {
     const handleSave = async () => {
         try {
             setContactingServer(true);
-            let url = config["baseurl"] + "/api/section/update";
+            let url = config["baseurl"] + "/api/work/add";
 
             let postObj = {};
-            postObj["name"] = name;
-
-            let updateObj = { _id: props.item._id, updateParams: postObj };
+            postObj["name"] = name.trim();
+            postObj["activity_ref_id"] = props.activity_ref_id;
 
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
-            const response = await axios.patch(url, updateObj);
+            const response = await axios.post(url, postObj);
 
             console.log("successfully Saved");
             setContactingServer(false);
-            props.onNewSaved();
+            props.onSavedAction();
         }
         catch (e) {
             if (e.response) {
-                console.log("Error in editing 1");
-                console.log("e.response: ", e.response);
+                console.log("Error in creating material");
                 setErrorMessage(e.response.data["message"]);
             }
             else {
-                console.log("Error in editing 2");
-                setErrorMessage("Error in editing: ", e.message);
+                console.log("Error in creating");
+                setErrorMessage("Error in creating: ", e.message);
             }
             setShowError(true);
             setContactingServer(false);
         }
     };
 
-    const handleSnackbarClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setShowError(false);
-    };
-
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={open}>
-                <DialogTitle id="alert-dialog-title">{"Edit Section"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"New Feeder"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
 
@@ -184,18 +173,10 @@ export default function EditSection(props) {
                 </DialogContent>
 
                 <DialogActions>
-                    <Button variant="contained" color="secondary" onClick={props.deleteAction} disabled={contactingServer}>Delete</Button>
                     <Button variant="contained" color="primary" onClick={props.closeAction} disabled={contactingServer}>Cancel</Button>
                     <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
                 </DialogActions>
             </Dialog>
-
-            <Snackbar open={showError} autoHideDuration={6000} onClose={handleSnackbarClose}>
-                <Alert onClose={handleSnackbarClose} severity="error">
-                    {errorMessage}
-                </Alert>
-            </Snackbar>
-
         </div>
     );
 }

@@ -15,6 +15,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 import MeasureIcon from '../assets/svg/ss/measure-tape.svg';
 import axios from 'axios';
 import config from "../config.json";
+import Snackbar from '@material-ui/core/Snackbar';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -127,11 +128,11 @@ export default function AddFeeder(props) {
     const handleSave = async () => {
         try {
             setContactingServer(true);
-            let url = config["baseurl"] + "/api/work/add";
+            let url = config["baseurl"] + "/api/feeder/add";
 
             let postObj = {};
             postObj["name"] = name.trim();
-            postObj["activity_ref_id"] = props.activity_ref_id;
+            postObj["section"] = props.section._id;
 
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
@@ -139,11 +140,12 @@ export default function AddFeeder(props) {
 
             console.log("successfully Saved");
             setContactingServer(false);
-            props.onSavedAction();
+            props.onNewSaved();
         }
         catch (e) {
+            console.log(e);
             if (e.response) {
-                console.log("Error in creating material");
+                console.log("Error in creating");
                 setErrorMessage(e.response.data["message"]);
             }
             else {
@@ -153,6 +155,14 @@ export default function AddFeeder(props) {
             setShowError(true);
             setContactingServer(false);
         }
+    };
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setShowError(false);
     };
 
     return (
@@ -177,6 +187,12 @@ export default function AddFeeder(props) {
                     <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
                 </DialogActions>
             </Dialog>
+            <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="error">
+                    {errorMessage}
+                </Alert>
+            </Snackbar>
+
         </div>
     );
 }

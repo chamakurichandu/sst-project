@@ -13,6 +13,7 @@ import Divisions from './divisions';
 import SubDivisions from './subDivisions';
 import Sections from './sections';
 import Activities from './activities';
+import Feeders from './feeders';
 
 function a11yProps(index) {
   return {
@@ -51,7 +52,7 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-export default function UOM(props) {
+export default function ProjectUtils(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -207,7 +208,8 @@ export default function UOM(props) {
               <Tab label="Divisions" {...a11yProps(0)} />
               <Tab label="Sub Divisions" {...a11yProps(1)} />
               <Tab label="O&M Sections" {...a11yProps(2)} />
-              <Tab label="Activities" {...a11yProps(3)} />
+              <Tab label="Feeders" {...a11yProps(3)} />
+              <Tab label="Activities" {...a11yProps(4)} />
             </Tabs>
           </AppBar>
           <TabPanel value={value} index={0}>
@@ -220,6 +222,9 @@ export default function UOM(props) {
             <Sections />
           </TabPanel>
           <TabPanel value={value} index={3}>
+            <Feeders />
+          </TabPanel>
+          <TabPanel value={value} index={4}>
             <Activities />
           </TabPanel>
         </div>

@@ -464,7 +464,7 @@ export default function AddProcurement(props) {
           <form className={classes.papernew} autoComplete="off" noValidate>
 
             <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="supplyvendor-select-label">Customer *</InputLabel>
+              <InputLabel id="supplyvendor-select-label">Supply Vendor *</InputLabel>
               <Select
                 labelId="supplyvendor-select-label"
                 id="supplyvendor-select-label"

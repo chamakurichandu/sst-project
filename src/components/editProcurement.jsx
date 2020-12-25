@@ -494,16 +494,10 @@ export default function EditProcurement(props) {
             <Typography color="textPrimary">{"Edit Procurement"}</Typography>
           </Breadcrumbs>
 
-          {/* <Paper className={classes.grid}> */}
           <form className={classes.papernew} autoComplete="off" noValidate>
-            {/* name */}
-            {/* <TextField size="small" className={classes.inputFields} id="formControl_name" defaultValue={name}
-              label="Project Name *" variant="outlined"
-              onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />
-            {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>} */}
 
             <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="supplyvendor-select-label">Customer *</InputLabel>
+              <InputLabel id="supplyvendor-select-label">Supply Vendor *</InputLabel>
               <Select
                 labelId="supplyvendor-select-label"
                 id="supplyvendor-select-label"
