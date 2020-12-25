@@ -341,7 +341,7 @@ export default function Feeders(props) {
   }
 
   async function getSectionList(numberOfRows, search = "") {
-    console.log("getList called");
+    console.log("getSectionList called");
     try {
       setShowBackdrop(true);
       // console.log("page: ", page);

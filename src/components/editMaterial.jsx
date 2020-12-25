@@ -87,6 +87,9 @@ export default function EditUser(props) {
 
   const [code, set_code] = React.useState(props.selectedMaterial.code);
 
+  const [hsncode, set_hsncode] = React.useState(props.selectedMaterial.hsncode);
+  const [hsncode_error, set_hsncode_error] = React.useState(null);
+
   const [name, set_name] = React.useState(props.selectedMaterial.name);
   const [name_error, set_name_error] = React.useState(null);
 
@@ -148,10 +151,12 @@ export default function EditUser(props) {
 
   const validateData = () => {
     const schema = Joi.object({
+      hsncode: Joi.string().required(),
       name: Joi.string().required(),
       description: Joi.string().required(),
     });
     const { error } = schema.validate({
+      hsncode: hsncode.trim(),
       name: name.trim(),
       description: description.trim()
     }, { abortEarly: false });
@@ -167,12 +172,17 @@ export default function EditUser(props) {
   const handleSave = async (e) => {
     e.preventDefault();
 
+    set_hsncode_error(null);
     set_name_error(null);
     set_description_error(null);
 
     const errors = validateData();
 
     let errorOccured = false;
+    if (errors["hsncode"]) {
+      set_hsncode_error(errors["hsncode"]);
+      errorOccured = true;
+    }
     if (errors["name"]) {
       set_name_error(errors["name"]);
       errorOccured = true;
@@ -195,6 +205,8 @@ export default function EditUser(props) {
         let url = config["baseurl"] + "/api/material/update";
 
         let postObj = {};
+        if (hsncode !== props.selectedMaterial.hsncode)
+          postObj["hsncode"] = hsncode.trim();
         if (name !== props.selectedMaterial.name)
           postObj["name"] = name.trim();
         if (description !== props.selectedMaterial.description)
@@ -321,7 +333,11 @@ export default function EditUser(props) {
             <TextField className={classes.inputFields} id="formControl_code" defaultValue={code}
               label="Description *" variant="outlined" disabled />
 
-            {/* name */}
+            <TextField className={classes.inputFields} id="formControl_hsncode" defaultValue={hsncode}
+              label="HSN Code *" variant="outlined"
+              onChange={(event) => { set_hsncode(event.target.value); set_hsncode_error(null); }} />
+            {hsncode_error && <Alert className={classes.alert} severity="error"> {hsncode_error} </Alert>}
+
             <TextField className={classes.inputFields} id="formControl_name" defaultValue={name}
               label="Name *" variant="outlined"
               onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />

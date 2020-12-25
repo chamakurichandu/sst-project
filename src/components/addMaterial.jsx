@@ -89,6 +89,9 @@ export default function AddMaterial(props) {
   const [showError, setShowError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
 
+  const [hsncode, set_hsncode] = React.useState('');
+  const [hsncode_error, set_hsncode_error] = React.useState(null);
+
   const [itemname, set_itemname] = React.useState('');
   const [itemname_error, set_itemname_error] = React.useState(null);
 
@@ -162,12 +165,14 @@ export default function AddMaterial(props) {
 
   const validateData = () => {
     const schema = Joi.object({
+      hsncode: Joi.string().min(1).max(100).required(),
       itemname: Joi.string().min(2).max(400).required(),
       description: Joi.string().min(2).max(500).required(),
       productcategory: Joi.number().min(0).max(10000).required(),
       uom: Joi.number().min(0).max(10000).required(),
     });
     const { error } = schema.validate({
+      hsncode: hsncode.trim(),
       itemname: itemname.trim(),
       description: description.trim(),
       productcategory: productcategory,
@@ -185,6 +190,7 @@ export default function AddMaterial(props) {
   const handleSave = async (e) => {
     e.preventDefault();
 
+    set_hsncode_error(null);
     set_itemname_error(null);
     set_description_error(null);
     set_productcategory_error(null);
@@ -193,6 +199,10 @@ export default function AddMaterial(props) {
     const errors = validateData();
 
     let errorOccured = false;
+    if (errors["hsncode"]) {
+      set_hsncode_error(errors["hsncode"]);
+      errorOccured = true;
+    }
     if (errors["itemname"]) {
       set_itemname_error(errors["itemname"]);
       errorOccured = true;
@@ -218,6 +228,7 @@ export default function AddMaterial(props) {
       let url = config["baseurl"] + "/api/material/add";
 
       let postObj = {};
+      postObj["hsncode"] = hsncode.trim();
       postObj["name"] = itemname.trim();
       postObj["description"] = description.trim();
       postObj["productCategoryId"] = productCategories[productcategory]._id;
@@ -304,9 +315,12 @@ export default function AddMaterial(props) {
             <Typography color="textPrimary">{lstrings.AddMaterial}</Typography>
           </Breadcrumbs>
 
-          {/* <Paper className={classes.grid}> */}
           <form className={classes.papernew} autoComplete="off" noValidate>
-            {/* name */}
+            <TextField className={classes.inputFields} id="formControl_hsncode" defaultValue={hsncode}
+              label="HSN Code *" variant="outlined"
+              onChange={(event) => { set_hsncode(event.target.value); set_hsncode_error(null); }} />
+            {hsncode_error && <Alert className={classes.alert} severity="error"> {hsncode_error} </Alert>}
+
             <TextField className={classes.inputFields} id="formControl_itemname" defaultValue={itemname}
               label="Item Name *" variant="outlined"
               onChange={(event) => { set_itemname(event.target.value); set_itemname_error(null); }} />

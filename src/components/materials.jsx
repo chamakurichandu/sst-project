@@ -72,6 +72,7 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'itemcode', numeric: false, disablePadding: false, label: 'Item Code' },
+    { id: 'hsncode', numeric: false, disablePadding: false, label: 'HSN Code' },
     { id: 'itemname', numeric: false, disablePadding: false, label: 'Item Name' },
     { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
     { id: 'productcategory', numeric: false, disablePadding: false, label: 'Product Category' },
@@ -500,6 +501,7 @@ export default function Materials(props) {
                         <TableRow hover tabIndex={-1} key={row.slno}>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.hsncode}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProductCategory(row.data.productCategoryId)}</span></TableCell>
