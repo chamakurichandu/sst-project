@@ -150,15 +150,15 @@ export default function SelectActivity(props) {
 
     const handleSave = async () => {
         try {
+            console.log("handleSave Called");
+
             setContactingServer(true);
-            let url = config["baseurl"] + "/api/projectactivity/add";
+
+            let url = config["baseurl"] + "/api/work/add";
 
             let postObj = {};
-            postObj["activity"] = props.items[current]._id;
-            postObj["section"] = props.section._id;
-            postObj["project"] = props.project._id;
-
-            console.log(postObj);
+            postObj["activity_ref_id"] = props.items[current]._id;
+            postObj["feeder_ref_id"] = props.feeder_ref_id;
 
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
@@ -166,7 +166,7 @@ export default function SelectActivity(props) {
 
             console.log("successfully Saved");
             setContactingServer(false);
-            props.onSelect();
+            props.onSavedAction();
         }
         catch (e) {
             if (e.response) {

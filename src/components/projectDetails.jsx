@@ -29,14 +29,12 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import DateFnsUtils from '@date-io/date-fns';
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import AddImage from '@material-ui/icons/Add';
+import RemoveImage from '@material-ui/icons/Remove';
 import SelectPlace from './selectPlace';
 import SelectActivity from './selectActivity';
-import AddFeeder from './addFeeder';
-import EditFeeder from './editFeeder';
+import UpdateActivity from './updateActivity';
 import Chip from '@material-ui/core/Chip';
 
 function Alert(props) {
@@ -194,8 +192,11 @@ function EnhancedTableHeadSmall(props) {
         {headCells.map((headCell) => (
           <TableCell key={headCell.id} align={!setDir ? 'left' : 'right'} padding='none' sortDirection={false} >
             {headCell.label}
-            {<IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onClick}>
+            {<IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onAddClick}>
               <AddImage />
+            </IconButton>}
+            {<IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onRemoveClick}>
+              <RemoveImage />
             </IconButton>}
           </TableCell>
         ))}
@@ -357,27 +358,38 @@ export default function ProjectDetails(props) {
   const [divisions, setDivisions] = React.useState([]);
   const [subDivisions, setSubDivisions] = React.useState([]);
   const [sections, setSections] = React.useState([]);
+  const [feeders, setFeeders] = React.useState([]);
   const [activities, setActivities] = React.useState([]);
 
   const [projectDivisions, setProjectDivisions] = React.useState([]);
   const [projectSubDivisions, setProjectSubDivisions] = React.useState([]);
   const [projectSections, setProjectSections] = React.useState([]);
+  const [projectFeeders, setProjectFeeders] = React.useState([]);
   const [projectActivities, setProjectActivities] = React.useState([]);
+  const [projectActivitiesFiltered, setProjectActivitiesFiltered] = React.useState([]);
 
   const [currentDivision, setCurrentDivision] = React.useState(-1);
   const [currentSubDivision, setCurrentSubDivision] = React.useState(-1);
   const [currentSection, setCurrentSection] = React.useState(-1);
-  const [currentActivity, setCurrentActivity] = React.useState(-1);
+  const [currentFeeder, setCurrentFeeder] = React.useState(-1);
 
   const [showSelectDivision, setShowSelectDivision] = React.useState(false);
+  const [showRemoveDivision, setShowRemoveDivision] = React.useState(false);
+
   const [showSelectSubDivision, setShowSelectSubDivision] = React.useState(false);
+  const [showRemoveSubDivision, setShowRemoveSubDivision] = React.useState(false);
+
   const [showSelectSection, setShowSelectSection] = React.useState(false);
-  const [showSelectActivity, setShowSelectActivity] = React.useState(false);
+  const [showRemoveSection, setShowRemoveSection] = React.useState(false);
 
-  const [showAddFeederDialog, setShowAddFeederDialog] = React.useState(false);
-  const [showEditFeederDialog, setShowEditFeederDialog] = React.useState(false);
+  const [showSelectFeeder, setShowSelectFeeder] = React.useState(false);
+  const [showRemoveFeeder, setShowRemoveFeeder] = React.useState(false);
 
-  const [selectedFeeder, setSelectedFeeder] = React.useState(null);
+  const [showAddActivityDialog, setShowAddActivityDialog] = React.useState(false);
+  const [showEditActivityDialog, setShowEditActivityDialog] = React.useState(false);
+
+  const [activityName, setActivityName] = React.useState(null);
+  const [selectedActivity, setSelectedActivity] = React.useState(null);
   const [currentProj, setCurrentProj] = React.useState(null);
 
   const [showBackdrop, setShowBackdrop] = React.useState(false);
@@ -427,9 +439,9 @@ export default function ProjectDetails(props) {
     setSections([]);
     setProjectSections([]);
     setCurrentSection(-1);
-    setActivities([]);
-    setProjectActivities([]);
-    setCurrentActivity(-1);
+    setFeeders([]);
+    setProjectFeeders([]);
+    setCurrentFeeder(-1);
 
     try {
       setShowBackdrop(true);
@@ -465,21 +477,30 @@ export default function ProjectDetails(props) {
     setSections([]);
     setProjectSections([]);
     setCurrentSection(-1);
-    setActivities([]);
-    setProjectActivities([]);
-    setCurrentActivity(-1);
+    setFeeders([]);
+    setProjectFeeders([]);
+    setCurrentFeeder(-1);
 
     console.log("getDivisionListForProject called");
     try {
       setShowBackdrop(true);
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/projectPlace/list?type=division&project=" + currentProj._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=division&project=" + currentProj._id + "&parent=parent" + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       // console.log(data);
 
+      for (let i = 0; i < data.list.docs.length; ++i) {
+        const t = data.list.docs[i].place;
+        for (let k = 0; k < divisions.length; ++k) {
+          if (t === divisions[k]._id)
+            data.list.docs[i].name = divisions[k].name;
+        }
+      }
+
       setProjectDivisions(data.list.docs);
       setCurrentDivision(0);
+
       setShowBackdrop(false);
     }
     catch (e) {
@@ -503,9 +524,9 @@ export default function ProjectDetails(props) {
     setSections([]);
     setProjectSections([]);
     setCurrentSection(-1);
-    setActivities([]);
-    setProjectActivities([]);
-    setCurrentActivity(-1);
+    setFeeders([]);
+    setProjectFeeders([]);
+    setCurrentFeeder(-1);
 
     console.log("getSubDivisionList called");
     try {
@@ -540,29 +561,28 @@ export default function ProjectDetails(props) {
     setSections([]);
     setProjectSections([]);
     setCurrentSection(-1);
-    setActivities([]);
-    setProjectActivities([]);
-    setCurrentActivity(-1);
+    setFeeders([]);
+    setProjectFeeders([]);
+    setCurrentFeeder(-1);
 
     console.log("getSubDivisionListForProject called");
     try {
       setShowBackdrop(true);
       console.log("page: ", page);
-      const divisionIndex = currentDivision === -1 ? 0 : currentDivision;
-      let url = config["baseurl"] + "/api/projectPlace/list?type=subdivision&project=" + currentProj._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=subdivision&project=" + currentProj._id + "&parent=" + projectDivisions[currentDivision].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
-      // console.log(data);
+      console.log(data);
 
-      let filtered = [];
       for (let i = 0; i < data.list.docs.length; ++i) {
         const t = data.list.docs[i].place;
         for (let k = 0; k < subDivisions.length; ++k) {
           if (t === subDivisions[k]._id)
-            filtered.push(subDivisions[k]);
+            data.list.docs[i].name = subDivisions[k].name;
         }
       }
-      setProjectSubDivisions(filtered);
+
+      setProjectSubDivisions(data.list.docs);
       setCurrentSubDivision(0);
       setShowBackdrop(false);
     }
@@ -584,9 +604,9 @@ export default function ProjectDetails(props) {
     setSections([]);
     setProjectSections([]);
     setCurrentSection(-1);
-    setActivities([]);
-    setProjectActivities([]);
-    setCurrentActivity(-1);
+    setFeeders([]);
+    setProjectFeeders([]);
+    setCurrentFeeder(-1);
 
     console.log("getSectionList called");
     try {
@@ -594,8 +614,7 @@ export default function ProjectDetails(props) {
       // console.log("page: ", page);
 
       const index = currentSubDivision === -1 ? 0 : currentSubDivision;
-
-      let url = config["baseurl"] + "/api/section/list?subdivision=" + subDivisions[index]._id + "&count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/section/list?subdivision=" + projectSubDivisions[index].place + "&count=" + 1000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
 
@@ -620,30 +639,28 @@ export default function ProjectDetails(props) {
   async function getSectionListForProject() {
     setProjectSections([]);
     setCurrentSection(-1);
-    setActivities([]);
-    setProjectActivities([]);
-    setCurrentActivity(-1);
+    setFeeders([]);
+    setProjectFeeders([]);
+    setCurrentFeeder(-1);
 
     console.log("getSectionListForProject called");
     try {
       setShowBackdrop(true);
       // console.log("page: ", page);
 
-      const index = currentSubDivision === -1 ? 0 : currentSubDivision;
-      let url = config["baseurl"] + "/api/projectPlace/list?type=section&project=" + currentProj._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=section&project=" + currentProj._id + "&parent=" + projectSubDivisions[currentSubDivision].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
 
-      let filtered = [];
       for (let i = 0; i < data.list.docs.length; ++i) {
         const t = data.list.docs[i].place;
         for (let k = 0; k < sections.length; ++k) {
           if (t === sections[k]._id)
-            filtered.push(sections[k]);
+            data.list.docs[i].name = sections[k].name;
         }
       }
 
-      setProjectSections(filtered);
+      setProjectSections(data.list.docs);
       setCurrentSection(0);
 
       setShowBackdrop(false);
@@ -662,23 +679,25 @@ export default function ProjectDetails(props) {
     }
   }
 
-  async function getActivitiesList() {
-    setActivities([]);
-    setProjectActivities([]);
-    setCurrentActivity(-1);
+  async function getFeedersList() {
+    setFeeders([]);
+    setProjectFeeders([]);
+    setCurrentFeeder(-1);
 
     console.log("getActivitiesList called");
     try {
       setShowBackdrop(true);
       // console.log("page: ", page);
 
-      const index = currentSubDivision === -1 ? 0 : currentSubDivision;
+      const index = currentSection === -1 ? 0 : currentSection;
 
-      let url = config["baseurl"] + "/api/activity/list?count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/feeder/list?section=" + projectSections[index].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
 
-      setActivities(data.list.docs);
+      setFeeders(data.list.docs);
+
+      console.log("feeders: ", feeders);
 
       setShowBackdrop(false);
     }
@@ -696,31 +715,29 @@ export default function ProjectDetails(props) {
     }
   }
 
-  async function getActivitiesListForProject() {
-    setProjectActivities([]);
-    setCurrentActivity(-1);
+  async function getFeedersListForProject() {
+    setProjectFeeders([]);
+    setCurrentFeeder(-1);
 
-    console.log("getActivitiesListForProject called");
+    console.log("getFeedersListForProject called");
     try {
       setShowBackdrop(true);
       // console.log("page: ", page);
 
-      const index = currentSubDivision === -1 ? 0 : currentSubDivision;
-      let url = config["baseurl"] + "/api/projectactivity/list?section=" + projectSections[currentSection]._id + "&project=" + currentProj._id + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=feeder&project=" + currentProj._id + "&parent=" + projectSections[currentSection].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
 
-      let filtered = [];
       for (let i = 0; i < data.list.docs.length; ++i) {
-        const t = data.list.docs[i].activity;
-        for (let k = 0; k < activities.length; ++k) {
-          if (t === activities[k]._id)
-            filtered.push(activities[k]);
+        const t = data.list.docs[i].place;
+        for (let k = 0; k < feeders.length; ++k) {
+          if (t === feeders[k]._id)
+            data.list.docs[i].name = feeders[k].name;
         }
       }
 
-      setProjectActivities(filtered);
-      setCurrentActivity(0);
+      setProjectFeeders(data.list.docs);
+      setCurrentFeeder(0);
 
       setShowBackdrop(false);
     }
@@ -738,34 +755,72 @@ export default function ProjectDetails(props) {
     }
   }
 
-  const getFeeders = async (nRows, search = "") => {
-    console.log("getFeeders called");
+  const getActivities = async (nRows, search = "") => {
+    console.log("getActivities called");
     setRows([]);
-    if (projectActivities.length === 0 || currentActivity === -1)
+    if (projectFeeders.length === 0 || currentFeeder === -1)
       return;
-    console.log("getFeeders called 2");
-    console.log("projectActivities: ", projectActivities);
-    console.log("currentActivity: ", currentActivity);
-    console.log("projectActivities[currentActivity]._id: ", projectActivities[currentActivity]._id);
+
     try {
       setShowBackdrop(true);
       // console.log("page: ", page);      
 
-      let url = config["baseurl"] + "/api/work/list?activity_ref_id=" + projectActivities[currentActivity]._id + "&count=" + nRows + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/activity/list?count=" + 10000 + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
 
-      setTotalCount(data.list.totalDocs);
-      let newRows = [];
+      console.log("data.list.docs: ", data.list.docs);
+
+      setShowBackdrop(false);
+      setActivities(data.list.docs);
+    }
+    catch (e) {
+      console.log(e.response);
+      setShowBackdrop(false);
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting activities for project");
+      }
+      console.log("Error in getting activities for project");
+      setShowError(true);
+    }
+  };
+
+  const getActivitiesForProject = async (nRows, search = "") => {
+    console.log("getActivitiesForProject called");
+    setRows([]);
+    if (projectFeeders.length === 0 || currentFeeder === -1)
+      return;
+
+    try {
+      setShowBackdrop(true);
+      // console.log("page: ", page);      
+
+      console.log(projectFeeders[currentFeeder]);
+
+      let url = config["baseurl"] + "/api/work/list?&feeder_ref_id=" + projectFeeders[currentFeeder].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+
+      let filtered = [];
+      let filtered2 = [];
       for (let i = 0; i < data.list.docs.length; ++i) {
-        newRows.push(createData((offset + i + 1),
-          data.list.docs[i]
-        ));
+        const t = data.list.docs[i].activity_ref_id;
+        for (let k = 0; k < activities.length; ++k) {
+          if (t === activities[k]._id) {
+            filtered.push(activities[k]);
+            filtered2.push(data.list.docs[i]);
+          }
+        }
       }
 
-      console.log(newRows);
+      console.log("data.list.docs: ", filtered);
 
-      setRows(newRows);
+      setProjectActivitiesFiltered(filtered);
+      setProjectActivities(filtered2);
+      // setCurrentActivity(0);
 
       setShowBackdrop(false);
     }
@@ -817,18 +872,23 @@ export default function ProjectDetails(props) {
 
   useEffect(() => {
     if (projectSections.length > 0)
-      getActivitiesList();
+      getFeedersList();
   }, [projectSections, currentSection]);
 
   useEffect(() => {
-    if (activities.length > 0)
-      getActivitiesListForProject();
-  }, [activities]);
+    if (feeders.length > 0)
+      getFeedersListForProject();
+  }, [feeders]);
 
   useEffect(() => {
-    if (projectActivities.length > 0)
-      getFeeders(rowsPerPage);
-  }, [projectActivities, currentActivity]);
+    if (projectFeeders.length > 0)
+      getActivities(rowsPerPage);
+  }, [projectFeeders, currentFeeder]);
+
+  useEffect(() => {
+    // if (activities.length > 0)
+    getActivitiesForProject();
+  }, [activities]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -876,7 +936,7 @@ export default function ProjectDetails(props) {
   const handleChangePage = (event, newPage) => {
     offset = newPage * rowsPerPage;
     setPage(newPage);
-    getFeeders(rowsPerPage);
+    getActivities(rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -884,51 +944,25 @@ export default function ProjectDetails(props) {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
     offset = 0;
-    getFeeders(newRowsPerPage);
+    getActivities(newRowsPerPage);
   };
 
-  const handleEditFeeder = (data) => {
-    console.log("handleEditFeeder: ", data);
+  const handleEditActivity = (data, name) => {
+    console.log("handleEditActivity: ", data);
 
-    setSelectedFeeder(data);
-    setShowEditFeederDialog(true);
+    setActivityName(name);
+    setSelectedActivity(data);
+    setShowEditActivityDialog(true);
   };
 
-  const handleAddFeeder = () => {
-    setShowAddFeederDialog(true);
+  const handleAddActivity = () => {
+    setShowAddActivityDialog(true);
   };
-
-  const isSelected = (name) => selected.indexOf(name) !== -1;
-
-  const BorderLinearProgress = withStyles((theme) => ({
-    root: {
-      height: 10,
-      borderRadius: 5,
-    },
-    colorPrimary: {
-      backgroundColor: theme.palette.grey[theme.palette.type === 'light' ? 200 : 700],
-    },
-    bar: {
-      borderRadius: 5,
-      backgroundColor: '#1a90ff',
-    },
-
-  }))(LinearProgress);
-
-  const getStringForArray = (data) => {
-    let val = "";
-    for (let i = 0; i < data.length; ++i) {
-      if (i > 0)
-        val += ", ";
-      val += data[i];
-    }
-    return val;
-  }
 
   const onSearchChange = (event) => {
     console.log(event.target.value);
 
-    getFeeders(rowsPerPage, event.target.value);
+    getActivities(rowsPerPage, event.target.value);
   };
 
   const onDetails = (index) => {
@@ -963,8 +997,8 @@ export default function ProjectDetails(props) {
     setCurrentSection(index);
   };
 
-  const handleActivityClick = (event, index) => {
-    setCurrentActivity(index);
+  const handleFeederClick = (event, index) => {
+    setCurrentFeeder(index);
   };
 
   const addDivision = () => {
@@ -979,35 +1013,65 @@ export default function ProjectDetails(props) {
     setShowSelectSection(true);
   };
 
-  const addActivity = () => {
-    setShowSelectActivity(true);
+  const addFeeder = () => {
+    setShowSelectFeeder(true);
+  };
+
+  const removeDivision = () => {
+    setShowRemoveDivision(true);
+  };
+
+  const removeSubDivision = () => {
+    setShowRemoveSubDivision(true);
+  };
+
+  const removeFeeder = () => {
+    setShowRemoveFeeder(true);
+  };
+
+  const removeSection = () => {
+    setShowRemoveSection(true);
   };
 
   const closeSelectPlaceDialogAction = () => {
     setShowSelectDivision(false);
+    setShowRemoveDivision(false);
     setShowSelectSubDivision(false);
+    setShowRemoveSubDivision(false);
     setShowSelectSection(false);
-    setShowSelectActivity(false);
+    setShowRemoveSection(false);
+    setShowSelectFeeder(false);
+    setShowRemoveFeeder(false);
+    setShowAddActivityDialog(false);
   };
 
   const onSelectDivision = () => {
     setShowSelectDivision(false);
+    setShowRemoveDivision(false);
     getDivisionListForProject();
   };
 
   const onSelectSubDivision = () => {
     setShowSelectSubDivision(false);
+    setShowRemoveSubDivision(false);
     getSubDivisionListForProject();
   };
 
   const onSelectSection = () => {
     setShowSelectSection(false);
+    setShowRemoveSection(false);
     getSectionListForProject();
   };
 
+  const onSelectFeeder = () => {
+    setShowSelectFeeder(false);
+    setShowRemoveFeeder(false);
+    getFeedersListForProject();
+  };
+
   const onSelectActivity = () => {
-    setShowSelectActivity(false);
-    getActivitiesListForProject();
+    setShowAddActivityDialog(false);
+    getActivitiesForProject();
   };
 
   const getDivisionName = (place) => {
@@ -1018,28 +1082,28 @@ export default function ProjectDetails(props) {
     return place;
   };
 
-  const closeAddFeederAction = () => {
-    setShowAddFeederDialog(false);
+  const closeAddActivityAction = () => {
+    setShowAddActivityDialog(false);
   };
 
-  const onNewFeederSavedAction = () => {
-    setShowAddFeederDialog(false);
-    getFeeders(rowsPerPage);
+  const onNewActivitySavedAction = () => {
+    setShowAddActivityDialog(false);
+    getActivities(rowsPerPage);
   };
 
-  const closeEditFeederAction = () => {
-    setShowEditFeederDialog(false);
+  const closeEditActivityAction = () => {
+    setShowEditActivityDialog(false);
   };
 
-  const deleteFeederAction = async () => {
-    setShowEditFeederDialog(false);
+  const deleteActivityAction = async () => {
+    setShowEditActivityDialog(false);
 
     try {
       setShowBackdrop(true);
       let url = config["baseurl"] + "/api/work/delete";
 
       let postObj = {};
-      postObj["_id"] = selectedFeeder._id;
+      postObj["_id"] = selectedActivity._id;
 
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
@@ -1048,7 +1112,7 @@ export default function ProjectDetails(props) {
       console.log("successfully Saved");
       setShowBackdrop(false);
 
-      getFeeders(rowsPerPage);
+      getActivities(rowsPerPage);
     }
     catch (e) {
       if (e.response) {
@@ -1065,12 +1129,12 @@ export default function ProjectDetails(props) {
     }
   };
 
-  const onEditFeederSavedAction = () => {
-    setShowEditFeederDialog(false);
-    getFeeders(rowsPerPage);
+  const onEditActivitySavedAction = () => {
+    setShowEditActivityDialog(false);
+    getActivities(rowsPerPage);
   };
 
-  const getFeederStatus = (status) => {
+  const getActivityStatus = (status) => {
     let retStatus = "Not Started";
     switch (status) {
       case 0:
@@ -1090,17 +1154,20 @@ export default function ProjectDetails(props) {
     return retStatus;
   };
 
-  const getFeederColor = (status) => {
+  const getActivityColor = (status) => {
     let retStatus = "red";
     switch (status) {
       case 0:
-        retStatus = "red";
+        retStatus = "gray";
         break;
       case 1:
         retStatus = "orange";
         break;
       case 2:
         retStatus = "green";
+        break;
+      case 3:
+        retStatus = "red";
         break;
     }
 
@@ -1187,12 +1254,12 @@ export default function ProjectDetails(props) {
                   <Paper className={classes.paper}>
                     <TableContainer className={classes.container}>
                       <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                        <EnhancedTableHeadSmall title="Division" onClick={addDivision} />
+                        <EnhancedTableHeadSmall title="Division" onAddClick={addDivision} onRemoveClick={removeDivision} />
                         <TableBody>
                           {projectDivisions.map((row, index) => {
                             return (
                               <TableRow hover tabIndex={-1} key={"" + index} selected={index === currentDivision} onClick={(event) => handleDivisionsClick(event, index)} >
-                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + getDivisionName(row.place)}</TableCell>
+                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
                               </TableRow>
                             );
                           })}
@@ -1205,7 +1272,7 @@ export default function ProjectDetails(props) {
                   <Paper className={classes.paper}>
                     <TableContainer className={classes.container}>
                       <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                        <EnhancedTableHeadSmall title="SubDivision" onClick={addSubDivision} />
+                        <EnhancedTableHeadSmall title="SubDivision" onAddClick={addSubDivision} onRemoveClick={removeSubDivision} />
                         <TableBody>
                           {projectSubDivisions.map((row, index) => {
                             return (
@@ -1223,7 +1290,7 @@ export default function ProjectDetails(props) {
                   <Paper className={classes.paper}>
                     <TableContainer className={classes.container}>
                       <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                        <EnhancedTableHeadSmall title="Section" onClick={addSection} />
+                        <EnhancedTableHeadSmall title="Section" onAddClick={addSection} onRemoveClick={removeSection} />
                         <TableBody>
                           {projectSections.map((row, index) => {
                             return (
@@ -1241,11 +1308,11 @@ export default function ProjectDetails(props) {
                   <Paper className={classes.paper}>
                     <TableContainer className={classes.container}>
                       <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                        <EnhancedTableHeadSmall title="Activity" onClick={addActivity} />
+                        <EnhancedTableHeadSmall title="Feeders" onAddClick={addFeeder} onRemoveClick={removeFeeder} />
                         <TableBody>
-                          {projectActivities.map((row, index) => {
+                          {projectFeeders.map((row, index) => {
                             return (
-                              <TableRow hover tabIndex={-1} key={"" + index} selected={index === currentActivity} onClick={(event) => handleActivityClick(event, index)} >
+                              <TableRow hover tabIndex={-1} key={"" + index} selected={index === currentFeeder} onClick={(event) => handleFeederClick(event, index)} >
                                 <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
                               </TableRow>
                             );
@@ -1259,17 +1326,17 @@ export default function ProjectDetails(props) {
             </Paper>
           </div>
           {
-            (projectActivities.length > 0) &&
+            (projectFeeders.length > 0) &&
             <div className={classes.paper}>
               <Paper className={classes.grid}>
                 <Grid container spacing={2}>
                   <Grid item className={classes.totalAttendes}>
                     {/* <img src={ProjectsImage} width='25' alt="" /> */}
-                    <h1 className={classes.h1}>{totalCount}</h1>
-                    <span>{"Feeders"}</span>
+                    <h1 className={classes.h1}>{projectActivitiesFiltered.length}</h1>
+                    <span>{"Activities"}</span>
                   </Grid>
                   <Grid item className={classes.addButton}>
-                    <Button onClick={() => handleAddFeeder()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Feeder"}</Button>
+                    <Button onClick={() => handleAddActivity()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Activity"}</Button>
                   </Grid>
                 </Grid>
               </Paper>
@@ -1306,20 +1373,18 @@ export default function ProjectDetails(props) {
                     />
 
                     <TableBody>
-                      {rows.map((row, index) => {
-                        const isItemSelected = isSelected(row.name);
-                        const labelId = `enhanced-table-checkbox-${index}`;
+                      {projectActivities.map((row, index) => {
                         return (
-                          <TableRow hover tabIndex={-1} key={row.slno}>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.name}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getFeederColor(row.data.step_status[0]) }}>{getFeederStatus(row.data.step_status[0])}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getFeederColor(row.data.step_status[1]) }}>{getFeederStatus(row.data.step_status[1])}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getFeederColor(row.data.step_status[2]) }}>{getFeederStatus(row.data.step_status[2])}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getFeederColor(row.data.step_status[3]) }}>{getFeederStatus(row.data.step_status[3])}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getFeederColor(row.data.step_status[4]) }}>{getFeederStatus(row.data.step_status[4])}</TableCell>
+                          <TableRow hover tabIndex={-1} key={"index" + index}>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={"Label" + index} scope="row" padding="none">{"" + (index + 1)}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{index < projectActivitiesFiltered.length && projectActivitiesFiltered[index].name}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getActivityColor(row.step_status[0]) }}>{getActivityStatus(row.step_status[0])}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getActivityColor(row.step_status[1]) }}>{getActivityStatus(row.step_status[1])}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getActivityColor(row.step_status[2]) }}>{getActivityStatus(row.step_status[2])}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getActivityColor(row.step_status[3]) }}>{getActivityStatus(row.step_status[3])}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getActivityColor(row.step_status[4]) }}>{getActivityStatus(row.step_status[4])}</TableCell>
                             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                              <div><Button size='small' onClick={() => handleEditFeeder(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button> </div>
+                              <div><Button size='small' onClick={() => handleEditActivity(row, projectActivitiesFiltered[index].name)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button> </div>
                             </TableCell>
                           </TableRow>
                         );
@@ -1342,12 +1407,22 @@ export default function ProjectDetails(props) {
         </div >
       }
 
-      { showSelectDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectDivision} project={currentProj} items={divisions} type={"division"} />}
-      { showSelectSubDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSubDivision} project={currentProj} items={subDivisions} type={"subdivision"} />}
-      { showSelectSection && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSection} project={currentProj} items={sections} type={"section"} />}
-      { showSelectActivity && (projectSections.length > 0) && <SelectActivity closeAction={closeSelectPlaceDialogAction} onSelect={onSelectActivity} project={currentProj} items={activities} type={"activity"} section={projectSections[currentSection]} projectActivities={projectActivities} />}
-      { showAddFeederDialog && (projectActivities.length > 0) && (currentActivity !== -1) && <AddFeeder closeAction={closeAddFeederAction} onSavedAction={onNewFeederSavedAction} activity_ref_id={projectActivities[currentActivity]._id} />}
-      { showEditFeederDialog && <EditFeeder closeAction={closeEditFeederAction} deleteAction={deleteFeederAction} onSavedAction={onEditFeederSavedAction} feeder={selectedFeeder} />}
+      { showSelectDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectDivision} project={currentProj} parent={""} items={divisions} type={"division"} mode={"add"} />}
+      { showRemoveDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectDivision} project={currentProj} orginalItems={divisions} items={projectDivisions} type={"division"} mode={"remove"} />}
+
+      { showSelectSubDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSubDivision} project={currentProj} parent={projectDivisions[currentDivision].place} items={subDivisions} type={"subdivision"} mode={"add"} />}
+      { showRemoveSubDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSubDivision} project={currentProj} orginalItems={subDivisions} items={projectSubDivisions} type={"subdivision"} mode={"remove"} />}
+
+      { showSelectSection && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSection} project={currentProj} parent={projectSubDivisions[currentSubDivision].place} items={sections} type={"section"} mode={"add"} />}
+      { showRemoveSection && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSection} project={currentProj} orginalItems={sections} items={projectSections} type={"section"} mode={"remove"} />}
+
+      { showSelectFeeder && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectFeeder} project={currentProj} parent={projectSections[currentSection].place} items={feeders} type={"feeder"} mode={"add"} />}
+      { showRemoveFeeder && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectFeeder} project={currentProj} orginalItems={feeders} items={projectFeeders} type={"feeder"} mode={"remove"} />}
+
+      { showAddActivityDialog && (projectFeeders.length > 0) && (currentFeeder !== -1) &&
+        <SelectActivity closeAction={closeAddActivityAction} onSavedAction={onNewActivitySavedAction} items={activities} feeder_ref_id={projectFeeders[currentFeeder].place} />}
+
+      { showEditActivityDialog && <UpdateActivity closeAction={closeEditActivityAction} deleteAction={deleteActivityAction} onSavedAction={onEditActivitySavedAction} activityName={activityName} activity={selectedActivity} />}
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}

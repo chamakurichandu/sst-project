@@ -28,6 +28,8 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Snackbar from '@material-ui/core/Snackbar';
+import RemoveImage from '@material-ui/icons/Remove';
+import IconButton from '@material-ui/core/IconButton';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -156,6 +158,7 @@ export default function SelectPlace(props) {
             let postObj = {};
             postObj["place"] = props.items[current]._id;
             postObj["type"] = props.type;
+            postObj["parent"] = props.parent.length === 0 ? "parent" : props.parent;
             postObj["project"] = props.project._id;
 
             console.log(postObj);
@@ -198,6 +201,51 @@ export default function SelectPlace(props) {
         setCurrent(index);
     };
 
+    const onRemoveClick = async (index) => {
+        try {
+            setContactingServer(true);
+            let url = config["baseurl"] + "/api/projectplace/delete";
+
+            let postObj = {};
+            postObj["_id"] = props.items[index]._id;
+            postObj["place"] = props.items[index].place;
+
+            console.log(postObj);
+
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+
+            const response = await axios.post(url, postObj);
+
+            console.log("successfully Saved");
+            setContactingServer(false);
+            props.onSelect();
+        }
+        catch (e) {
+            if (e.response) {
+                console.log("Error in creating");
+                setErrorMessage(e.response.data["message"]);
+            }
+            else {
+                console.log("Error in creating");
+                setErrorMessage("Error in creating: ", e.message);
+            }
+            setShowError(true);
+            setContactingServer(false);
+        }
+    };
+
+    const getItemFromOrginal = (id) => {
+        console.log("id: ", id);
+        console.log("props.orginalItems: ", props.orginalItems);
+        console.log("props.items: ", props.items);
+
+        for (let i = 0; i < props.orginalItems.length; ++i) {
+            if (props.orginalItems[i]._id === id)
+                return props.orginalItems[i];
+        }
+        return id;
+    }
+
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={true}>
@@ -208,9 +256,19 @@ export default function SelectPlace(props) {
                             <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
                                 <TableBody>
                                     {props.items.map((row, index) => {
+                                        console.log(row);
                                         return (
                                             <TableRow hover tabIndex={-1} key={"" + index} selected={index === current} onClick={(event) => handleClick(event, index)} >
-                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                                                {props.mode !== "remove" && <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>}
+                                                {props.mode === "remove" &&
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + getItemFromOrginal(row.place).name}</TableCell>}
+                                                {props.mode === "remove" &&
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <IconButton size="small" color="primary" aria-label="upload picture" component="span" onClick={() => onRemoveClick(index)}>
+                                                            <RemoveImage />
+                                                        </IconButton>
+                                                    </TableCell>
+                                                }
                                             </TableRow>
                                         );
                                     })}
@@ -222,7 +280,7 @@ export default function SelectPlace(props) {
 
                 <DialogActions>
                     <Button variant="contained" color="primary" onClick={props.closeAction} disabled={contactingServer}>Cancel</Button>
-                    <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
+                    {props.mode !== "remove" && <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>}
                 </DialogActions>
             </Dialog>
 
@@ -236,6 +294,6 @@ export default function SelectPlace(props) {
                 <CircularProgress color="inherit" />
             </Backdrop>
 
-        </div>
+        </div >
     );
 }

@@ -213,7 +213,7 @@ export default function EditProject(props) {
       return;
     console.log("2");
     try {
-      setContactingServer(true);
+      setShowBackDrop(true);
       let url = config["baseurl"] + "/api/project/update";
 
       let postObj = {};
@@ -237,7 +237,7 @@ export default function EditProject(props) {
 
       console.log("4");
       console.log("successfully Saved");
-      setContactingServer(false);
+      setShowBackDrop(false);
       props.history.push("/projectdetails");
     }
     catch (e) {
@@ -251,7 +251,37 @@ export default function EditProject(props) {
         setErrorMessage("Error in creating: ", e.message);
       }
       setShowError(true);
-      setContactingServer(false);
+      setShowBackDrop(false);
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/project/delete";
+
+      let postObj = {};
+      postObj["_id"] = props.project._id;
+
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+
+      const response = await axios.post(url, postObj);
+
+      setShowBackDrop(false);
+      props.history.push("/projects");
+    }
+    catch (e) {
+      console.log("5");
+      if (e.response) {
+        console.log("Error in deleting");
+        setErrorMessage(e.response.data["message"]);
+      }
+      else {
+        console.log("Error in deleting");
+        setErrorMessage("Error in deleting: ", e.message);
+      }
+      setShowError(true);
+      setShowBackDrop(false);
     }
   };
 
@@ -419,7 +449,8 @@ export default function EditProject(props) {
             </div>
 
             <div className={classes.submit}>
-              <Button variant="contained" color="primary" onClick={handleCancel} disabled={contactingServer}>Cancel</Button>
+              <Button variant="contained" color="secondary" onClick={handleDeleteProject} disabled={contactingServer}>Delete</Button>
+              <Button style={{ marginLeft: 20 }} variant="contained" color="primary" onClick={handleCancel} disabled={contactingServer}>Cancel</Button>
               <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
             </div>
 

@@ -65,7 +65,7 @@ const DialogActions = withStyles((theme) => ({
     },
 }))(MuiDialogActions);
 
-export default function EditSection(props) {
+export default function UpdateActivity(props) {
     const useStyles = makeStyles((theme) => ({
         root: {
             width: 'calc(100%)',
@@ -122,14 +122,14 @@ export default function EditSection(props) {
     const [showError, setShowError] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState(null);
 
-    const [name, set_name] = React.useState(props.feeder.name);
+    const [name, set_name] = React.useState(props.activityName);
     const [name_error, set_name_error] = React.useState(null);
 
-    const [surveyStatus, setSurveyStatus] = React.useState(props.feeder.step_status[0]);
-    const [installationStatus, setInstallationStatus] = React.useState(props.feeder.step_status[1]);
-    const [commissioningStatus, setCommissioningStatus] = React.useState(props.feeder.step_status[2]);
-    const [acceptanceStatus, setAcceptanceStatus] = React.useState(props.feeder.step_status[3]);
-    const [handOverStatus, setHandOverStatus] = React.useState(props.feeder.step_status[4]);
+    const [surveyStatus, setSurveyStatus] = React.useState(props.activity.step_status[0]);
+    const [installationStatus, setInstallationStatus] = React.useState(props.activity.step_status[1]);
+    const [commissioningStatus, setCommissioningStatus] = React.useState(props.activity.step_status[2]);
+    const [acceptanceStatus, setAcceptanceStatus] = React.useState(props.activity.step_status[3]);
+    const [handOverStatus, setHandOverStatus] = React.useState(props.activity.step_status[4]);
 
     const [contactingServer, setContactingServer] = React.useState(false);
 
@@ -141,10 +141,9 @@ export default function EditSection(props) {
             let url = config["baseurl"] + "/api/work/update";
 
             let postObj = {};
-            postObj["name"] = name;
             postObj["step_status"] = [surveyStatus, installationStatus, commissioningStatus, acceptanceStatus, handOverStatus];
 
-            let updateObj = { _id: props.feeder._id, updateParams: postObj };
+            let updateObj = { _id: props.activity._id, updateParams: postObj };
 
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
@@ -209,12 +208,12 @@ export default function EditSection(props) {
                     {/* <DialogContentText id="alert-dialog-description">{props.message}</DialogContentText> */}
                     <form className={classes.papernew} autoComplete="off" noValidate>
                         <TextField className={classes.inputFields} id="formControl_name" defaultValue={name}
-                            label="Name *" variant="outlined"
+                            label="Name *" variant="outlined" disabled
                             onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />
                         {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
-                        <span>{props.feeder.step[0]}:   </span>
+                        <span>{props.activity.step[0]}:   </span>
                         <Select
-                            label={props.feeder.step[0]}
+                            label={props.activity.step[0]}
                             labelId="survey"
                             id="survey"
                             value={surveyStatus}
@@ -227,9 +226,9 @@ export default function EditSection(props) {
                                 );
                             })}
                         </Select>
-                        <span>{props.feeder.step[1]}:   </span>
+                        <span>{props.activity.step[1]}:   </span>
                         <Select
-                            label={props.feeder.step[1]}
+                            label={props.activity.step[1]}
                             labelId="installation"
                             id="installation"
                             value={installationStatus}
@@ -242,9 +241,9 @@ export default function EditSection(props) {
                                 );
                             })}
                         </Select>
-                        <span>{props.feeder.step[2]}:   </span>
+                        <span>{props.activity.step[2]}:   </span>
                         <Select
-                            label={props.feeder.step[2]}
+                            label={props.activity.step[2]}
                             labelId="commissioning"
                             id="commissioning"
                             value={commissioningStatus}
@@ -257,9 +256,9 @@ export default function EditSection(props) {
                                 );
                             })}
                         </Select>
-                        <span>{props.feeder.step[3]}:   </span>
+                        <span>{props.activity.step[3]}:   </span>
                         <Select
-                            label={props.feeder.step[3]}
+                            label={props.activity.step[3]}
                             labelId="acceptance"
                             id="acceptance"
                             value={acceptanceStatus}
@@ -272,9 +271,9 @@ export default function EditSection(props) {
                                 );
                             })}
                         </Select>
-                        <span>{props.feeder.step[4]}:   </span>
+                        <span>{props.activity.step[4]}:   </span>
                         <Select
-                            label={props.feeder.step[4]}
+                            label={props.activity.step[4]}
                             labelId="handover"
                             id="handover"
                             value={handOverStatus}
