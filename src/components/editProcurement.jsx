@@ -34,8 +34,9 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import IconButton from '@material-ui/core/IconButton';
 import AddImage from '@material-ui/icons/Add';
+import DeleteImage from '@material-ui/icons/Delete';
 import SelectItem from './selectItem';
-
+import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   DatePicker,
@@ -57,7 +58,10 @@ function EnhancedTableHeadSmall(props) {
   const headCells = [
     { id: 'name', numeric: false, disablePadding: false, label: props.title },
     { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
-    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
+    { id: 'schedule_date', numeric: true, disablePadding: false, label: "Schedule Date" },
+    { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
+    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" },
+    { id: 'actions', numeric: true, disablePadding: false, label: "Actions" }
   ];
 
   return (
@@ -140,22 +144,66 @@ export default function EditProcurement(props) {
   const [showError, setShowError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
 
+  const [projects_error, set_projects_error] = React.useState(null);
+  const [warehouses_error, set_warehouses_error] = React.useState(null);
+  const [currentProject, setCurrentProject] = React.useState(-1);
+  const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
+  const [projects, setProjects] = React.useState([]);
+  const [warehouses, setWarehouses] = React.useState([]);
+
   const [supply_vendor, set_supply_vendor] = React.useState(null);
   const [supply_vendor_error, set_supply_vendor_error] = React.useState(null);
 
-  const [kind_attention, set_kind_attention] = React.useState(props.procurement.kind_attention);
-  const [kind_attention_error, set_kind_attention_error] = React.useState(null);
+  const [reference_number, set_reference_number] = React.useState(props.procurement.reference_number ? props.procurement.reference_number : '');
+  const [reference_number_error, set_reference_number_error] = React.useState(null);
 
-  const [description, set_description] = React.useState(props.procurement.description);
-  const [description_error, set_description_error] = React.useState(null);
+  const [scope_of_supply, set_scope_of_supply] = React.useState(props.procurement.scope_of_supply);
+  const [scope_of_supply_error, set_scope_of_supply_error] = React.useState(null);
+
+  const [price_escalation, set_price_escalation] = React.useState(props.procurement.price_escalation);
+  const [price_escalation_error, set_price_escalation_error] = React.useState(null);
+
+  const [warranty_period, set_warranty_period] = React.useState(props.procurement.warranty_period);
+  const [warranty_period_error, set_warranty_period_error] = React.useState(null);
+
+  const [commencement_date, set_commencement_date] = React.useState(props.procurement.commencement_date);
+  const [commencement_date_error, set_commencement_date_error] = React.useState(null);
+
+  const [delivery_timelines, set_delivery_timelines] = React.useState(props.procurement.delivery_timelines);
+  const [delivery_timelines_error, set_delivery_timelines_error] = React.useState(null);
+
+  const [liquidated_damages, set_liquidated_damages] = React.useState(props.procurement.liquidated_damages);
+  const [liquidated_damages_error, set_liquidated_damages_error] = React.useState(null);
+
+  const [performance_bank_guarantee, set_performance_bank_guarantee] = React.useState(props.procurement.performance_bank_guarantee);
+  const [performance_bank_guarantee_error, set_performance_bank_guarantee_error] = React.useState(null);
+
+  const [arbitration, set_arbitration] = React.useState(props.procurement.arbitration);
+  const [arbitration_error, set_arbitration_error] = React.useState(null);
+
+  const [inspection_and_testing, set_inspection_and_testing] = React.useState(props.procurement.inspection_and_testing);
+  const [inspection_and_testing_error, set_inspection_and_testing_error] = React.useState(null);
+
+  const [test_certificates_instruction_manuals, set_test_certificates_instruction_manuals] = React.useState(props.procurement.test_certificates_instruction_manuals);
+  const [test_certificates_instruction_manuals_error, set_test_certificates_instruction_manuals_error] = React.useState(null);
+
+  const [taxes_and_duties, set_taxes_and_duties] = React.useState(props.procurement.taxes_and_duties);
+  const [taxes_and_duties_error, set_taxes_and_duties_error] = React.useState(null);
+
+  const [acceptance, set_acceptance] = React.useState(props.procurement.acceptance);
+  const [acceptance_error, set_acceptance_error] = React.useState(null);
+
+  const [frieght_and_insurance, set_frieght_and_insurance] = React.useState(props.procurement.frieght_and_insurance);
+  const [frieght_and_insurance_error, set_frieght_and_insurance_error] = React.useState(null);
+
+  const [payment_terms, set_payment_terms] = React.useState(props.procurement.payment_terms);
+  const [payment_terms_error, set_payment_terms_error] = React.useState(null);
 
   const [key_remark, set_key_remark] = React.useState(props.procurement.key_remark);
   const [key_remark_error, set_key_remark_error] = React.useState(null);
 
   const [items, set_items] = React.useState([]);
   const [items_error, set_items_error] = React.useState(null);
-
-  const [itemqty, set_itemqty] = React.useState([]);
 
   const [allItems, set_allItems] = React.useState([]);
   const [currentItem, setCurrentItem] = React.useState(-1);
@@ -215,20 +263,20 @@ export default function EditProcurement(props) {
       setShowBackDrop(false);
 
       console.log(props.procurement);
-      let newItems = [];
-      let newItemQty = [];
-      console.log("props.procurement.items.length: ", props.procurement.items.length);
-      for (let k = 0; k < props.procurement.items.length; ++k) {
+      let newItems = cloneDeep(props.procurement.items);
+      for (let k = 0; k < newItems.length; ++k) {
+        let item = newItems[k];
         for (let i = 0; i < data.list.docs.length; ++i) {
-          if (props.procurement.items[k].item === data.list.docs[i]._id) {
-            newItems.push(data.list.docs[i]);
-            newItemQty.push(props.procurement.items[k].qty);
+          if (newItems[k].item === data.list.docs[i]._id) {
+            item._id = data.list.docs[i]._id;
+            item.name = data.list.docs[i].name;
+            item.uomId = data.list.docs[i].uomId;
+            item.hsncode = data.list.docs[i].hsncode;
             break;
           }
         }
       }
 
-      set_itemqty(newItemQty);
       set_items(newItems);
 
       getPCList();
@@ -269,6 +317,8 @@ export default function EditProcurement(props) {
       set_uoms(data.list);
 
       setShowBackDrop(false);
+
+      getProjectList();
     }
     catch (e) {
       console.log("Error in getting UOMs list");
@@ -278,17 +328,72 @@ export default function EditProcurement(props) {
     }
   }
 
+  async function getProjectList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/project/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+      setProjects(data.list.docs);
+      setShowBackDrop(false);
+
+      for (let i = 0; i < data.list.docs.length; ++i) {
+        if (props.procurement.project === data.list.docs[i]._id) {
+          setCurrentProject(i);
+          break;
+        }
+      }
+
+      getWarehouseList();
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("getProjectList e: ", e);
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
+
+  async function getWarehouseList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/warehouse/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+
+      for (let i = 0; i < data.list.length; ++i) {
+        if (props.procurement.warehouse === data.list[i]._id) {
+          setCurrentWarehouse(i);
+          break;
+        }
+      }
+
+      setWarehouses(data.list);
+      setShowBackDrop(false);
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("getWarehouseList: e: ", e);
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
+
   useEffect(() => {
     getSupplyVendorList();
   }, []);
-
-  // useEffect(() => {
-  //   let newitemsqty = [];
-  //   for (let i = 0; i < items.length; ++i) {
-  //     newitemsqty.push(items[i]);
-  //   }
-  //   set_itemqty(newitemsqty);
-  // }, [items]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -308,14 +413,38 @@ export default function EditProcurement(props) {
 
   const validateData = () => {
     const schema = Joi.object({
-      kind_attention: Joi.string().min(1).max(1024).required(),
-      description: Joi.string().min(1).max(8192).required(),
-      key_remark: Joi.string().min(1).max(8192).required(),
+      key_remark: Joi.string().min(1).max(1024).required(),
+      scope_of_supply: Joi.string().min(1).max(8192).required(),
+      price_escalation: Joi.string().min(1).max(8192).required(),
+      warranty_period: Joi.string().min(1).max(8192).required(),
+      commencement_date: Joi.string().min(1).max(8192).required(),
+      delivery_timelines: Joi.string().min(1).max(8192).required(),
+      liquidated_damages: Joi.string().min(1).max(8192).required(),
+      performance_bank_guarantee: Joi.string().min(1).max(8192).required(),
+      arbitration: Joi.string().min(1).max(8192).required(),
+      inspection_and_testing: Joi.string().min(1).max(8192).required(),
+      test_certificates_instruction_manuals: Joi.string().min(1).max(8192).required(),
+      taxes_and_duties: Joi.string().min(1).max(8192).required(),
+      acceptance: Joi.string().min(1).max(8192).required(),
+      frieght_and_insurance: Joi.string().min(1).max(8192).required(),
+      payment_terms: Joi.string().min(1).max(8192).required(),
     });
     const { error } = schema.validate({
-      kind_attention: kind_attention.trim(),
-      description: description.trim(),
-      key_remark: key_remark.trim()
+      key_remark: key_remark.trim(),
+      scope_of_supply: scope_of_supply.trim(),
+      price_escalation: price_escalation.trim(),
+      warranty_period: warranty_period.trim(),
+      commencement_date: commencement_date.trim(),
+      delivery_timelines: delivery_timelines.trim(),
+      liquidated_damages: liquidated_damages.trim(),
+      performance_bank_guarantee: performance_bank_guarantee.trim(),
+      arbitration: arbitration.trim(),
+      inspection_and_testing: inspection_and_testing.trim(),
+      test_certificates_instruction_manuals: test_certificates_instruction_manuals.trim(),
+      taxes_and_duties: taxes_and_duties.trim(),
+      acceptance: acceptance.trim(),
+      frieght_and_insurance: frieght_and_insurance.trim(),
+      payment_terms: payment_terms.trim()
     }, { abortEarly: false });
     const allerrors = {};
     if (error) {
@@ -329,34 +458,104 @@ export default function EditProcurement(props) {
   const handleSave = async (e) => {
     e.preventDefault();
 
+    set_projects_error(null);
+    set_warehouses_error(null);
     set_supply_vendor_error(null);
-    set_kind_attention_error(null);
-    set_description_error(null);
     set_key_remark_error(null);
     set_items_error(null);
+    set_scope_of_supply_error(null);
+    set_price_escalation_error(null);
+    set_warranty_period_error(null);
+    set_commencement_date_error(null);
+    set_delivery_timelines_error(null);
+    set_liquidated_damages_error(null);
+    set_performance_bank_guarantee_error(null);
+    set_arbitration_error(null);
+    set_inspection_and_testing_error(null);
+    set_test_certificates_instruction_manuals_error(null);
+    set_taxes_and_duties_error(null);
+    set_acceptance_error(null);
+    set_frieght_and_insurance_error(null);
+    set_payment_terms_error(null);
 
     const errors = validateData();
 
     let errorOccured = false;
+    if (currentProject === -1) {
+      set_projects_error("Project Required");
+      errorOccured = true;
+    }
+    if (currentWarehouse === -1) {
+      set_warehouses_error("Warehouse Required");
+      errorOccured = true;
+    }
     if (currentSupplyVendor === -1) {
       set_supply_vendor_error("Supply Vendor Required");
-      errorOccured = true;
-    }
-    if (errors["kind_attention"]) {
-      set_kind_attention_error(errors["kind_attention"]);
-      errorOccured = true;
-    }
-    if (errors["description"]) {
-      set_description_error(errors["description"]);
       errorOccured = true;
     }
     if (errors["key_remark"]) {
       set_key_remark_error(errors["key_remark"]);
       errorOccured = true;
     }
-
     if (currentSupplyVendor === -1) {
       setCurrentSupplyVendor_error("SupplyVendor is required");
+      errorOccured = true;
+    }
+
+    if (errors["scope_of_supply"]) {
+      set_scope_of_supply_error(errors["scope_of_supply"]);
+      errorOccured = true;
+    }
+    if (errors["price_escalation"]) {
+      set_price_escalation_error(errors["price_escalation"]);
+      errorOccured = true;
+    }
+    if (errors["warranty_period"]) {
+      set_warranty_period_error(errors["warranty_period"]);
+      errorOccured = true;
+    }
+    if (errors["commencement_date"]) {
+      set_commencement_date_error(errors["commencement_date"]);
+      errorOccured = true;
+    }
+    if (errors["delivery_timelines"]) {
+      set_delivery_timelines_error(errors["delivery_timelines"]);
+      errorOccured = true;
+    }
+    if (errors["liquidated_damages"]) {
+      set_liquidated_damages_error(errors["liquidated_damages"]);
+      errorOccured = true;
+    }
+    if (errors["performance_bank_guarantee"]) {
+      set_performance_bank_guarantee_error(errors["performance_bank_guarantee"]);
+      errorOccured = true;
+    }
+    if (errors["arbitration"]) {
+      set_arbitration_error(errors["arbitration"]);
+      errorOccured = true;
+    }
+    if (errors["inspection_and_testing"]) {
+      set_inspection_and_testing_error(errors["inspection_and_testing"]);
+      errorOccured = true;
+    }
+    if (errors["test_certificates_instruction_manuals"]) {
+      set_test_certificates_instruction_manuals_error(errors["test_certificates_instruction_manuals"]);
+      errorOccured = true;
+    }
+    if (errors["taxes_and_duties"]) {
+      set_taxes_and_duties_error(errors["taxes_and_duties"]);
+      errorOccured = true;
+    }
+    if (errors["acceptance"]) {
+      set_acceptance_error(errors["acceptance"]);
+      errorOccured = true;
+    }
+    if (errors["frieght_and_insurance"]) {
+      set_frieght_and_insurance_error(errors["frieght_and_insurance"]);
+      errorOccured = true;
+    }
+    if (errors["payment_terms"]) {
+      set_payment_terms_error(errors["payment_terms"]);
       errorOccured = true;
     }
 
@@ -365,9 +564,15 @@ export default function EditProcurement(props) {
       errorOccured = true;
     }
 
-    for (let i = 0; i < itemqty.length; ++i) {
-      if (parseInt(itemqty[i]) === 0) {
-        setErrorMessage("item cannot be zero");
+    for (let i = 0; i < items.length; ++i) {
+      if (parseInt(items[i].rate) === 0) {
+        setErrorMessage("rate cannot be zero");
+        setShowError(true);
+        errorOccured = true;
+        break;
+      }
+      if (parseInt(items[i].qty) === 0) {
+        setErrorMessage("qty cannot be zero");
         setShowError(true);
         errorOccured = true;
         break;
@@ -381,22 +586,40 @@ export default function EditProcurement(props) {
       setShowBackDrop(true);
       let url = config["baseurl"] + "/api/procurement/update";
 
+      console.log(1);
       let postObj = {};
       postObj["supply_vendor"] = supplyVendors[currentSupplyVendor]._id;
-      postObj["kind_attention"] = kind_attention.trim();
-      postObj["description"] = description.trim();
+      postObj["project"] = projects[currentProject]._id;
+      postObj["warehouse"] = warehouses[currentWarehouse]._id;
+      postObj["reference_number"] = reference_number.trim();
       postObj["key_remark"] = key_remark.trim();
       postObj["items"] = [];
+      console.log(1.1);
       for (let i = 0; i < items.length; ++i) {
-        postObj["items"].push({ item: items[i]._id, qty: parseInt(itemqty[i]) });
+        postObj["items"].push({ item: items[i]._id, qty: parseInt(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
       }
-
+      console.log(2);
       console.log("postObj: ", postObj);
+
+      postObj["scope_of_supply"] = scope_of_supply.trim();
+      postObj["price_escalation"] = price_escalation.trim();
+      postObj["warranty_period"] = warranty_period.trim();
+      postObj["commencement_date"] = commencement_date.trim();
+      postObj["delivery_timelines"] = delivery_timelines.trim();
+      postObj["liquidated_damages"] = liquidated_damages.trim();
+      postObj["performance_bank_guarantee"] = performance_bank_guarantee.trim();
+      postObj["arbitration"] = arbitration.trim();
+      postObj["inspection_and_testing"] = inspection_and_testing.trim();
+      postObj["test_certificates_instruction_manuals"] = test_certificates_instruction_manuals.trim();
+      postObj["taxes_and_duties"] = taxes_and_duties.trim();
+      postObj["acceptance"] = acceptance.trim();
+      postObj["frieght_and_insurance"] = frieght_and_insurance.trim();
+      postObj["payment_terms"] = payment_terms.trim();
 
       let updateObj = { _id: props.procurement._id, updateParams: postObj };
 
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-
+      console.log(3);
       const response = await axios.patch(url, updateObj);
 
       console.log("successfully Saved");
@@ -429,15 +652,13 @@ export default function EditProcurement(props) {
   const onSelectItem = (newitem) => {
     setShowSelectItem(false);
 
-    for (let i = 0; i < items.length; ++i) {
-      if (items[i]._id === newitem._id)
-        return;
-    }
+    let newCopy = cloneDeep(newitem);
 
-    let newItemqtys = [...itemqty, 0];
-    set_itemqty(newItemqtys);
+    newCopy.scheduledDate = new Date();
+    newCopy.rate = 0;
+    newCopy.qty = 0;
 
-    let newItems = [...items, newitem];
+    let newItems = [...items, newCopy];
     set_items(newItems);
 
     set_items_error(null);
@@ -449,6 +670,16 @@ export default function EditProcurement(props) {
 
   const handleCloseBackDrop = () => {
 
+  };
+
+  const handleWarehouseChange = (event) => {
+    setCurrentWarehouse(event.target.value);
+    set_warehouses_error(null);
+  };
+
+  const handleProjectChange = (event) => {
+    setCurrentProject(event.target.value);
+    set_projects_error(null);
   };
 
   const handleCustomerChange = (event) => {
@@ -466,9 +697,9 @@ export default function EditProcurement(props) {
   };
 
   const set_item_qty_for = (value, index) => {
-    let newItemqtys = [...itemqty];
-    newItemqtys[index] = value;
-    set_itemqty(newItemqtys);
+    let newItems = [...items];
+    newItems[index].qty = value;
+    set_items(newItems);
   };
 
   const getuomFor = (value) => {
@@ -478,6 +709,26 @@ export default function EditProcurement(props) {
     }
     return value;
   }
+
+  const set_item_rate_for = (value, index) => {
+    let newItems = [...items];
+    newItems[index].rate = value;
+    set_items(newItems);
+  };
+
+  const handleScheduleDateChange = (value, index) => {
+    let newItems = [...items];
+    newItems[index].scheduled_date = value;
+    set_items(newItems);
+  };
+
+  const deleteAction = (index) => {
+    let newItems = cloneDeep(items);
+    console.log([...newItems.slice(0, index)]);
+    console.log([...newItems.slice(index + 1)]);
+    console.log([...newItems.slice(0, index), ...newItems.slice(index + 1)]);
+    set_items([...newItems.slice(0, index), ...newItems.slice(index + 1)]);
+  };
 
   return (
     <div className={clsx(classes.root)}>
@@ -497,6 +748,42 @@ export default function EditProcurement(props) {
           <form className={classes.papernew} autoComplete="off" noValidate>
 
             <FormControl size="small" variant="outlined" className={classes.formControl}>
+              <InputLabel id="project-select-label">Project *</InputLabel>
+              <Select
+                labelId="project-select-label"
+                id="project-select-label"
+                value={currentProject === -1 ? "" : currentProject}
+                onChange={handleProjectChange}
+                label="Project *"
+              >
+                {projects && projects.map((row, index) => {
+                  return (
+                    <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+            {projects_error && <Alert className={classes.alert} severity="error"> {projects_error} </Alert>}
+
+            <FormControl size="small" variant="outlined" className={classes.formControl}>
+              <InputLabel id="warehouse-select-label">Warehouse *</InputLabel>
+              <Select
+                labelId="warehouse-select-label"
+                id="warehouse-select-label"
+                value={currentWarehouse === -1 ? "" : currentWarehouse}
+                onChange={handleWarehouseChange}
+                label="Warehouse *"
+              >
+                {warehouses && warehouses.map((row, index) => {
+                  return (
+                    <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+            {warehouses_error && <Alert className={classes.alert} severity="error"> {warehouses_error} </Alert>}
+
+            <FormControl size="small" variant="outlined" className={classes.formControl}>
               <InputLabel id="supplyvendor-select-label">Supply Vendor *</InputLabel>
               <Select
                 labelId="supplyvendor-select-label"
@@ -514,15 +801,10 @@ export default function EditProcurement(props) {
             </FormControl>
             {supply_vendor_error && <Alert className={classes.alert} severity="error"> {supply_vendor_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_kind_attention" defaultValue={kind_attention}
-              label="Kind Attention *" variant="outlined" multiline
-              onChange={(event) => { set_kind_attention(event.target.value); set_kind_attention_error(null); }} />
-            {kind_attention_error && <Alert className={classes.alert} severity="error"> {kind_attention_error} </Alert>}
-
-            <TextField size="small" className={classes.inputFields} id="formControl_description" defaultValue={description}
-              label="Description *" variant="outlined" multiline
-              onChange={(event) => { set_description(event.target.value); set_description_error(null); }} />
-            {description_error && <Alert className={classes.alert} severity="error"> {description_error} </Alert>}
+            <TextField size="small" className={classes.inputFields} id="formControl_reference_number" defaultValue={reference_number}
+              label="Reference Number" variant="outlined" multiline
+              onChange={(event) => { set_reference_number(event.target.value); set_reference_number_error(null); }} />
+            {reference_number_error && <Alert className={classes.alert} severity="error"> {reference_number_error} </Alert>}
 
             <TextField size="small" className={classes.inputFields} id="formControl_key_remark" defaultValue={key_remark}
               label="Key Remark *" variant="outlined" multiline
@@ -536,12 +818,26 @@ export default function EditProcurement(props) {
                   <TableBody>
                     {items.map((row, index) => {
                       return (
-                        <TableRow hover tabIndex={-1} key={"" + index} selected={index === currentItem} onClick={(event) => handleItemClick(event, index)} >
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + getuomFor(row.uomId)}</TableCell>
+                        <TableRow hover tabIndex={-1} key={"" + index}>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + items[index].name}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + getuomFor(items[index].uomId)}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={itemqty[index]}
+                            <MuiPickersUtilsProvider utils={DateFnsUtils} >
+                              <DatePicker size="small" label="Schedule Date" inputVariant="outlined" format="dd/MM/yyyy" value={items[index].scheduled_date} onChange={(newDate) => handleScheduleDateChange(newDate, index)} />
+                            </MuiPickersUtilsProvider>
+                          </TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                            <TextField size="small" id={"formControl_rate_" + index} type="number" value={items[index].rate}
+                              variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
+                          </TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                            <TextField size="small" id={"formControl_qty_" + index} type="number" value={items[index].qty}
                               variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
+                          </TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                            <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => deleteAction(index)}>
+                              <DeleteImage />
+                            </IconButton>
                           </TableCell>
                         </TableRow>
                       );
@@ -551,6 +847,76 @@ export default function EditProcurement(props) {
               </TableContainer>
             </Paper>
             {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_scope_of_supply" defaultValue={scope_of_supply}
+              label="Scope of supply *" variant="outlined" multiline
+              onChange={(event) => { set_scope_of_supply(event.target.value); set_scope_of_supply_error(null); }} />
+            {scope_of_supply_error && <Alert className={classes.alert} severity="error"> {scope_of_supply_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_price_escalation" defaultValue={price_escalation}
+              label="Price Escalation *" variant="outlined" multiline
+              onChange={(event) => { set_price_escalation(event.target.value); set_price_escalation_error(null); }} />
+            {price_escalation_error && <Alert className={classes.alert} severity="error"> {price_escalation_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_warranty_period" defaultValue={warranty_period}
+              label="Warranty Period *" variant="outlined" multiline
+              onChange={(event) => { set_warranty_period(event.target.value); set_warranty_period_error(null); }} />
+            {warranty_period_error && <Alert className={classes.alert} severity="error"> {warranty_period_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_commencement_date" defaultValue={commencement_date}
+              label="Commencement Date *" variant="outlined" multiline
+              onChange={(event) => { set_commencement_date(event.target.value); set_commencement_date_error(null); }} />
+            {commencement_date_error && <Alert className={classes.alert} severity="error"> {commencement_date_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_delivery_timelines" defaultValue={delivery_timelines}
+              label="Delivery Timelines *" variant="outlined" multiline
+              onChange={(event) => { set_delivery_timelines(event.target.value); set_delivery_timelines_error(null); }} />
+            {delivery_timelines_error && <Alert className={classes.alert} severity="error"> {delivery_timelines_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_liquidated_damages" defaultValue={liquidated_damages}
+              label="Liquidated Damages *" variant="outlined" multiline
+              onChange={(event) => { set_liquidated_damages(event.target.value); set_liquidated_damages_error(null); }} />
+            {liquidated_damages_error && <Alert className={classes.alert} severity="error"> {liquidated_damages_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_performance_bank_guarantee" defaultValue={performance_bank_guarantee}
+              label="Performance Bank Guarantee *" variant="outlined" multiline
+              onChange={(event) => { set_performance_bank_guarantee(event.target.value); set_performance_bank_guarantee_error(null); }} />
+            {performance_bank_guarantee_error && <Alert className={classes.alert} severity="error"> {performance_bank_guarantee_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_arbitration" defaultValue={arbitration}
+              label="Arbitration *" variant="outlined" multiline
+              onChange={(event) => { set_arbitration(event.target.value); set_arbitration_error(null); }} />
+            {arbitration_error && <Alert className={classes.alert} severity="error"> {arbitration_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_inspection_and_testing" defaultValue={inspection_and_testing}
+              label="Inspection and Testing *" variant="outlined" multiline
+              onChange={(event) => { set_inspection_and_testing(event.target.value); set_inspection_and_testing_error(null); }} />
+            {inspection_and_testing_error && <Alert className={classes.alert} severity="error"> {inspection_and_testing_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_test_certificates_instruction_manuals" defaultValue={test_certificates_instruction_manuals}
+              label="Test Certificates/Instruction Manuals *" variant="outlined" multiline
+              onChange={(event) => { set_test_certificates_instruction_manuals(event.target.value); set_test_certificates_instruction_manuals_error(null); }} />
+            {test_certificates_instruction_manuals_error && <Alert className={classes.alert} severity="error"> {test_certificates_instruction_manuals_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_taxes_and_duties" defaultValue={taxes_and_duties}
+              label="Taxes & Duties *" variant="outlined" multiline
+              onChange={(event) => { set_taxes_and_duties(event.target.value); set_taxes_and_duties_error(null); }} />
+            {taxes_and_duties_error && <Alert className={classes.alert} severity="error"> {taxes_and_duties_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_acceptance" defaultValue={acceptance}
+              label="Acceptance *" variant="outlined" multiline
+              onChange={(event) => { set_acceptance(event.target.value); set_acceptance_error(null); }} />
+            {acceptance_error && <Alert className={classes.alert} severity="error"> {acceptance_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_frieght_and_insurance" defaultValue={frieght_and_insurance}
+              label="Frieght & Insurance *" variant="outlined" multiline
+              onChange={(event) => { set_frieght_and_insurance(event.target.value); set_frieght_and_insurance_error(null); }} />
+            {frieght_and_insurance_error && <Alert className={classes.alert} severity="error"> {frieght_and_insurance_error} </Alert>}
+
+            <TextField size="small" className={classes.inputFields} id="formControl_payment_terms" defaultValue={payment_terms}
+              label="Payment Terms *" variant="outlined" multiline
+              onChange={(event) => { set_payment_terms(event.target.value); set_payment_terms_error(null); }} />
+            {payment_terms_error && <Alert className={classes.alert} severity="error"> {payment_terms_error} </Alert>}
 
             <div className={classes.submit}>
               <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button>

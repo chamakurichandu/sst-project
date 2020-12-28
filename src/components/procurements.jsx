@@ -74,7 +74,9 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'code', numeric: false, disablePadding: false, label: 'Code' },
-    { id: 'name', numeric: false, disablePadding: false, label: 'Supply Vendor' },
+    { id: 'project', numeric: false, disablePadding: false, label: 'Project Name' },
+    { id: 'warehouse', numeric: false, disablePadding: false, label: 'Warehouse Name' },
+    { id: 'supplyvendor', numeric: false, disablePadding: false, label: 'Supply Vendor' },
     { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
     { id: 'createddate', numeric: false, disablePadding: false, label: 'Created Date' },
     { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
@@ -124,6 +126,8 @@ EnhancedTableHead.propTypes = {
 };
 
 export default function Procurements(props) {
+
+  console.log("props: " + props);
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -267,6 +271,9 @@ export default function Procurements(props) {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [supplyVendors, setSupplyVendors] = React.useState([]);
   const [allItems, set_allItems] = React.useState([]);
+  const [uoms, set_uoms] = React.useState([]);
+  const [projects, setProjects] = React.useState([]);
+  const [warehouses, setWarehouses] = React.useState([]);
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
@@ -341,6 +348,8 @@ export default function Procurements(props) {
 
       set_allItems(data.list.docs);
       setShowBackDrop(false);
+
+      getUOMList();
     }
     catch (e) {
       setShowBackDrop(false);
@@ -350,6 +359,76 @@ export default function Procurements(props) {
     }
   }
 
+  async function getUOMList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/uom/list?count=" + 10000 + "&offset=" + 0 + "&search=";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log("uoms: ", data);
+
+      set_uoms(data.list);
+      setShowBackDrop(false);
+
+      getProjectList();
+      // getWarehouseList();
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("Error in getting all items");
+      setErrorMessage("Error in getting all items");
+      setShowError(true);
+    }
+  }
+
+  async function getProjectList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/project/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+      setProjects(data.list.docs);
+      setShowBackDrop(false);
+
+      getWarehouseList();
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("getProjectList e: ", e);
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
+
+  async function getWarehouseList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/warehouse/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+
+      setWarehouses(data.list);
+      setShowBackDrop(false);
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("getWarehouseList: e: ", e);
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
 
   useEffect(() => {
     getSupplyVendorList();
@@ -515,22 +594,53 @@ export default function Procurements(props) {
     });
   };
 
+  const getUOMName = (id) => {
+    for (let i = 0; i < uoms.length; ++i) {
+      if (uoms[i]._id === id) {
+        return uoms[i].name;
+      }
+    }
+
+    return id;
+  };
+
+  const getProjectName = (id) => {
+    for (let i = 0; i < projects.length; ++i) {
+      if (projects[i]._id === id)
+        return projects[i].name;
+    }
+  };
+
+  const getWarehouseName = (id) => {
+    for (let i = 0; i < warehouses.length; ++i) {
+      if (warehouses[i]._id === id)
+        return warehouses[i].name;
+    }
+  };
+
   const downloadAction = async (data) => {
     let supplyVendor = getSupplyVendor(data.supply_vendor);
     let enqItems = [];
-    enqItems.push([{ text: 'S.No.', style: 'tableHeader', fontSize: 11 }, { text: 'Item Type', style: 'tableHeader', fontSize: 11 }, { text: 'Item Description', style: 'tableHeader', fontSize: 11 }, { text: 'UOM', style: 'tableHeader', fontSize: 11 }, { text: 'Qty', style: 'tableHeader', fontSize: 11 }]);
+    enqItems.push([{ text: 'S.No.', style: 'tableHeader', fontSize: 10 }, { text: 'HSN Code', style: 'tableHeader', fontSize: 10 }, { text: 'Material Description', style: 'tableHeader', fontSize: 10 }, { text: 'UOM', style: 'tableHeader', fontSize: 10 }, { text: 'Scheduled Date', style: 'tableHeader', fontSize: 10 }, { text: 'Qty', style: 'tableHeader', fontSize: 10 }, { text: 'Rate', style: 'tableHeader', fontSize: 10 }, { text: 'Amount(Rs)', style: 'tableHeader', fontSize: 10 }]);
+    let numberFormatter = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 });
+    let totalAmount = 0;
     data.items.forEach(function (item, index) {
       let completeItem = getItem(item.item);
-      enqItems.push(["" + (index + 1), completeItem.name, completeItem.description, '4', item.qty]);
+      const dateFns = new DateFnsUtils();
+      if (!completeItem.hsncode)
+        completeItem.hsncode = " ";
+      completeItem.scheduled_date_conv = dateFns.date(item.scheduled_date);
+      completeItem.total = item.qty * item.rate;
+      totalAmount += completeItem.total;
+      enqItems.push(["" + (index + 1), completeItem.hsncode, completeItem.description, getUOMName(completeItem.uomId), completeItem.scheduled_date_conv.toDateString(), { text: numberFormatter.format(item.qty), fontSize: 10, alignment: 'right' }, { text: "" + numberFormatter.format(item.rate), fontSize: 10, alignment: 'right' }, { text: numberFormatter.format(completeItem.total), fontSize: 10, alignment: 'right' }]);
     });
-
-    console.log("enqItems: ", enqItems);
+    enqItems.push([{}, {}, {}, {}, {}, {}, {}, {}]);
+    enqItems.push([{}, {}, {}, {}, {}, {}, { text: "Total:", bold: true }, { text: "" + numberFormatter.format(totalAmount), bold: true, alignment: 'right' }]);
 
     var docDefinition = {
+      pageMargins: [40, 140, 40, 60],
       header: { image: await getBase64ImageFromURL("https://demossga.s3.ap-south-1.amazonaws.com/temp/RajashreeElectricalsHeader.png"), width: 594, height: 130, alignment: "center" },
-      // header: { text: 'Rajashree Electricals\n#154, Near R.V.Public School, Nijalingappa Layout, Davanagere - 577004\n\nprojects@rajashreeelectricals.com', alignment: "right" },
       content: [
-        { text: "\n\n\n\n\n\n\n" },
         {
           style: 'tableExample',
           color: '#444',
@@ -539,14 +649,20 @@ export default function Procurements(props) {
             headerRows: 1,
             // keepWithHeaderRows: 1,
             body: [
-              [{ text: 'Purchase Enquiry', style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
-              [{ text: "To, \n" + supplyVendor.name + "\n" + supplyVendor.address + "\n\n" + "Kind Attention: " + data.kind_attention, colSpan: 2, alignment: 'left' },
-              {}, { text: "Enquiry No: " + data.code + "\nEnquiry Date: " + data.createddate_conv.toDateString(), colSpan: 2, alignment: 'left' }, {}],
-              [{ text: data.description, colSpan: 4, alignment: 'left' }, {}, {}, {}],
+              [{ text: 'LETTER OF INTENT', style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: 'M/s. Rajashree Electrical\nNo.154, Nijalingappa Layout, Davanagere - 577004\nGSTIN/UIN : 29AKTPR1041D1Z1 | Karnataka Code: 29 | projects@rajashreeelectricals.com', bold: false, fontSize: 11, style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: 'LOI Number:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.code, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Reference Number:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.reference_number, bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: 'Date:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.createddate_conv.toDateString(), bold: false, fontSize: 10, alignment: 'center' }, { text: 'Delivery Location:', bold: true, fontSize: 10, alignment: 'center' }, { text: getWarehouseName(data.warehouse), bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: 'Project:', bold: true, fontSize: 10, alignment: 'center' }, { text: getProjectName(data.project), bold: false, fontSize: 10, alignment: 'center' }, { text: "Delivery Date:", bold: true, fontSize: 10, alignment: 'center' }, { text: 'As Scheduled', bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: "SUPPLIER:\nName: " + supplyVendor.name + "\nAddress: " + supplyVendor.address + "\nEmail: " + supplyVendor.contactEmail + "\n\nKind Attention: " + supplyVendor.contactName + "\nContact Number: " + supplyVendor.contactPhone + "\nGSTIN: " + supplyVendor.gst, colSpan: 2, fontSize: 10, alignment: 'left' },
+              {}, { text: "BILL TO:\nName: M/s Rajashree Electricals,\nAddress: No.154, Nijalingappa Layout, Davanagere-577004\nEmail: projects@rajashreeelectricals.com\nGSTIN: 29AKTPR1041D1Z1\n\nSHIP TO:\nName: " + "\nAddress:", colSpan: 2, fontSize: 10, alignment: 'left' }, {}],
+              [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
               [
                 {
                   table: {
-                    widths: [30, 70, "*", 30, 30],
+                    widths: [25, 30, "*", 30, 45, 30, 60, 70],
                     headerRows: 1,
                     body: enqItems
                   },
@@ -554,20 +670,54 @@ export default function Procurements(props) {
                 },
                 {}, {}, {}
               ],
-              [{ text: "Key Remarks:\n" + data.key_remark, colSpan: 4, alignment: 'left' }, {}, {}, {}],
-
-              // ['Sample value 1', 'Sample value 2', 'Sample value 3'],
-              // [{ rowSpan: 3, text: 'rowSpan set to 3\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor' }, 'Sample value 2', 'Sample value 3'],
-              // ['', 'Sample value 2', 'Sample value 3'],
-              // ['Sample value 1', 'Sample value 2', 'Sample value 3'],
-              // ['Sample value 1', { colSpan: 2, rowSpan: 2, text: 'Both:\nrowSpan and colSpan\ncan be defined at the same time' }, ''],
-              // ['Sample value 1', '', ''],
+              [{ text: "" + data.key_remark, colSpan: 4, alignment: 'left' }, {}, {}, {}],
             ]
           }
         },
-        { text: 'We appreciate your response.' },
-        { text: '\nThanks and Regards,' },
-        { text: '\nRajeshree Electricals,\n99454 9500 / 99000 45235' }
+        { text: '\n' },
+        { text: 'TERMS & CONDITIONS', bold: true, fontSize: 11 },
+        { text: '\n' },
+        { text: '1. Scope of supply', bold: true },
+        { text: data.scope_of_supply, bold: false },
+        { text: '\n' },
+        { text: '2. Price Escalation', bold: true },
+        { text: data.price_escalation, bold: false },
+        { text: '\n' },
+        { text: '3. Warranty Period', bold: true },
+        { text: data.warranty_period, bold: false },
+        { text: '\n' },
+        { text: '4. Commencement Date', bold: true },
+        { text: data.commencement_date, bold: false },
+        { text: '\n' },
+        { text: '5. Delivery Timelines', bold: true },
+        { text: data.delivery_timelines, bold: false },
+        { text: '\n' },
+        { text: '6. Liquidated Damages', bold: true },
+        { text: data.liquidated_damages, bold: false },
+        { text: '\n' },
+        { text: '7. Performance Bank Guarantee', bold: true },
+        { text: data.performance_bank_guarantee, bold: false },
+        { text: '\n' },
+        { text: '8. Arbitration', bold: true },
+        { text: data.arbitration, bold: false },
+        { text: '\n' },
+        { text: '9. Inspection and Testing', bold: true },
+        { text: data.inspection_and_testing, bold: false },
+        { text: '\n' },
+        { text: '10. Test Certificates/Instruction Manuals', bold: true },
+        { text: data.test_certificates_instruction_manuals, bold: false },
+        { text: '\n' },
+        { text: '11. Taxes & Duties', bold: true },
+        { text: data.taxes_and_duties, bold: false },
+        { text: '\n' },
+        { text: '12. Acceptance', bold: true },
+        { text: data.acceptance, bold: false },
+        { text: '\n' },
+        { text: '13. Freight & lnsurance', bold: true },
+        { text: data.frieght_and_insurance, bold: false },
+        { text: '\n' },
+        { text: '14. Payment Terms', bold: true },
+        { text: data.payment_terms, bold: false },
       ],
       styles: {
         header: {
@@ -590,10 +740,11 @@ export default function Procurements(props) {
         }
       },
       defaultStyle: {
+        fontSize: 10
         // alignment: 'justify'
       }
     };
-    pdfMake.createPdf(docDefinition).download();
+    pdfMake.createPdf(docDefinition).download(data.code + ".pdf");
   };
 
   return (
@@ -653,6 +804,8 @@ export default function Procurements(props) {
                       <TableRow hover tabIndex={-1} key={row.slno}>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProjectName(row.data.project)}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getWarehouseName(row.data.warehouse)}</span></TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getSupplyVendorName(row.data.supply_vendor)}</span></TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.status}</span></TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
