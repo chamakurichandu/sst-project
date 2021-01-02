@@ -78,7 +78,7 @@ function EnhancedTableHeadSmall(props) {
   );
 }
 
-export default function AddProcurement(props) {
+export default function AddLOI(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -369,11 +369,11 @@ export default function AddProcurement(props) {
   };
 
   const handleBreadCrumClick = () => {
-    props.history.push("/procurements");
+    props.goto("loi");
   };
 
   const handleCancel = () => {
-    props.history.push("/procurements");
+    props.goto("loi");
   };
 
   const validateData = () => {
@@ -552,7 +552,7 @@ export default function AddProcurement(props) {
 
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/procurement/add";
+      let url = config["baseurl"] + "/api/loi/add";
 
       let postObj = {};
       postObj["supply_vendor"] = supplyVendors[currentSupplyVendor]._id;
@@ -587,7 +587,7 @@ export default function AddProcurement(props) {
       console.log("4");
       console.log("successfully Saved");
       setShowBackDrop(false);
-      props.history.push("/procurements");
+      props.goto("loi");
     }
     catch (e) {
       console.log("5");
@@ -688,198 +688,194 @@ export default function AddProcurement(props) {
 
   return (
     <div className={clsx(classes.root)}>
-      {props.refreshUI &&
+      <div className={classes.paper}>
 
-        <div className={classes.paper}>
+        {/* <EnhancedTableToolbar title={"Add LOI"} /> */}
 
-          <EnhancedTableToolbar title={"Add Procurement"} />
+        <Breadcrumbs aria-label="breadcrumb">
+          <Link color="inherit" onClick={handleBreadCrumClick}>
+            {"LOIs"}
+          </Link>
+          <Typography color="textPrimary">{"Add LOI"}</Typography>
+        </Breadcrumbs>
 
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link color="inherit" onClick={handleBreadCrumClick}>
-              {"Procurements"}
-            </Link>
-            <Typography color="textPrimary">{"Add Procurement"}</Typography>
-          </Breadcrumbs>
+        <form className={classes.papernew} autoComplete="off" noValidate>
 
-          <form className={classes.papernew} autoComplete="off" noValidate>
+          <FormControl size="small" variant="outlined" className={classes.formControl}>
+            <InputLabel id="project-select-label">Project *</InputLabel>
+            <Select
+              labelId="project-select-label"
+              id="project-select-label"
+              value={currentProject === -1 ? "" : currentProject}
+              onChange={handleProjectChange}
+              label="Project *"
+            >
+              {projects && projects.map((row, index) => {
+                return (
+                  <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+          {projects_error && <Alert className={classes.alert} severity="error"> {projects_error} </Alert>}
 
-            <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="project-select-label">Project *</InputLabel>
-              <Select
-                labelId="project-select-label"
-                id="project-select-label"
-                value={currentProject === -1 ? "" : currentProject}
-                onChange={handleProjectChange}
-                label="Project *"
-              >
-                {projects && projects.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-            {projects_error && <Alert className={classes.alert} severity="error"> {projects_error} </Alert>}
+          <FormControl size="small" variant="outlined" className={classes.formControl}>
+            <InputLabel id="warehouse-select-label">Warehouse *</InputLabel>
+            <Select
+              labelId="warehouse-select-label"
+              id="warehouse-select-label"
+              value={currentWarehouse === -1 ? "" : currentWarehouse}
+              onChange={handleWarehouseChange}
+              label="Warehouse *"
+            >
+              {warehouses && warehouses.map((row, index) => {
+                return (
+                  <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+          {warehouses_error && <Alert className={classes.alert} severity="error"> {warehouses_error} </Alert>}
 
-            <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="warehouse-select-label">Warehouse *</InputLabel>
-              <Select
-                labelId="warehouse-select-label"
-                id="warehouse-select-label"
-                value={currentWarehouse === -1 ? "" : currentWarehouse}
-                onChange={handleWarehouseChange}
-                label="Warehouse *"
-              >
-                {warehouses && warehouses.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-            {warehouses_error && <Alert className={classes.alert} severity="error"> {warehouses_error} </Alert>}
+          <FormControl size="small" variant="outlined" className={classes.formControl}>
+            <InputLabel id="supplyvendor-select-label">Supply Vendor *</InputLabel>
+            <Select
+              labelId="supplyvendor-select-label"
+              id="supplyvendor-select-label"
+              value={currentSupplyVendor === -1 ? "" : currentSupplyVendor}
+              onChange={handleSupplyVendorChange}
+              label="Supply Vendor *"
+            >
+              {supplyVendors.map((row, index) => {
+                return (
+                  <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+          {supply_vendor_error && <Alert className={classes.alert} severity="error"> {supply_vendor_error} </Alert>}
 
-            <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="supplyvendor-select-label">Supply Vendor *</InputLabel>
-              <Select
-                labelId="supplyvendor-select-label"
-                id="supplyvendor-select-label"
-                value={currentSupplyVendor === -1 ? "" : currentSupplyVendor}
-                onChange={handleSupplyVendorChange}
-                label="Supply Vendor *"
-              >
-                {supplyVendors.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-            {supply_vendor_error && <Alert className={classes.alert} severity="error"> {supply_vendor_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_reference_number" defaultValue={reference_number}
+            label="Reference Number" variant="outlined" multiline
+            onChange={(event) => { set_reference_number(event.target.value); set_reference_number_error(null); }} />
+          {reference_number_error && <Alert className={classes.alert} severity="error"> {reference_number_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_reference_number" defaultValue={reference_number}
-              label="Reference Number" variant="outlined" multiline
-              onChange={(event) => { set_reference_number(event.target.value); set_reference_number_error(null); }} />
-            {reference_number_error && <Alert className={classes.alert} severity="error"> {reference_number_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_key_remark" defaultValue={key_remark}
+            label="Key Remark *" variant="outlined" multiline
+            onChange={(event) => { set_key_remark(event.target.value); set_key_remark_error(null); }} />
+          {key_remark_error && <Alert className={classes.alert} severity="error"> {key_remark_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_key_remark" defaultValue={key_remark}
-              label="Key Remark *" variant="outlined" multiline
-              onChange={(event) => { set_key_remark(event.target.value); set_key_remark_error(null); }} />
-            {key_remark_error && <Alert className={classes.alert} severity="error"> {key_remark_error} </Alert>}
+          <Paper className={classes.paper} style={{ marginTop: 10 }}>
+            <TableContainer className={classes.container}>
+              <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
+                <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
+                <TableBody>
+                  {items.map((row, index) => {
+                    return (
+                      <TableRow hover tabIndex={-1} key={"" + index} >
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <MuiPickersUtilsProvider utils={DateFnsUtils} >
+                            <DatePicker size="small" label="Schedule Date" inputVariant="outlined" format="dd/MM/yyyy" value={row.scheduledDate} onChange={(newDate) => handleScheduleDateChange(newDate, index)} />
+                          </MuiPickersUtilsProvider>
+                        </TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <TextField size="small" id={"formControl_rate_" + index} type="number" defaultValue={row.rate}
+                            variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
+                        </TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={itemqty[index]}
+                            variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
+                        </TableCell>
 
-            <Paper className={classes.paper} style={{ marginTop: 10 }}>
-              <TableContainer className={classes.container}>
-                <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                  <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
-                  <TableBody>
-                    {items.map((row, index) => {
-                      return (
-                        <TableRow hover tabIndex={-1} key={"" + index} >
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <MuiPickersUtilsProvider utils={DateFnsUtils} >
-                              <DatePicker size="small" label="Schedule Date" inputVariant="outlined" format="dd/MM/yyyy" value={row.scheduledDate} onChange={(newDate) => handleScheduleDateChange(newDate, index)} />
-                            </MuiPickersUtilsProvider>
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <TextField size="small" id={"formControl_rate_" + index} type="number" defaultValue={row.rate}
-                              variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={itemqty[index]}
-                              variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
-                          </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+          {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
 
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-            {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_scope_of_supply" defaultValue={scope_of_supply}
+            label="Scope of supply *" variant="outlined" multiline
+            onChange={(event) => { set_scope_of_supply(event.target.value); set_scope_of_supply_error(null); }} />
+          {scope_of_supply_error && <Alert className={classes.alert} severity="error"> {scope_of_supply_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_scope_of_supply" defaultValue={scope_of_supply}
-              label="Scope of supply *" variant="outlined" multiline
-              onChange={(event) => { set_scope_of_supply(event.target.value); set_scope_of_supply_error(null); }} />
-            {scope_of_supply_error && <Alert className={classes.alert} severity="error"> {scope_of_supply_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_price_escalation" defaultValue={price_escalation}
+            label="Price Escalation *" variant="outlined" multiline
+            onChange={(event) => { set_price_escalation(event.target.value); set_price_escalation_error(null); }} />
+          {price_escalation_error && <Alert className={classes.alert} severity="error"> {price_escalation_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_price_escalation" defaultValue={price_escalation}
-              label="Price Escalation *" variant="outlined" multiline
-              onChange={(event) => { set_price_escalation(event.target.value); set_price_escalation_error(null); }} />
-            {price_escalation_error && <Alert className={classes.alert} severity="error"> {price_escalation_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_warranty_period" defaultValue={warranty_period}
+            label="Warranty Period *" variant="outlined" multiline
+            onChange={(event) => { set_warranty_period(event.target.value); set_warranty_period_error(null); }} />
+          {warranty_period_error && <Alert className={classes.alert} severity="error"> {warranty_period_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_warranty_period" defaultValue={warranty_period}
-              label="Warranty Period *" variant="outlined" multiline
-              onChange={(event) => { set_warranty_period(event.target.value); set_warranty_period_error(null); }} />
-            {warranty_period_error && <Alert className={classes.alert} severity="error"> {warranty_period_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_commencement_date" defaultValue={commencement_date}
+            label="Commencement Date *" variant="outlined" multiline
+            onChange={(event) => { set_commencement_date(event.target.value); set_commencement_date_error(null); }} />
+          {commencement_date_error && <Alert className={classes.alert} severity="error"> {commencement_date_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_commencement_date" defaultValue={commencement_date}
-              label="Commencement Date *" variant="outlined" multiline
-              onChange={(event) => { set_commencement_date(event.target.value); set_commencement_date_error(null); }} />
-            {commencement_date_error && <Alert className={classes.alert} severity="error"> {commencement_date_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_delivery_timelines" defaultValue={delivery_timelines}
+            label="Delivery Timelines *" variant="outlined" multiline
+            onChange={(event) => { set_delivery_timelines(event.target.value); set_delivery_timelines_error(null); }} />
+          {delivery_timelines_error && <Alert className={classes.alert} severity="error"> {delivery_timelines_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_delivery_timelines" defaultValue={delivery_timelines}
-              label="Delivery Timelines *" variant="outlined" multiline
-              onChange={(event) => { set_delivery_timelines(event.target.value); set_delivery_timelines_error(null); }} />
-            {delivery_timelines_error && <Alert className={classes.alert} severity="error"> {delivery_timelines_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_liquidated_damages" defaultValue={liquidated_damages}
+            label="Liquidated Damages *" variant="outlined" multiline
+            onChange={(event) => { set_liquidated_damages(event.target.value); set_liquidated_damages_error(null); }} />
+          {liquidated_damages_error && <Alert className={classes.alert} severity="error"> {liquidated_damages_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_liquidated_damages" defaultValue={liquidated_damages}
-              label="Liquidated Damages *" variant="outlined" multiline
-              onChange={(event) => { set_liquidated_damages(event.target.value); set_liquidated_damages_error(null); }} />
-            {liquidated_damages_error && <Alert className={classes.alert} severity="error"> {liquidated_damages_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_performance_bank_guarantee" defaultValue={performance_bank_guarantee}
+            label="Performance Bank Guarantee *" variant="outlined" multiline
+            onChange={(event) => { set_performance_bank_guarantee(event.target.value); set_performance_bank_guarantee_error(null); }} />
+          {performance_bank_guarantee_error && <Alert className={classes.alert} severity="error"> {performance_bank_guarantee_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_performance_bank_guarantee" defaultValue={performance_bank_guarantee}
-              label="Performance Bank Guarantee *" variant="outlined" multiline
-              onChange={(event) => { set_performance_bank_guarantee(event.target.value); set_performance_bank_guarantee_error(null); }} />
-            {performance_bank_guarantee_error && <Alert className={classes.alert} severity="error"> {performance_bank_guarantee_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_arbitration" defaultValue={arbitration}
+            label="Arbitration *" variant="outlined" multiline
+            onChange={(event) => { set_arbitration(event.target.value); set_arbitration_error(null); }} />
+          {arbitration_error && <Alert className={classes.alert} severity="error"> {arbitration_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_arbitration" defaultValue={arbitration}
-              label="Arbitration *" variant="outlined" multiline
-              onChange={(event) => { set_arbitration(event.target.value); set_arbitration_error(null); }} />
-            {arbitration_error && <Alert className={classes.alert} severity="error"> {arbitration_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_inspection_and_testing" defaultValue={inspection_and_testing}
+            label="Inspection and Testing *" variant="outlined" multiline
+            onChange={(event) => { set_inspection_and_testing(event.target.value); set_inspection_and_testing_error(null); }} />
+          {inspection_and_testing_error && <Alert className={classes.alert} severity="error"> {inspection_and_testing_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_inspection_and_testing" defaultValue={inspection_and_testing}
-              label="Inspection and Testing *" variant="outlined" multiline
-              onChange={(event) => { set_inspection_and_testing(event.target.value); set_inspection_and_testing_error(null); }} />
-            {inspection_and_testing_error && <Alert className={classes.alert} severity="error"> {inspection_and_testing_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_test_certificates_instruction_manuals" defaultValue={test_certificates_instruction_manuals}
+            label="Test Certificates/Instruction Manuals *" variant="outlined" multiline
+            onChange={(event) => { set_test_certificates_instruction_manuals(event.target.value); set_test_certificates_instruction_manuals_error(null); }} />
+          {test_certificates_instruction_manuals_error && <Alert className={classes.alert} severity="error"> {test_certificates_instruction_manuals_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_test_certificates_instruction_manuals" defaultValue={test_certificates_instruction_manuals}
-              label="Test Certificates/Instruction Manuals *" variant="outlined" multiline
-              onChange={(event) => { set_test_certificates_instruction_manuals(event.target.value); set_test_certificates_instruction_manuals_error(null); }} />
-            {test_certificates_instruction_manuals_error && <Alert className={classes.alert} severity="error"> {test_certificates_instruction_manuals_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_taxes_and_duties" defaultValue={taxes_and_duties}
+            label="Taxes & Duties *" variant="outlined" multiline
+            onChange={(event) => { set_taxes_and_duties(event.target.value); set_taxes_and_duties_error(null); }} />
+          {taxes_and_duties_error && <Alert className={classes.alert} severity="error"> {taxes_and_duties_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_taxes_and_duties" defaultValue={taxes_and_duties}
-              label="Taxes & Duties *" variant="outlined" multiline
-              onChange={(event) => { set_taxes_and_duties(event.target.value); set_taxes_and_duties_error(null); }} />
-            {taxes_and_duties_error && <Alert className={classes.alert} severity="error"> {taxes_and_duties_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_acceptance" defaultValue={acceptance}
+            label="Acceptance *" variant="outlined" multiline
+            onChange={(event) => { set_acceptance(event.target.value); set_acceptance_error(null); }} />
+          {acceptance_error && <Alert className={classes.alert} severity="error"> {acceptance_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_acceptance" defaultValue={acceptance}
-              label="Acceptance *" variant="outlined" multiline
-              onChange={(event) => { set_acceptance(event.target.value); set_acceptance_error(null); }} />
-            {acceptance_error && <Alert className={classes.alert} severity="error"> {acceptance_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_frieght_and_insurance" defaultValue={frieght_and_insurance}
+            label="Frieght & Insurance *" variant="outlined" multiline
+            onChange={(event) => { set_frieght_and_insurance(event.target.value); set_frieght_and_insurance_error(null); }} />
+          {frieght_and_insurance_error && <Alert className={classes.alert} severity="error"> {frieght_and_insurance_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_frieght_and_insurance" defaultValue={frieght_and_insurance}
-              label="Frieght & Insurance *" variant="outlined" multiline
-              onChange={(event) => { set_frieght_and_insurance(event.target.value); set_frieght_and_insurance_error(null); }} />
-            {frieght_and_insurance_error && <Alert className={classes.alert} severity="error"> {frieght_and_insurance_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_payment_terms" defaultValue={payment_terms}
+            label="Payment Terms *" variant="outlined" multiline
+            onChange={(event) => { set_payment_terms(event.target.value); set_payment_terms_error(null); }} />
+          {payment_terms_error && <Alert className={classes.alert} severity="error"> {payment_terms_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_payment_terms" defaultValue={payment_terms}
-              label="Payment Terms *" variant="outlined" multiline
-              onChange={(event) => { set_payment_terms(event.target.value); set_payment_terms_error(null); }} />
-            {payment_terms_error && <Alert className={classes.alert} severity="error"> {payment_terms_error} </Alert>}
+          <div className={classes.submit}>
+            <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button>
+            <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button>
+          </div>
 
-            <div className={classes.submit}>
-              <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button>
-              <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button>
-            </div>
-
-          </form>
-          {/* </Paper> */}
-        </div>
-      }
-
+        </form>
+        {/* </Paper> */}
+      </div>
       { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={allItems} type={"Purchasable Items"} />}
 
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
