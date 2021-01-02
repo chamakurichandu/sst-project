@@ -13,9 +13,6 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import exhibitorsLogo from '../assets/svg/ss/exhibition.svg';
-import notFoundImage from '../assets/svg/ss/page-not-found.svg';
-import profileLogo from '../assets/svg/ss/profile.svg';
 import Button from '@material-ui/core/Button';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
@@ -24,12 +21,13 @@ import axios from 'axios';
 import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import MentoringApplyForm from './mentoringApplyForm';
 import Image, { Shimmer } from 'react-shimmer'
-import { useHistory } from 'react-router-dom';
 import lstrings from '../lstrings';
 import WarehouseImage from '../assets/svg/ss/warehouse-2.svg';
 import Link from '@material-ui/core/Link';
+import IconButton from '@material-ui/core/IconButton';
+import EditImage from '@material-ui/icons/Edit';
+import DetailImage from '@material-ui/icons/ArrowForward';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -72,7 +70,6 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Warehouse Name' },
-    { id: 'managers', numeric: false, disablePadding: false, label: 'Managers' },
     { id: 'city', numeric: false, disablePadding: false, label: 'city' },
     { id: 'address', numeric: false, disablePadding: false, label: 'Address' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
@@ -468,16 +465,18 @@ export default function Warehouses(props) {
                                 <Link color="inherit" href="#" onClick={() => onGoNextLevel(row.data)} >
                                   {row.data.name}
                                 </Link>
-
-                                {/* {row.data.name} */}
                               </span>
                             </div>
                           </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(row.data.managers)}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.city}</span><br></br><span>{row.data.state}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.address}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                            <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => handleEdit(row.data)}>
+                              <EditImage />
+                            </IconButton>
+                            <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => onGoNextLevel(row.data)}>
+                              <DetailImage />
+                            </IconButton>
                           </TableCell>
                         </TableRow>
                       );

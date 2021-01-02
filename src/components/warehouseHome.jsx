@@ -257,19 +257,36 @@ export default function Warehouses(props) {
   const [rows, setRows] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [managers, set_managers] = React.useState(null);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
+
+  async function getUsers() {
+    try {
+      let url = config["baseurl"] + "/api/warehouse/managers" + "?id=" + props.warehouse._id;
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      set_managers(data.list);
+    }
+    catch (e) {
+      console.log("Error in getting users list");
+      if (e.response) {
+        setErrorMessage(e.response.message);
+      }
+      else {
+        setErrorMessage("Error in getting users list");
+      }
+      setShowError(true);
+    }
+  }
 
   async function getList(numberOfRows) {
     try {
       let url = config["baseurl"] + "/api/warehouse/list";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
-      console.log(data);
-      console.log(data.count);
       setTotalCount(data.count);
-      console.log(data.list);
       let newRows = [];
       for (let i = 0; i < data.count; ++i) {
         console.log("getList: 1");
@@ -280,6 +297,8 @@ export default function Warehouses(props) {
       }
 
       setRows(newRows);
+
+      getUsers();
     }
     catch (e) {
       console.log("Error in getting users list");
@@ -375,11 +394,19 @@ export default function Warehouses(props) {
   }))(LinearProgress);
 
   const getStringForArray = (data) => {
+    if (!managers)
+      return "";
+
     let val = "";
     for (let i = 0; i < data.length; ++i) {
       if (i > 0)
         val += ", ";
-      val += data[i];
+      for (let k = 0; k < managers.length; ++k) {
+        if (managers[k]._id === data[i]) {
+          val += managers[k].name;
+          break;
+        }
+      }
     }
     return val;
   }
@@ -421,7 +448,7 @@ export default function Warehouses(props) {
                         <span> {props.warehouse.name} </span>
                       </div>
                     </TableCell>
-                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(props.warehouse.managers)}</span></TableCell>
+                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{managers ? getStringForArray(props.warehouse.managers) : ""}</span></TableCell>
                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.warehouse.city}</span><br></br><span>{props.warehouse.state}</span></TableCell>
                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.warehouse.address}</span></TableCell>
                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
@@ -433,6 +460,7 @@ export default function Warehouses(props) {
               </Table>
             </TableContainer>
           </Paper>
+
         </div>
 
       }
