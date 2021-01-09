@@ -30,6 +30,47 @@ import { useHistory } from 'react-router-dom';
 import lstrings from '../lstrings';
 import WarehouseImage from '../assets/svg/ss/warehouse-2.svg';
 import Link from '@material-ui/core/Link';
+import Typography from '@material-ui/core/Typography';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Box from '@material-ui/core/Box';
+import ReceivedMaterials from "./receivedMaterials";
+import WarehouseInventory from "./warehouseInventory";
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box p={3}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.any.isRequired,
+  value: PropTypes.any.isRequired,
+};
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -108,6 +149,54 @@ function EnhancedTableHead(props) {
     </TableHead>
   );
 }
+
+function EnhancedTableHeadMaterials(props) {
+  const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
+  const setDir = (dir === 'rtl' ? true : false);
+
+  const headCells = [
+    { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
+    { id: 'itemcode', numeric: false, disablePadding: false, label: 'Item Code' },
+    { id: 'hsncode', numeric: false, disablePadding: false, label: 'HSN Code' },
+    { id: 'itemname', numeric: false, disablePadding: false, label: 'Item Name' },
+    { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
+    { id: 'productcategory', numeric: false, disablePadding: false, label: 'Product Category' },
+    { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
+    { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
+  ];
+  const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  const createSortHandler = (property) => (event) => {
+    onRequestSort(event, property);
+  };
+  return (
+    <TableHead>
+      <TableRow>
+        {headCells.map((headCell) => (
+          <TableCell
+            key={headCell.id}
+            align={!setDir ? 'left' : 'right'}
+            padding={headCell.disablePadding ? 'none' : 'default'}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : 'asc'}
+              onClick={createSortHandler(headCell.id)}
+            >
+              {headCell.label}
+              {orderBy === headCell.id ? (
+                <span className={classes.visuallyHidden}>
+                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                </span>
+              ) : null}
+            </TableSortLabel>
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+}
+
 
 EnhancedTableHead.propTypes = {
   classes: PropTypes.object.isRequired,
@@ -258,6 +347,7 @@ export default function Warehouses(props) {
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [managers, set_managers] = React.useState(null);
+  const [value, setValue] = React.useState(0);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -307,8 +397,33 @@ export default function Warehouses(props) {
     }
   }
 
+  const getProductCategory = (id) => {
+    for (let i = 0; i < props.productCategories.length; ++i) {
+      if (props.productCategories[i]._id === id)
+        return props.productCategories[i].name;
+    }
+    return id;
+  };
+
+  const getUOM = (id) => {
+    for (let i = 0; i < props.UOMs.length; ++i) {
+      if (props.UOMs[i]._id === id)
+        return props.UOMs[i].name;
+    }
+
+    return id;
+  };
+
+  const onSearchChange = (event) => {
+    console.log(event.target.value);
+
+    getList(rowsPerPage, event.target.value);
+  };
+
   useEffect(() => {
-    getList(rowsPerPage);
+    getUsers();
+    // getReceivedMaterial();
+    // getList(rowsPerPage);
   }, []);
 
   const handleClose = (event, reason) => {
@@ -415,12 +530,60 @@ export default function Warehouses(props) {
 
   };
 
+  const ReceiveMaterial = () => {
+    props.history.push("/warehousereceive");
+  };
+
+  const ReceivedHistory = () => {
+    props.history.push("/warehousereceivedhistory");
+  };
+
+  const ReleaseMaterial = () => {
+    props.history.push("/warehouserelease");
+  };
+
+  const ReleaseHistory = () => {
+    props.history.push("/warehousereleasedhistory");
+  };
+
+  const handleBreadCrumClick = () => {
+    props.history.push("/warehouses");
+  };
+
+  const handleChange = (event, newValue) => {
+    console.log(newValue);
+    setValue(newValue);
+  };
+
+  const gotoFromReceivedMaterial = (target, data) => {
+    switch (target) {
+      case "receivematerial":
+        props.history.push("/warehousereceive");
+        break;
+    }
+  }
+
+  const gotoFromWarehouseInventory = (target, data) => {
+    switch (target) {
+      // case "receivematerial":
+      //   props.history.push("/warehousereceive");
+      //   break;
+    }
+  }
+
   return (
     <div className={clsx(classes.root)}>
       {props.refreshUI &&
 
         <div className={classes.paper}>
-          <EnhancedTableToolbar title={lstrings.Warehouses} />
+          <EnhancedTableToolbar title={props.warehouse.name} />
+          <Breadcrumbs aria-label="breadcrumb">
+            <Link color="inherit" onClick={handleBreadCrumClick}>
+              {"Warehouses"}
+            </Link>
+            <Typography color="textPrimary">{props.warehouse.name}</Typography>
+          </Breadcrumbs>
+
           <Paper className={classes.grid}>
             <TableContainer>
               <Table
@@ -454,15 +617,85 @@ export default function Warehouses(props) {
                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                       <div><Button onClick={() => handleEdit()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
                     </TableCell>
-
                   </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
           </Paper>
+          <Paper className={classes.grid}>
+            <Button size="small" onClick={() => ReceiveMaterial()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 10 }} variant="contained" className={classes.button}>{"Receive Material"}</Button>
+            <Button size="small" onClick={() => ReleaseMaterial()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 30 }} variant="contained" className={classes.button}>{"Release Material"}</Button>
+          </Paper>
+
+          <Paper className={classes.grid}>
+            <AppBar position="static">
+              <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
+                <Tab label="Inventory" {...a11yProps(0)} />
+                <Tab label="Received Materials" {...a11yProps(1)} />
+                <Tab label="Released Materials" {...a11yProps(2)} />
+              </Tabs>
+            </AppBar>
+            <TabPanel value={value} index={0}>
+              <WarehouseInventory goto={gotoFromWarehouseInventory} warehouse={props.warehouse} />
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+              <ReceivedMaterials goto={gotoFromReceivedMaterial} warehouse={props.warehouse} />
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+            </TabPanel>
+
+            {/* <TableContainer>
+              <Table
+                className={classes.table}
+                aria-labelledby="tableTitle"
+                size={dense ? 'small' : 'medium'}
+                aria-label="enhanced table"
+              >
+                <EnhancedTableHeadMaterials
+                  classes={classes}
+                  numSelected={selected.length}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={rows.length}
+                />
+
+                <TableBody>
+                  {stableSort(rows, getComparator(order, orderBy))
+                    .map((row, index) => {
+                      const isItemSelected = isSelected(row.name);
+                      const labelId = `enhanced-table-checkbox-${index}`;
+                      return (
+                        <TableRow hover tabIndex={-1} key={row.slno}>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.hsncode}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProductCategory(row.data.productCategoryId)}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.data.uomId)}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                            <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={pageLimits}
+              component="div"
+              count={totalCount}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            /> */}
+          </Paper>
 
         </div>
-
       }
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
