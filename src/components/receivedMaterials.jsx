@@ -77,6 +77,8 @@ function EnhancedTableHead(props) {
     { id: 'code', numeric: false, disablePadding: false, label: 'Code' },
     { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
     { id: 'po_code', numeric: false, disablePadding: false, label: 'PO Code' },
+    { id: 'bill_num', numeric: false, disablePadding: false, label: 'Bill Number' },
+    { id: 'bill_date', numeric: false, disablePadding: false, label: 'Bill Date' },
     { id: 'project', numeric: false, disablePadding: false, label: 'Project Name' },
     { id: 'supplyvendor', numeric: false, disablePadding: false, label: 'Supply Vendor' },
     { id: 'createddate', numeric: false, disablePadding: false, label: 'Created Date' },
@@ -283,22 +285,26 @@ export default function ReceivedMaterials(props) {
 
   async function getReceivedMaterials(numberOfRows, search = "") {
     try {
+      setShowBackDrop(true);
       console.log("page: ", page);
       let url = config["baseurl"] + "/api/materialreceivetransaction/list?count=" + numberOfRows + "&warehouse=" + props.warehouse._id + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
-      console.log(data);
+      // console.log(data);
       let newRows = [];
       setTotalCount(data.totalDocs);
       const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.length; ++i) {
         data.list[i].createddate_conv = dateFns.date(data.list[i].createdDate);
+        data.list[i].transaction.bill_date_conv = dateFns.date(data.list[i].transaction.bill_date);
+
         newRows.push(createData((offset + i + 1),
           data.list[i]
         ));
       }
 
       setRows(newRows);
+      setShowBackDrop(false);
     }
     catch (e) {
 
@@ -309,6 +315,7 @@ export default function ReceivedMaterials(props) {
         setErrorMessage("Error in getting list");
       }
       setShowError(true);
+      setShowBackDrop(false);
     }
   }
 
@@ -363,7 +370,7 @@ export default function ReceivedMaterials(props) {
   const handleChangePage = (event, newPage) => {
     offset = newPage * rowsPerPage;
     setPage(newPage);
-    // getList(rowsPerPage);
+    getReceivedMaterials(rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -371,7 +378,7 @@ export default function ReceivedMaterials(props) {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
     offset = 0;
-    // getList(newRowsPerPage);
+    getReceivedMaterials(newRowsPerPage);
   };
 
   const handleAdd = () => {
@@ -409,7 +416,7 @@ export default function ReceivedMaterials(props) {
   const onSearchChange = (event) => {
     console.log(event.target.value);
 
-    // getList(rowsPerPage, event.target.value);
+    getReceivedMaterials(rowsPerPage, event.target.value);
   };
 
   const handleCloseBackDrop = () => {
@@ -498,7 +505,28 @@ export default function ReceivedMaterials(props) {
   };
 
   const detailAction = (data) => {
+    console.log(data);
+    props.setWarehouseReceiveTransaction(data);
+    props.history.push("/warehousereceivedetails");
+  };
 
+  const getTypeString = (type) => {
+    switch (type) {
+      case "po":
+        return "Purchase Order";
+        break;
+      case "warehouse":
+        return "Warehouse 2 Warehouse";
+        break;
+      case "local_purchase":
+        return "Local Purchase";
+        break;
+      case "return_indent":
+        return "Return Indent";
+        break;
+    }
+
+    return "";
   };
 
   return (
@@ -546,21 +574,21 @@ export default function ReceivedMaterials(props) {
               />
               <TableBody>
                 {rows.map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
                   const labelId = `enhanced-table-checkbox-${index}`;
+                  const deleted = (row.data.transaction.deleted === 1);
                   return (
                     <TableRow hover tabIndex={-1} key={row.slno}>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.code}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.po.code}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.name}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.supply_vendor.name}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.code}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{getTypeString(row.data.transaction.type)}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.po ? row.data.po.code : "N/A"}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.bill_no}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.bill_date_conv.toDateString()}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.project.name}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.supply_vendor ? row.data.supply_vendor.name : "N/A"}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} ><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                        <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
-                          <DetailImage />
-                        </IconButton>
+                        <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}><DetailImage /></IconButton>
                       </TableCell>
                     </TableRow>
                   );

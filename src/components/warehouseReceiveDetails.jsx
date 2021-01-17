@@ -59,6 +59,7 @@ function EnhancedTableHeadSmall(props) {
 
   const headCells = [
     { id: 'name', numeric: false, disablePadding: false, label: props.title },
+    { id: 'description', numeric: false, disablePadding: false, label: "Decription" },
     { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
     { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
     { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
@@ -70,9 +71,6 @@ function EnhancedTableHeadSmall(props) {
         {headCells.map((headCell, index) => (
           <TableCell key={headCell.id} align={!setDir ? 'left' : 'right'} padding='none' sortDirection={false} >
             {headCell.label}
-            {index === 0 && <IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onClick}>
-              <AddImage />
-            </IconButton>}
           </TableCell>
         ))}
       </TableRow>
@@ -246,6 +244,7 @@ export default function WarehouseReceive(props) {
       const { data } = await axios.get(url);
       console.log(data);
       setPOs(data.list.docs);
+      console.log("setPOs: ", data.list.docs);
     }
     catch (e) {
       if (e.response) {
@@ -380,6 +379,8 @@ export default function WarehouseReceive(props) {
 
       setWarehouses(data.list);
       setShowBackDrop(false);
+
+      getPOs();
     }
     catch (e) {
       setShowBackDrop(false);
@@ -394,9 +395,66 @@ export default function WarehouseReceive(props) {
     }
   }
 
+  const getCurrentPOIndex = (po_id) => {
+    console.log("pos:", pos);
+    for (let i = 0; i < pos.length; ++i) {
+      if (pos[i]._id === po_id)
+        return i;
+    }
+
+    return -1;
+  };
+
+  const completeSetup = () => {
+    const transaction = props.warehouseReceiveTransaction.transaction;
+    const dateFns = new DateFnsUtils();
+
+    for (let i = 0; i < transaction.items.length; ++i) {
+      for (let k = 0; k < allItems.length; ++k) {
+        if (allItems[k]._id === transaction.items[i].item) {
+          transaction.items[i].name = allItems[k].name;
+          transaction.items[i].description = allItems[k].description;
+          transaction.items[i].uomId = allItems[k].uomId;
+          break;
+        }
+      }
+    }
+
+    switch (transaction.type) {
+      case "po":
+        setCurrentType(0);
+        changePO(getCurrentPOIndex(transaction.po_id));
+        set_gate_entry_info(transaction.gate_entry_info);
+        set_bill_no(transaction.bill_no);
+        set_bill_date(dateFns.date(transaction.bill_date).toDateString());
+        set_dc_no(transaction.dc_no);
+        set_dc_date(dateFns.date(transaction.dc_date).toDateString());
+        set_lr_no(transaction.lr_no);
+        set_lr_date(dateFns.date(transaction.lr_date).toDateString());
+        set_transporter(transaction.transporter);
+        set_vehicle_no(transaction.vehicle_no);
+        set_remark(transaction.remark);
+        break;
+      case "warehouse":
+        setCurrentType(1);
+        break;
+      case "local_purchase":
+        setCurrentType(2);
+        break;
+      case "return_indent":
+        setCurrentType(3);
+        break;
+    }
+  };
+
   useEffect(() => {
     getSupplyVendorList();
   }, []);
+
+  useEffect(() => {
+    if (pos)
+      completeSetup();
+  }, [pos]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -707,30 +765,16 @@ export default function WarehouseReceive(props) {
     set_current_type_error(null);
 
     set_items([]);
-
-    switch (event.target.value) {
-      case 0:
-        if (!pos) {
-          getPOs();
-        }
-        break;
-      case 1:
-        if (!pos) {
-          getWarehouseList();
-        }
-        break;
-      case 2:
-        break;
-      case 3:
-        break;
-    }
   };
 
   const handlePOChange = (event) => {
-    setCurrentPO(event.target.value);
+  };
+
+  const changePO = (value) => {
+    setCurrentPO(value);
     set_current_po_error(null);
     setSupplyVendor(null);
-    const vendor = getSupplyVendor(pos[event.target.value].supply_vendor);
+    const vendor = getSupplyVendor(pos[value].supply_vendor);
     console.log("vendor: ", vendor);
     setSupplyVendor(vendor);
     if (vendor) {
@@ -739,19 +783,19 @@ export default function WarehouseReceive(props) {
       set_supplier_gst_error(null);
     }
 
-    console.log(pos[event.target.value]);
+    console.log(pos[value]);
 
     set_items([]);
 
     let newItems = [];
-    for (let k = 0; k < pos[event.target.value].items.length; ++k) {
+    for (let k = 0; k < pos[value].items.length; ++k) {
       for (let i = 0; i < allItems.length; ++i) {
-        if (pos[event.target.value].items[k].item === allItems[i]._id) {
+        if (pos[value].items[k].item === allItems[i]._id) {
           let item = cloneDeep(allItems[i]);
-          item.rate = pos[event.target.value].items[k].rate;
-          item.qty = pos[event.target.value].items[k].qty;
-          item.scheduled_date = pos[event.target.value].items[k].scheduled_date;
-          item.scheduled_date_conv = dateFns.date(pos[event.target.value].items[k].scheduled_date);
+          item.rate = pos[value].items[k].rate;
+          item.qty = pos[value].items[k].qty;
+          item.scheduled_date = pos[value].items[k].scheduled_date;
+          item.scheduled_date_conv = dateFns.date(pos[value].items[k].scheduled_date);
 
           newItems.push(item);
           break;
@@ -889,6 +933,35 @@ export default function WarehouseReceive(props) {
     return null;
   };
 
+  const handleTransactionDelete = async () => {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/materialreceivetransaction/delete";
+
+      let postObj = {};
+      postObj["_id"] = props.warehouseReceiveTransaction.transaction._id;
+      postObj["warehouse"] = props.warehouse._id;
+
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const response = await axios.post(url, postObj);
+      setShowBackDrop(false);
+      props.history.push("/warehousehome");
+    }
+    catch (e) {
+      console.log("5");
+      if (e.response) {
+        console.log("Error in creating");
+        setErrorMessage(e.response.data["message"]);
+      }
+      else {
+        console.log("Error in creating");
+        setErrorMessage("Error in creating: ", e.message);
+      }
+      setShowError(true);
+      setShowBackDrop(false);
+    }
+  };
+
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
@@ -907,13 +980,14 @@ export default function WarehouseReceive(props) {
 
         <form className={classes.papernew} autoComplete="off" noValidate>
           <FormControl size="small" variant="outlined" className={classes.formControl}>
-            <InputLabel id="type-select-label">Receive Type *</InputLabel>
+            <InputLabel id="type-select-label" >Receive Type *</InputLabel>
             <Select
               labelId="type-select-label"
               id="type-select-label"
               value={currentType === -1 ? "" : currentType}
               onChange={handleTypeChange}
               label="Receive Type *"
+              disabled
             >
               {types && types.map((row, index) => {
                 return (
@@ -932,6 +1006,7 @@ export default function WarehouseReceive(props) {
               value={currentPO === -1 ? "" : currentPO}
               onChange={handlePOChange}
               label="PO *"
+              disabled
             >
               {pos && pos.map((row, index) => {
                 return (
@@ -962,80 +1037,49 @@ export default function WarehouseReceive(props) {
 
           {currentType === 0 && pos && (currentPO >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_po_date" value={getDateString(pos[currentPO].createdDate)}
             label="PO Date" variant="outlined" disabled />}
-          {currentType === 0 && po_date_error && <Alert className={classes.alert} severity="error"> {po_date_error} </Alert>}
 
           {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_name" value={supplyVendor.name}
             label="Supplier Name" variant="outlined" multiline disabled />}
-          {currentType === 0 && supplier_name_error && <Alert className={classes.alert} severity="error"> {supplier_name_error} </Alert>}
 
           {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_address" value={supplyVendor.address}
             label="Supplier Address" variant="outlined" multiline disabled />}
-          {currentType === 0 && supplier_address_error && <Alert className={classes.alert} severity="error"> {supplier_address_error} </Alert>}
 
           {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_gst" value={supplyVendor.gst}
             label="Supplier GST" variant="outlined" multiline disabled />}
-          {currentType === 0 && supplier_gst_error && <Alert className={classes.alert} severity="error"> {supplier_gst_error} </Alert>}
 
           {currentType === 2 && <TextField size="small" className={classes.inputFields} id="formControl_key_project" value={project ? (project.code + " - " + project.name) : ""}
             label="Project" variant="outlined" disabled />}
           {currentType === 2 && <Button variant="contained" color="primary" onClick={() => setShowSelectProject(true)} >Select Project</Button>}
-          {currentType === 2 && project_error && <Alert className={classes.alert} severity="error"> {project_error} </Alert>}
 
           {(currentType === 0 || currentType === 2) && <TextField size="small" className={classes.inputFields} id="formControl_key_gate_entry_info" defaultValue={gate_entry_info}
-            label="Gate Entry Info" variant="outlined" multiline
-            onChange={(event) => { set_gate_entry_info(event.target.value); set_gate_entry_info_error(null); }} />}
-          {(currentType === 0 || currentType === 2) && gate_entry_info_error && <Alert className={classes.alert} severity="error"> {gate_entry_info_error} </Alert>}
+            label="Gate Entry Info" variant="outlined" multiline disabled />}
 
-          {(currentType === 0 || currentType === 2) && <TextField size="small" className={classes.inputFields} id="formControl_bill_no" defaultValue={bill_no}
-            label="Bill Num" variant="outlined" multiline
-            onChange={(event) => { set_bill_no(event.target.value); set_bill_no_error(null); }} />}
-          {(currentType === 0 || currentType === 2) && bill_no_error && <Alert className={classes.alert} severity="error"> {bill_no_error} </Alert>}
+          {(currentType === 0 || currentType === 2) && <TextField size="small" className={classes.inputFields} id="formControl_bill_no" value={bill_no}
+            label="Bill Num" variant="outlined" multiline disabled />}
 
-          {(currentType === 0 || currentType === 2) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils} >
-              <DatePicker size="small" label="Bill Date" inputVariant="outlined" format="dd/MM/yyyy" value={bill_date} onChange={set_bill_date} />
-            </MuiPickersUtilsProvider>
-          </FormControl>}
-          {(currentType === 0 || currentType === 2) && bill_date_error && <Alert className={classes.alert} severity="error"> {bill_date_error} </Alert>}
+          {(currentType === 0 || currentType === 2) && <TextField size="small" className={classes.inputFields} id="formControl_bill_date" value={bill_date}
+            label="Bill Date" variant="outlined" disabled />}
 
           {(currentType === 0 || currentType === 2) && <TextField size="small" className={classes.inputFields} id="formControl_dc_no" defaultValue={dc_no}
-            label="DC Num" variant="outlined" multiline
-            onChange={(event) => { set_dc_no(event.target.value); set_dc_no_error(null); }} />}
-          {(currentType === 0 || currentType === 2) && dc_no_error && <Alert className={classes.alert} severity="error"> {dc_no_error} </Alert>}
+            label="DC Num" variant="outlined" multiline disabled />}
 
-          {(currentType === 0 || currentType === 2) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils} >
-              <DatePicker size="small" label="DC Date" inputVariant="outlined" format="dd/MM/yyyy" value={dc_date} onChange={set_dc_date} />
-            </MuiPickersUtilsProvider>
-          </FormControl>}
-          {(currentType === 0 || currentType === 2) && dc_date_error && <Alert className={classes.alert} severity="error"> {dc_date_error} </Alert>}
+          {(currentType === 0 || currentType === 2) && <TextField size="small" className={classes.inputFields} id="formControl_dc_date" value={dc_date}
+            label="DC Date" variant="outlined" disabled />}
 
           {(currentType === 0 || currentType === 2) && <TextField size="small" className={classes.inputFields} id="formControl_lr_no" defaultValue={lr_no}
-            label="LR Num" variant="outlined" multiline
-            onChange={(event) => { set_lr_no(event.target.value); set_lr_no_error(null); }} />}
-          {(currentType === 0 || currentType === 2) && lr_no_error && <Alert className={classes.alert} severity="error"> {lr_no_error} </Alert>}
+            label="LR Num" variant="outlined" multiline disabled />}
 
-          {(currentType === 0 || currentType === 2) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils} >
-              <DatePicker size="small" label="LR Date" inputVariant="outlined" format="dd/MM/yyyy" value={lr_date} onChange={set_lr_date} />
-            </MuiPickersUtilsProvider>
-          </FormControl>}
-          {(currentType === 0 || currentType === 2) && lr_date_error && <Alert className={classes.alert} severity="error"> {lr_date_error} </Alert>}
+          {(currentType === 0 || currentType === 2) && <TextField size="small" className={classes.inputFields} id="formControl_lr_date" value={lr_date}
+            label="LR Date" variant="outlined" disabled />}
 
           {(currentType === 0 || currentType === 2) && <TextField size="small" className={classes.inputFields} id="formControl_transporter" defaultValue={transporter}
-            label="Transporter" variant="outlined" multiline
-            onChange={(event) => { set_transporter(event.target.value); set_transporter_error(null); }} />}
-          {(currentType === 0 || currentType === 2) && transporter_error && <Alert className={classes.alert} severity="error"> {transporter_error} </Alert>}
+            label="Transporter" variant="outlined" multiline disabled />}
 
           {(currentType === 0 || currentType === 2) && <TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" defaultValue={vehicle_no}
-            label="Vehicle Num" variant="outlined" multiline
-            onChange={(event) => { set_vehicle_no(event.target.value); set_vehicle_no_error(null); }} />}
-          {(currentType === 0 || currentType === 2) && vehicle_no_error && <Alert className={classes.alert} severity="error"> {vehicle_no_error} </Alert>}
+            label="Vehicle Num" variant="outlined" multiline disabled />}
 
-          <TextField size="small" className={classes.inputFields} id="formControl_remark" defaultValue={remark}
-            label="Remark" variant="outlined" multiline
-            onChange={(event) => { set_remark(event.target.value); set_remark_error(null); }} />
-          {remark_error && <Alert className={classes.alert} severity="error"> {remark_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_remark" value={remark}
+            label="Remark" variant="outlined" multiline disabled />
 
           <div style={{ marginTop: 10 }}>
             <div>
@@ -1054,20 +1098,21 @@ export default function WarehouseReceive(props) {
           <Paper className={classes.paper} style={{ marginTop: 10 }}>
             <TableContainer className={classes.container}>
               <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
+                <EnhancedTableHeadSmall title="Purchased Items" />
                 <TableBody>
-                  {items.map((row, index) => {
+                  {props.warehouseReceiveTransaction.transaction.items.map((row, index) => {
                     return (
                       <TableRow hover tabIndex={-1} key={"" + index} >
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.description}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <TextField size="small" id={"formControl_rate_" + index} type="number" defaultValue={row.rate}
-                            disabled={currentType === 0} variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
+                            disabled variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
-                            variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
+                            disabled variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                         </TableCell>
                       </TableRow>
                     );
@@ -1079,8 +1124,9 @@ export default function WarehouseReceive(props) {
           {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
 
           <div className={classes.submit}>
-            <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button>
-            <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button>
+            {!props.warehouseReceiveTransaction.transaction.deleted && <Button style={{ marginRight: 20 }} variant="contained" color="secondary" onClick={handleTransactionDelete} >Delete</Button>}
+            <Button variant="contained" color="primary" onClick={handleCancel} >Back</Button>
+            {/* <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button> */}
           </div>
 
         </form>

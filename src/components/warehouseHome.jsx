@@ -347,7 +347,7 @@ export default function Warehouses(props) {
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [managers, set_managers] = React.useState(null);
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState(-1);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -422,8 +422,12 @@ export default function Warehouses(props) {
 
   useEffect(() => {
     getUsers();
-    // getReceivedMaterial();
-    // getList(rowsPerPage);
+    let tab = window.localStorage.getItem("warehousehometab");
+    if (tab === null)
+      tab = "0";
+
+    console.log("tab: ", tab);
+    setValue(parseInt(tab));
   }, []);
 
   const handleClose = (event, reason) => {
@@ -553,6 +557,7 @@ export default function Warehouses(props) {
   const handleChange = (event, newValue) => {
     console.log(newValue);
     setValue(newValue);
+    window.localStorage.setItem("warehousehometab", ("" + newValue));
   };
 
   const gotoFromReceivedMaterial = (target, data) => {
@@ -586,12 +591,7 @@ export default function Warehouses(props) {
 
           <Paper className={classes.grid}>
             <TableContainer>
-              <Table
-                className={classes.table}
-                aria-labelledby="tableTitle"
-                size={dense ? 'small' : 'medium'}
-                aria-label="enhanced table"
-              >
+              <Table className={classes.table} aria-labelledby="tableTitle" size={'small'} aria-label="enhanced table">
                 <EnhancedTableHead
                   classes={classes}
                   numSelected={selected.length}
@@ -626,75 +626,25 @@ export default function Warehouses(props) {
             <Button size="small" onClick={() => ReceiveMaterial()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 10 }} variant="contained" className={classes.button}>{"Receive Material"}</Button>
             <Button size="small" onClick={() => ReleaseMaterial()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 30 }} variant="contained" className={classes.button}>{"Release Material"}</Button>
           </Paper>
-
-          <Paper className={classes.grid}>
-            <AppBar position="static">
-              <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                <Tab label="Inventory" {...a11yProps(0)} />
-                <Tab label="Received Materials" {...a11yProps(1)} />
-                <Tab label="Released Materials" {...a11yProps(2)} />
-              </Tabs>
-            </AppBar>
-            <TabPanel value={value} index={0}>
-              <WarehouseInventory goto={gotoFromWarehouseInventory} warehouse={props.warehouse} />
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-              <ReceivedMaterials goto={gotoFromReceivedMaterial} warehouse={props.warehouse} />
-            </TabPanel>
-            <TabPanel value={value} index={2}>
-            </TabPanel>
-
-            {/* <TableContainer>
-              <Table
-                className={classes.table}
-                aria-labelledby="tableTitle"
-                size={dense ? 'small' : 'medium'}
-                aria-label="enhanced table"
-              >
-                <EnhancedTableHeadMaterials
-                  classes={classes}
-                  numSelected={selected.length}
-                  order={order}
-                  orderBy={orderBy}
-                  onSelectAllClick={handleSelectAllClick}
-                  onRequestSort={handleRequestSort}
-                  rowCount={rows.length}
-                />
-
-                <TableBody>
-                  {stableSort(rows, getComparator(order, orderBy))
-                    .map((row, index) => {
-                      const isItemSelected = isSelected(row.name);
-                      const labelId = `enhanced-table-checkbox-${index}`;
-                      return (
-                        <TableRow hover tabIndex={-1} key={row.slno}>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.hsncode}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProductCategory(row.data.productCategoryId)}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.data.uomId)}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={pageLimits}
-              component="div"
-              count={totalCount}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-            /> */}
-          </Paper>
-
+          {value != -1 &&
+            <Paper className={classes.grid}>
+              <AppBar position="static">
+                <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
+                  <Tab label="Inventory" {...a11yProps(0)} />
+                  <Tab label="Received Materials" {...a11yProps(1)} />
+                  <Tab label="Released Materials" {...a11yProps(2)} />
+                </Tabs>
+              </AppBar>
+              <TabPanel value={value} index={0}>
+                <WarehouseInventory goto={gotoFromWarehouseInventory} {...props} />
+              </TabPanel>
+              <TabPanel value={value} index={1}>
+                <ReceivedMaterials goto={gotoFromReceivedMaterial} {...props} />
+              </TabPanel>
+              <TabPanel value={value} index={2}>
+              </TabPanel>
+            </Paper>
+          }
         </div>
       }
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
