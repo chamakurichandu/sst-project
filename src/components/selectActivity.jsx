@@ -201,7 +201,7 @@ export default function SelectActivity(props) {
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={true}>
-                <DialogTitle id="alert-dialog-title">{"Select " + props.type}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"Select Activity"}</DialogTitle>
                 <DialogContent>
                     <Paper className={classes.paper}>
                         <TableContainer className={classes.container}>

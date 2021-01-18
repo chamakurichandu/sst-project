@@ -36,6 +36,170 @@ import SelectPlace from './selectPlace';
 import SelectActivity from './selectActivity';
 import UpdateActivity from './updateActivity';
 import Chip from '@material-ui/core/Chip';
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
+import Check from '@material-ui/icons/Check';
+import StepConnector from '@material-ui/core/StepConnector';
+import SettingsIcon from '@material-ui/icons/Settings';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
+import VideoLabelIcon from '@material-ui/icons/VideoLabel';
+
+const QontoConnector = withStyles({
+  alternativeLabel: {
+    top: 10,
+    left: 'calc(-50% + 16px)',
+    right: 'calc(50% + 16px)',
+  },
+  active: {
+    '& $line': {
+      borderColor: '#22BE6E',
+    },
+  },
+  completed: {
+    '& $line': {
+      borderColor: '#22BE6E',
+    },
+  },
+  line: {
+    borderColor: '#eaeaf0',
+    borderTopWidth: 3,
+    borderRadius: 1,
+  },
+})(StepConnector);
+
+const useQontoStepIconStyles = makeStyles({
+  root: {
+    color: '#eaeaf0',
+    display: 'flex',
+    height: 22,
+    alignItems: 'center',
+  },
+  active: {
+    color: '#F44A4A',
+  },
+  circle: {
+    width: 8,
+    height: 8,
+    borderRadius: '50%',
+    backgroundColor: 'currentColor',
+  },
+  completed: {
+    color: '#22BE6E',
+    zIndex: 1,
+    fontSize: 18,
+  },
+});
+
+function QontoStepIcon(props) {
+  const classes = useQontoStepIconStyles();
+  const { active, completed } = props;
+
+  return (
+    <div
+      className={clsx(classes.root, {
+        [classes.active]: active,
+      })}
+    >
+      {completed ? <Check className={classes.completed} /> : <div className={classes.circle} />}
+    </div>
+  );
+}
+
+QontoStepIcon.propTypes = {
+  /**
+   * Whether this step is active.
+   */
+  active: PropTypes.bool,
+  /**
+   * Mark the step as completed. Is passed to child components.
+   */
+  completed: PropTypes.bool,
+};
+
+const ColorlibConnector = withStyles({
+  alternativeLabel: {
+    top: 22,
+  },
+  active: {
+    '& $line': {
+      backgroundImage:
+        'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)',
+    },
+  },
+  completed: {
+    '& $line': {
+      backgroundImage:
+        'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)',
+    },
+  },
+  line: {
+    height: 3,
+    border: 0,
+    backgroundColor: '#eaeaf0',
+    borderRadius: 1,
+  },
+})(StepConnector);
+
+const useColorlibStepIconStyles = makeStyles({
+  root: {
+    backgroundColor: '#ccc',
+    zIndex: 1,
+    color: '#fff',
+    width: 50,
+    height: 50,
+    display: 'flex',
+    borderRadius: '50%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  active: {
+    backgroundImage:
+      'linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)',
+    boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
+  },
+  completed: {
+    backgroundImage:
+      'linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)',
+  },
+});
+
+function ColorlibStepIcon(props) {
+  const classes = useColorlibStepIconStyles();
+  const { active, completed } = props;
+
+  const icons = {
+    1: <SettingsIcon />,
+    2: <GroupAddIcon />,
+    3: <VideoLabelIcon />,
+  };
+
+  return (
+    <div
+      className={clsx(classes.root, {
+        [classes.active]: active,
+        [classes.completed]: completed,
+      })}
+    >
+      {icons[String(props.icon)]}
+    </div>
+  );
+}
+
+ColorlibStepIcon.propTypes = {
+  /**
+   * Whether this step is active.
+   */
+  active: PropTypes.bool,
+  /**
+   * Mark the step as completed. Is passed to child components.
+   */
+  completed: PropTypes.bool,
+  /**
+   * The label displayed in the step icon.
+   */
+  icon: PropTypes.node,
+};
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -78,11 +242,11 @@ function EnhancedTableHead2(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'survey', numeric: false, disablePadding: false, label: 'Survey' },
-    { id: 'installation', numeric: false, disablePadding: false, label: 'Installation' },
-    { id: 'commissioning', numeric: false, disablePadding: false, label: 'Commissioning & Testing' },
-    { id: 'acceptance', numeric: false, disablePadding: false, label: 'Acceptance' },
-    { id: 'handover', numeric: false, disablePadding: false, label: 'Hand Over' },
+    { id: 'Status', numeric: false, disablePadding: false, label: 'Status' },
+    // { id: 'installation', numeric: false, disablePadding: false, label: 'Installation' },
+    // { id: 'commissioning', numeric: false, disablePadding: false, label: 'Commissioning & Testing' },
+    // { id: 'acceptance', numeric: false, disablePadding: false, label: 'Acceptance' },
+    // { id: 'handover', numeric: false, disablePadding: false, label: 'Hand Over' },
     { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' },
   ];
 
@@ -366,7 +530,6 @@ export default function ProjectDetails(props) {
   const [projectSections, setProjectSections] = React.useState([]);
   const [projectFeeders, setProjectFeeders] = React.useState([]);
   const [projectActivities, setProjectActivities] = React.useState([]);
-  const [projectActivitiesFiltered, setProjectActivitiesFiltered] = React.useState([]);
 
   const [currentDivision, setCurrentDivision] = React.useState(-1);
   const [currentSubDivision, setCurrentSubDivision] = React.useState(-1);
@@ -394,8 +557,15 @@ export default function ProjectDetails(props) {
 
   const [showBackdrop, setShowBackdrop] = React.useState(false);
 
+  const [activeStep, setActiveStep] = React.useState(2);
+  const steps = getSteps();
+
   const pageLimits = [10, 25, 50];
   let offset = 0;
+
+  function getSteps() {
+    return ['Survey', 'Installation', 'Commissioning & Testing', "Acceptance", "Hand Over"];
+  }
 
   async function getProject() {
     try {
@@ -796,7 +966,6 @@ export default function ProjectDetails(props) {
 
     try {
       setShowBackdrop(true);
-      // console.log("page: ", page);      
 
       console.log(projectFeeders[currentFeeder]);
 
@@ -804,24 +973,9 @@ export default function ProjectDetails(props) {
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
 
-      let filtered = [];
-      let filtered2 = [];
-      for (let i = 0; i < data.list.docs.length; ++i) {
-        const t = data.list.docs[i].activity_ref_id;
-        for (let k = 0; k < activities.length; ++k) {
-          if (t === activities[k]._id) {
-            filtered.push(activities[k]);
-            filtered2.push(data.list.docs[i]);
-          }
-        }
-      }
+      console.log("works data:", data);
 
-      console.log("data.list.docs: ", filtered);
-
-      setProjectActivitiesFiltered(filtered);
-      setProjectActivities(filtered2);
-      // setCurrentActivity(0);
-
+      setProjectActivities(data.list);
       setShowBackdrop(false);
     }
     catch (e) {
@@ -950,9 +1104,11 @@ export default function ProjectDetails(props) {
   const handleEditActivity = (data, name) => {
     console.log("handleEditActivity: ", data);
 
-    setActivityName(name);
-    setSelectedActivity(data);
-    setShowEditActivityDialog(true);
+    props.setSelectedProjectWork(data);
+    props.history.push("/updateprojectwork");
+    // setActivityName(name);
+    // setSelectedActivity(data);
+    // setShowEditActivityDialog(true);
   };
 
   const handleAddActivity = () => {
@@ -1197,7 +1353,7 @@ export default function ProjectDetails(props) {
               <Link color="inherit" onClick={handleBreadCrumClick}>
                 {"Projects"}
               </Link>
-              <Typography color="textPrimary">{props.project.name}</Typography>
+              <Typography color="textPrimary">{props.project.code}</Typography>
             </Breadcrumbs>
 
             <Paper className={classes.grid}>
@@ -1332,7 +1488,7 @@ export default function ProjectDetails(props) {
                 <Grid container spacing={2}>
                   <Grid item className={classes.totalAttendes}>
                     {/* <img src={ProjectsImage} width='25' alt="" /> */}
-                    <h1 className={classes.h1}>{projectActivitiesFiltered.length}</h1>
+                    <h1 className={classes.h1}>{projectActivities.length}</h1>
                     <span>{"Activities"}</span>
                   </Grid>
                   <Grid item className={classes.addButton}>
@@ -1374,17 +1530,28 @@ export default function ProjectDetails(props) {
 
                     <TableBody>
                       {projectActivities.map((row, index) => {
+                        let stepsCompleted = 5;
+                        for (let i = 0; i < row.work.step_status.length; ++i) {
+                          if (row.work.step_status[i] === 0) {
+                            stepsCompleted = i;
+                            break;
+                          }
+                        }
                         return (
                           <TableRow hover tabIndex={-1} key={"index" + index}>
                             <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={"Label" + index} scope="row" padding="none">{"" + (index + 1)}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{index < projectActivitiesFiltered.length && projectActivitiesFiltered[index].name}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getActivityColor(row.step_status[0]) }}>{getActivityStatus(row.step_status[0])}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getActivityColor(row.step_status[1]) }}>{getActivityStatus(row.step_status[1])}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getActivityColor(row.step_status[2]) }}>{getActivityStatus(row.step_status[2])}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getActivityColor(row.step_status[3]) }}>{getActivityStatus(row.step_status[3])}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: getActivityColor(row.step_status[4]) }}>{getActivityStatus(row.step_status[4])}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{index < projectActivities.length && projectActivities[index].activity.name}</TableCell>
+                            <TableCell>
+                              <Stepper alternativeLabel activeStep={stepsCompleted} connector={<QontoConnector />}>
+                                {steps.map((label) => (
+                                  <Step key={label}>
+                                    <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
+                                  </Step>
+                                ))}
+                              </Stepper>
+                            </TableCell>
                             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                              <div><Button size='small' onClick={() => handleEditActivity(row, projectActivitiesFiltered[index].name)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button> </div>
+                              <div><Button size='small' onClick={() => handleEditActivity(row, projectActivities[index].activity.name)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Detail"}</Button> </div>
                             </TableCell>
                           </TableRow>
                         );
