@@ -159,6 +159,7 @@ export default function SelectActivity(props) {
             let postObj = {};
             postObj["activity_ref_id"] = props.items[current]._id;
             postObj["feeder_ref_id"] = props.feeder_ref_id;
+            postObj["project"] = props.project._id;
 
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 

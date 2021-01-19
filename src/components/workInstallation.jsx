@@ -25,6 +25,8 @@ import DeleteImage from '@material-ui/icons/Delete';
 import SelectItem from './selectItem';
 import cloneDeep from 'lodash/cloneDeep';
 import TextField from '@material-ui/core/TextField';
+import AddMaterialIndent from './addMaterialIndent';
+import DetailImage from '@material-ui/icons/ArrowForward';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -37,14 +39,12 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'code', numeric: false, disablePadding: false, label: 'Code' },
-    { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
-    { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
-    { id: 'qty', numeric: false, disablePadding: false, label: 'Quantity' },
+    { id: 'warehouse', numeric: false, disablePadding: false, label: 'Warehouse' },
+    { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
     { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
   ];
 
-  const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  const { classes, order, orderBy, numSelected, rowCount, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -81,7 +81,6 @@ EnhancedTableHead.propTypes = {
   classes: PropTypes.object.isRequired,
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
@@ -224,14 +223,67 @@ export default function WorkInstallation(props) {
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
+  const [page, setPage] = React.useState(0);
+  const [dense] = React.useState(true);
+
   const [showError, setShowError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
-  const [rows, setRows] = React.useState([]);
+  const [indents, setIndents] = React.useState([]);
   const [showSaved, setShowSaved] = React.useState(false);
-
+  const [showAddMaterialIndent, setShowAddMaterialIndent] = React.useState(false);
+  const [materialIndents, setMaterialIndents] = React.useState([]);
+  const [warehouses, setWarehouses] = React.useState([]);
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
+  async function getMaterialIndentList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/materialindent/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+      console.log(data.list);
+
+      setMaterialIndents(data.list.docs);
+
+      setShowBackDrop(false);
+    }
+    catch (e) {
+      console.log("Error in getting users list");
+      setErrorMessage("Error in getting users list");
+      setShowError(true);
+      setShowBackDrop(false);
+    }
+  }
+
+  async function getWarehouseList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/warehouse/list";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+      console.log(data.count);
+      console.log(data.list);
+
+      setWarehouses(data.list);
+
+      setShowBackDrop(false);
+
+      getMaterialIndentList();
+    }
+    catch (e) {
+      console.log("Error in getting users list");
+      setErrorMessage("Error in getting users list");
+      setShowError(true);
+      setShowBackDrop(false);
+    }
+  }
+
   useEffect(() => {
+
+    getWarehouseList();
+
   }, []);
 
   const handleClose = (event, reason) => {
@@ -288,9 +340,87 @@ export default function WorkInstallation(props) {
     }
   };
 
+  const handleAddMaterialIndent = () => {
+    setShowAddMaterialIndent(true);
+  };
+
+  const closeAddMaterialIndentDialog = () => {
+    setShowAddMaterialIndent(false);
+    getMaterialIndentList();
+  };
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const gotoIndentDetails = () => {
+
+  };
+
+  const getWarehouseName = (id) => {
+    for (let i = 0; i < warehouses.length; ++i) {
+      if (warehouses[i]._id === id) {
+        return warehouses[i].name;
+      }
+    }
+    return "Unknown";
+  };
+
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
+        <Paper className={classes.grid}>
+          <Grid container spacing={2}>
+            <Grid item className={classes.totalAttendes}>
+              <img src={ProcurementImage} width='25' alt="" />
+              <h1 className={classes.h1}>{indents.length}</h1>
+              <span>{"Material Indents"}</span>
+            </Grid>
+            <Grid item className={classes.addButton}>
+              <Button onClick={() => handleAddMaterialIndent()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Material Indent"}</Button>
+            </Grid>
+          </Grid>
+        </Paper>
+
+        <Paper className={classes.grid}>
+          <TableContainer>
+            <Table
+              className={classes.table}
+              aria-labelledby="tableTitle"
+              size={dense ? 'small' : 'medium'}
+              aria-label="enhanced table"
+            >
+              <EnhancedTableHead
+                classes={classes}
+                numSelected={selected.length}
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleRequestSort}
+                rowCount={materialIndents.length}
+              />
+
+              <TableBody>
+                {materialIndents.map((row, index) => {
+                  return (
+                    <TableRow hover tabIndex={-1} key={"" + index}  >
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1)}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.code}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + getWarehouseName(row.warehouse)}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + ((parseInt(row.dispatched) === 1) ? "YES" : "NO")}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                        <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => gotoIndentDetails(row)}>
+                          <DetailImage />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
 
         <Paper className={classes.grid}>
           <Grid container spacing={2}>
@@ -302,6 +432,8 @@ export default function WorkInstallation(props) {
           </Grid>
         </Paper>
       </div>
+
+      {showAddMaterialIndent && <AddMaterialIndent workData={props.workData} indents={indents} closeAction={closeAddMaterialIndentDialog} materialIndents={materialIndents} warehouses={warehouses} {...props} />}
 
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">

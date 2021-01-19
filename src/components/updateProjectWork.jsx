@@ -781,7 +781,7 @@ export default function UpdateProjectWork(props) {
                 {<WorkSurvey goto={gotoFromWorkSurvey} items={surveyItems} workData={workData} allItems={allItems} set_allItems={set_allItems}  {...props} />}
               </TabPanel>
               <TabPanel value={value} index={1}>
-                {<WorkInstallation goto={gotoFromWorkInstallation} workData={workData} {...props} />}
+                {<WorkInstallation goto={gotoFromWorkInstallation} workData={workData} allItems={allItems} {...props} />}
               </TabPanel>
               <TabPanel value={value} index={2}>
                 {<WorkCommissioning goto={gotoFromWorkCommissioning} workData={workData} {...props} />}

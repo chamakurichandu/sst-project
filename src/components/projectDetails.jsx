@@ -1587,7 +1587,7 @@ export default function ProjectDetails(props) {
       { showRemoveFeeder && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectFeeder} project={currentProj} orginalItems={feeders} items={projectFeeders} type={"feeder"} mode={"remove"} />}
 
       { showAddActivityDialog && (projectFeeders.length > 0) && (currentFeeder !== -1) &&
-        <SelectActivity closeAction={closeAddActivityAction} onSavedAction={onNewActivitySavedAction} items={activities} feeder_ref_id={projectFeeders[currentFeeder].place} />}
+        <SelectActivity closeAction={closeAddActivityAction} onSavedAction={onNewActivitySavedAction} project={currentProj} items={activities} feeder_ref_id={projectFeeders[currentFeeder].place} />}
 
       { showEditActivityDialog && <UpdateActivity closeAction={closeEditActivityAction} deleteAction={deleteActivityAction} onSavedAction={onEditActivitySavedAction} activityName={activityName} activity={selectedActivity} />}
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
