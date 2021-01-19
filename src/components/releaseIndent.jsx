@@ -28,6 +28,11 @@ import MentoringApplyForm from './mentoringApplyForm';
 import Image, { Shimmer } from 'react-shimmer'
 import { useHistory } from 'react-router-dom';
 import lstrings from '../lstrings';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Link from '@material-ui/core/Link';
+import Typography from '@material-ui/core/Typography';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -69,9 +74,9 @@ function EnhancedTableHead(props) {
 
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
-    { id: 'name', numeric: false, disablePadding: false, label: 'User Name' },
-    { id: 'email', numeric: false, disablePadding: false, label: 'Coordinates' },
-    { id: 'roles', numeric: false, disablePadding: false, label: 'Roles' },
+    { id: 'materialindent', numeric: false, disablePadding: false, label: 'Material Indent' },
+    { id: 'projectcode', numeric: false, disablePadding: false, label: 'Project Code' },
+    { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
   ];
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -117,7 +122,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function ReleaseMaterials(props) {
+export default function ReleaseIndent(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -256,40 +261,35 @@ export default function ReleaseMaterials(props) {
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [totalVisited, setTotalVisited] = React.useState(0);
-  const history = useHistory();
+  const [materialIndents, setMaterialIndents] = React.useState([]);
+  const [showBackDrop, setShowBackDrop] = React.useState(false);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
-  async function getList(numberOfRows) {
+  async function getMaterialIndentList() {
     try {
-      let url = config["baseurl"] + "/api/user/list";
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/materialindent/list?warehouse=" + props.warehouse._id + "&count=" + 1000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
-      console.log(data.count);
-      setTotalCount(data.count);
-      console.log(data.users);
-      let newRows = [];
-      for (let i = 0; i < data.count; ++i) {
-        console.log("getList: 1");
-        newRows.push(createData((offset + i + 1),
-          data.users[i]
-        ));
-        console.log("getList: 2");
-      }
+      console.log(data.list);
 
-      setRows(newRows);
+      setMaterialIndents(data.list);
+
+      setShowBackDrop(false);
     }
     catch (e) {
       console.log("Error in getting users list");
       setErrorMessage("Error in getting users list");
       setShowError(true);
+      setShowBackDrop(false);
     }
   }
 
   useEffect(() => {
-    getList(rowsPerPage);
+    getMaterialIndentList();
   }, []);
 
   const handleClose = (event, reason) => {
@@ -338,7 +338,7 @@ export default function ReleaseMaterials(props) {
   const handleChangePage = (event, newPage) => {
     offset = newPage * rowsPerPage;
     setPage(newPage);
-    getList(rowsPerPage);
+    // getList(rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -346,36 +346,19 @@ export default function ReleaseMaterials(props) {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
     offset = 0;
-    getList(newRowsPerPage);
+    // getList(newRowsPerPage);
   };
 
-  const handleEdit = (userdata) => {
-    console.log("handleEdit: ", userdata);
+  const handleRelease = (data) => {
+    console.log("handleRelease: ", data);
 
-    props.setSelectedUser(userdata);
-    props.history.push("/edituser");
+    // props.setSelectedUser(userdata);
+    // props.history.push("/handlerele");
   };
 
   const handleAddUser = () => {
     props.history.push("/addnewuser");
   };
-
-  const isSelected = (name) => selected.indexOf(name) !== -1;
-
-  const BorderLinearProgress = withStyles((theme) => ({
-    root: {
-      height: 10,
-      borderRadius: 5,
-    },
-    colorPrimary: {
-      backgroundColor: theme.palette.grey[theme.palette.type === 'light' ? 200 : 700],
-    },
-    bar: {
-      borderRadius: 5,
-      backgroundColor: '#1a90ff',
-    },
-
-  }))(LinearProgress);
 
   const getStringForArray = (data) => {
     let val = "";
@@ -387,26 +370,47 @@ export default function ReleaseMaterials(props) {
     return val;
   }
 
+  const handleCloseBackDrop = () => {
+
+  };
+
+  const handleBreadCrumClick = (val) => {
+    if (val === 1)
+      props.history.push("/warehouses");
+    else if (val === 2)
+      props.history.push("/warehousehome");
+  };
+
   return (
     <div className={clsx(classes.root)}>
       {props.refreshUI &&
 
         <div className={classes.paper}>
-          <EnhancedTableToolbar title={lstrings.Users} />
+          <EnhancedTableToolbar title={"Material Indents"} />
+          <Breadcrumbs aria-label="breadcrumb">
+            <Link color="inherit" onClick={() => handleBreadCrumClick(1)}>
+              {"Warehouses"}
+            </Link>
+            <Link color="inherit" onClick={() => handleBreadCrumClick(2)}>
+              {props.warehouse.name}
+            </Link>
+            <Typography color="textPrimary">{"Material Indent"}</Typography>
+          </Breadcrumbs>
+
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>
                 <img src={profileLogo} width='25' alt="" />
-                <h1 className={classes.h1}>{totalCount}</h1>
-                <span>{lstrings.Users}</span>
+                <h1 className={classes.h1}>{materialIndents.length}</h1>
+                <span>{"Material Indents"}</span>
               </Grid>
-              <Grid item className={classes.addButton}>
+              {/* <Grid item className={classes.addButton}>
                 <Button onClick={() => handleAddUser()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddUser}</Button>
-              </Grid>
+              </Grid> */}
             </Grid>
           </Paper>
           <Paper className={classes.grid}>
-            <div className={classes.search}>
+            {/* <div className={classes.search}>
               <div className={classes.searchIcon}>
                 <SearchIcon />
               </div>
@@ -418,7 +422,7 @@ export default function ReleaseMaterials(props) {
                 }}
                 inputProps={{ 'aria-label': 'search' }}
               />
-            </div>
+            </div> */}
             <TableContainer>
               <Table
                 className={classes.table}
@@ -437,40 +441,26 @@ export default function ReleaseMaterials(props) {
                 />
 
                 <TableBody>
-                  {stableSort(rows, getComparator(order, orderBy))
-                    .map((row, index) => {
-                      const isItemSelected = isSelected(row.name);
-                      const labelId = `enhanced-table-checkbox-${index}`;
-                      return (
-                        <TableRow
-                          hover
-                          tabIndex={-1}
-                          key={row.slno}
-                        >
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">
-                            {row.slno}
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div className={classes.flex}>
-                              <Image
-                                src={row.logo_url ? row.logo_url : profileLogo}
-                                NativeImgProps={{ className: classes.exhibitor_image, width: 25, height: 25 }}
-                                style={{ objectFit: 'cover' }}
-                                fallback={<Shimmer width={25} height={25} />} />
-
-                              <span>
-                                {row.data.name}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.phone}</span><br></br><span>{row.data.email}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(row.data.role)}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                  {materialIndents.map((row, index) => {
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    return (
+                      <TableRow
+                        hover
+                        tabIndex={-1}
+                        key={"" + (index + 1)}
+                      >
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">
+                          {(index + 1)}
+                        </TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.indent.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <div><Button onClick={() => handleRelease(row)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Release"}</Button></div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -492,6 +482,11 @@ export default function ReleaseMaterials(props) {
           {errorMessage}
         </Alert>
       </Snackbar>
+
+      <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
     </div>
   );
 }

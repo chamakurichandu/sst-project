@@ -241,10 +241,10 @@ export default function WorkInstallation(props) {
       let url = config["baseurl"] + "/api/materialindent/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
-      console.log(data);
-      console.log(data.list);
+      // console.log(data);
+      // console.log(data.list);
 
-      setMaterialIndents(data.list.docs);
+      setMaterialIndents(data.list);
 
       setShowBackDrop(false);
     }
@@ -406,9 +406,9 @@ export default function WorkInstallation(props) {
                   return (
                     <TableRow hover tabIndex={-1} key={"" + index}  >
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1)}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.code}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + getWarehouseName(row.warehouse)}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + ((parseInt(row.dispatched) === 1) ? "YES" : "NO")}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.indent.code}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + getWarehouseName(row.indent.warehouse)}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + ((parseInt(row.indent.dispatched) === 1) ? "YES" : "NO")}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                         <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => gotoIndentDetails(row)}>
                           <DetailImage />

@@ -252,6 +252,7 @@ export default function AddMaterialIndent(props) {
 
             postObj["work"] = props.workData.work._id;
             postObj["warehouse"] = props.warehouses[currentWarehouse]._id;
+            postObj["project"] = props.project._id;
 
             console.log(postObj);
 
@@ -311,7 +312,7 @@ export default function AddMaterialIndent(props) {
         }
 
         for (let i = 0; i < props.materialIndents.length; ++i) {
-            const mats = props.materialIndents[i].materials;
+            const mats = props.materialIndents[i].indent.materials;
             for (let k = 0; k < mats.length; ++k) {
                 for (let m = 0; m < newItems.length; ++m) {
                     if (mats[k].item === newItems[m]._id) {

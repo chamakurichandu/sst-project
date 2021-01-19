@@ -543,7 +543,7 @@ export default function Warehouses(props) {
   };
 
   const ReleaseMaterial = () => {
-    props.history.push("/warehouserelease");
+    props.history.push("/releaseindent");
   };
 
   const ReleaseHistory = () => {
@@ -624,7 +624,7 @@ export default function Warehouses(props) {
           </Paper>
           <Paper className={classes.grid}>
             <Button size="small" onClick={() => ReceiveMaterial()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 10 }} variant="contained" className={classes.button}>{"Receive Material"}</Button>
-            <Button size="small" onClick={() => ReleaseMaterial()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 30 }} variant="contained" className={classes.button}>{"Release Material"}</Button>
+            <Button size="small" onClick={() => ReleaseMaterial()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 30 }} variant="contained" className={classes.button}>{"Release Material Indents"}</Button>
           </Paper>
           {value != -1 &&
             <Paper className={classes.grid}>
