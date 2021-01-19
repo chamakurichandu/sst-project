@@ -38,6 +38,7 @@ import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import ReceivedMaterials from "./receivedMaterials";
 import WarehouseInventory from "./warehouseInventory";
+import ReleasedMaterials from './releasedMaterials';
 
 function a11yProps(index) {
   return {
@@ -543,7 +544,7 @@ export default function Warehouses(props) {
   };
 
   const ReleaseMaterial = () => {
-    props.history.push("/releaseindent");
+    props.history.push("/releaseindents");
   };
 
   const ReleaseHistory = () => {
@@ -642,6 +643,7 @@ export default function Warehouses(props) {
                 <ReceivedMaterials goto={gotoFromReceivedMaterial} {...props} />
               </TabPanel>
               <TabPanel value={value} index={2}>
+                <ReleasedMaterials {...props} />
               </TabPanel>
             </Paper>
           }

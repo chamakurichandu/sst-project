@@ -46,8 +46,7 @@ function EnhancedTableHead(props) {
     const headCells = [
         { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
         { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
-        { id: 'atysurveyed', numeric: false, disablePadding: false, label: 'Qty Surveyed' },
-        { id: 'qtyordered', numeric: false, disablePadding: false, label: 'QtyOrdered' },
+        { id: 'qtyinstock', numeric: false, disablePadding: false, label: 'Qty In Stock' },
         { id: 'qty', numeric: false, disablePadding: false, label: 'Qty' },
     ];
     const { classes, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -129,7 +128,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function EditMaterialIndent(props) {
+export default function ReleaseMaterialIndent(props) {
     const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
     const useStyles = makeStyles((theme) => ({
@@ -204,54 +203,50 @@ export default function EditMaterialIndent(props) {
     const [current_warehouse_error, set_current_warehouse_error] = React.useState(null);
 
     const [contactingServer, setContactingServer] = React.useState(false);
-    const [showBackdrop, setShowBackdrop] = React.useState(false);
+    const [showBackDrop, setShowBackDrop] = React.useState(false);
 
     const [items, set_items] = React.useState([]);
+    const [allItems, set_allItems] = React.useState([]);
+    const [uoms, set_uoms] = React.useState([]);
+    const [warehouseStocks, setWarehouseStocks] = React.useState([]);
 
-    const handleSave = async () => {
+    async function getWarehouseInventory() {
+        try {
+            setShowBackDrop(true);
+            let url = config["baseurl"] + "/api/storedmaterial/specificlist?warehouse=" + props.warehouse._id;
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+
+            let postObj = {};
+            postObj["materials"] = props.currentMaterialIndent.indent.materials;
+
+            const { data } = await axios.post(url, postObj);
+            console.log("getWarehouseInventory: ", data);
+            setWarehouseStocks(data.list);
+
+            setShowBackDrop(false);
+        }
+        catch (e) {
+            setShowBackDrop(false);
+            if (e.response) {
+                setErrorMessage(e.response.data.message);
+            }
+            else {
+                setErrorMessage("Error in getting list");
+            }
+            setShowError(true);
+        }
+    }
+
+    const handleRelease = async () => {
         setShowError(false);
         set_current_warehouse_error(null);
 
-        let errorOccurred = false;
-        if (currentWarehouse === -1) {
-            set_current_warehouse_error("warehouse required");
-            errorOccurred = true;
-        }
-
-        let qtyNotZero = 0;
-        for (let i = 0; i < items.length; ++i) {
-            if (parseInt(items[i].qtyToOrder) !== 0) {
-                ++qtyNotZero
-            }
-            console.log("" + parseInt(items[i].qtyOrdered) + " , " + parseInt(items[i].qtyToOrder) + " , " + parseInt(items[i].qty));
-            if (parseInt(items[i].qtyOrdered) + parseInt(items[i].qtyToOrder) > parseInt(items[i].qty)) {
-                setErrorMessage("Cannot exceed qty allocated");
-                setShowError(true);
-                return;
-            }
-        }
-
-        if (qtyNotZero === 0) {
-            setErrorMessage("Atleast one item qty should be more than zero");
-            setShowError(true);
-            errorOccurred = true;
-        }
-        if (errorOccurred)
-            return;
-
         try {
-            setShowBackdrop(true);
-            let url = config["baseurl"] + "/api/materialindent/add";
+            setShowBackDrop(true);
+            let url = config["baseurl"] + "/api/materialindent/release";
 
             let postObj = {};
-            postObj["materials"] = [];
-            for (let i = 0; i < items.length; ++i) {
-                if (parseInt(items[i].qtyToOrder) > 0)
-                    postObj["materials"].push({ item: items[i]._id, qty: parseInt(items[i].qtyToOrder) });
-            }
-
-            postObj["work"] = props.workData.work._id;
-            postObj["warehouse"] = props.warehouses[currentWarehouse]._id;
+            postObj["id"] = props.currentMaterialIndent.indent._id;
 
             console.log(postObj);
 
@@ -260,21 +255,21 @@ export default function EditMaterialIndent(props) {
             const response = await axios.post(url, postObj);
 
             console.log("successfully Saved");
-            setShowBackdrop(false);
+            setShowBackDrop(false);
 
             props.closeAction();
         }
         catch (e) {
             if (e.response) {
-                console.log("Error in creating");
+                console.log("Error in releasing");
                 setErrorMessage(e.response.data["message"]);
             }
             else {
-                console.log("Error in creating");
+                console.log("Error in releasing");
                 setErrorMessage("Error in creating: ", e.message);
             }
             setShowError(true);
-            setShowBackdrop(false);
+            setShowBackDrop(false);
         }
     };
 
@@ -295,34 +290,7 @@ export default function EditMaterialIndent(props) {
     };
 
     useEffect(() => {
-        let newItems = [];
-        const surveyMats = props.workData.work.survey_materials;
-        for (let i = 0; i < surveyMats.length; ++i) {
-            for (let k = 0; k < props.allItems.length; ++k) {
-                if (surveyMats[i].item === props.allItems[k]._id) {
-                    let newCopy = cloneDeep(props.allItems[k]);
-                    newCopy.qty = surveyMats[i].qty;
-                    newCopy.qtyOrdered = 0;
-                    newCopy.qtyToOrder = 0;
-                    newItems.push(newCopy);
-                    break;
-                }
-            }
-        }
-
-        for (let i = 0; i < props.materialIndents.length; ++i) {
-            const mats = props.materialIndents[i].materials;
-            for (let k = 0; k < mats.length; ++k) {
-                for (let m = 0; m < newItems.length; ++m) {
-                    if (mats[k].item === newItems[m]._id) {
-                        newItems[m].qtyOrdered += mats[k].qty;
-                    }
-                }
-            }
-        }
-
-        set_items(newItems);
-
+        getWarehouseInventory();
     }, []);
 
     const handleWarehouseChange = (event) => {
@@ -342,70 +310,54 @@ export default function EditMaterialIndent(props) {
         setOrderBy(property);
     };
 
+    const getItem = (id) => {
+        for (let i = 0; i < warehouseStocks.length; ++i) {
+            if (warehouseStocks[i].material._id === id) {
+                return warehouseStocks[i];
+            }
+        }
+        return null;
+    };
+
     return (
         <div>
             <Dialog fullScreen TransitionComponent={Transition} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={true}>
-                <DialogTitle id="alert-dialog-title">{"Create Material Indent"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"Release Material Indent : " + props.currentMaterialIndent.indent.code}</DialogTitle>
                 <DialogContent>
                     <Paper className={classes.paper}>
-                        <form className={classes.papernew} autoComplete="off" noValidate>
-                            <FormControl size="small" variant="outlined" className={classes.formControl}>
-                                <InputLabel id="type-select-label">Warehouse *</InputLabel>
-                                <Select
-                                    labelId="type-select-label"
-                                    id="type-select-label"
-                                    value={currentWarehouse === -1 ? "" : currentWarehouse}
-                                    onChange={handleWarehouseChange}
-                                    label="Warehouse *"
-                                    disabled
-                                >
-                                    {props.warehouses && props.warehouses.map((row, index) => {
+                        <TableContainer className={classes.container}>
+                            <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
+                                <EnhancedTableHead
+                                    classes={classes}
+                                    numSelected={0}
+                                    order={order}
+                                    orderBy={orderBy}
+                                    onRequestSort={handleRequestSort}
+                                    rowCount={items.length}
+                                />
+
+                                <TableBody>
+                                    {warehouseStocks.length > 0 && props.currentMaterialIndent.indent.materials.map((row, index) => {
+                                        let disable = true;//(parseInt(row.qtyOrdered) >= parseInt(row.qty));
+                                        const item = getItem(row.item);
                                         return (
-                                            <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
+                                            <TableRow hover tabIndex={-1} key={"" + index} selected={index === current} >
+                                                <TableCell width={200} align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + (item != null ? item.material.name : "")}</TableCell>
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (item != null ? item.material.description : "")}</TableCell>
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (item.stored ? item.stored.qty : 0)}</TableCell>
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.qty}</TableCell>
+                                            </TableRow>
                                         );
                                     })}
-                                </Select>
-                            </FormControl>
-                            {current_warehouse_error && <Alert className={classes.alert} severity="error"> {current_warehouse_error} </Alert>}
-                            <br></br>
-                            <TableContainer className={classes.container}>
-                                <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                                    <EnhancedTableHead
-                                        classes={classes}
-                                        numSelected={0}
-                                        order={order}
-                                        orderBy={orderBy}
-                                        onRequestSort={handleRequestSort}
-                                        rowCount={items.length}
-                                    />
-
-                                    <TableBody>
-                                        {items.map((row, index) => {
-                                            let disable = true;//(parseInt(row.qtyOrdered) >= parseInt(row.qty));
-                                            return (
-                                                <TableRow hover tabIndex={-1} key={"" + index} selected={index === current} >
-                                                    <TableCell width={200} align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.description}</TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.qty}</TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.qtyOrdered}</TableCell>
-                                                    <TableCell width={150} align={dir === 'rtl' ? 'right' : 'left'} >
-                                                        <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.qtyToOrder} disabled={disable}
-                                                            variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
-                                                    </TableCell>
-
-                                                </TableRow>
-                                            );
-                                        })}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </form>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
                     </Paper>
                 </DialogContent>
 
                 <DialogActions>
                     <Button variant="contained" color="primary" onClick={props.closeAction} disabled={contactingServer}>Cancel</Button>
-                    <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
+                    <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleRelease} disabled={contactingServer}>Release</Button>
                 </DialogActions>
             </Dialog>
 
@@ -415,9 +367,9 @@ export default function EditMaterialIndent(props) {
                 </Alert>
             </Snackbar>
 
-            <Backdrop className={classes.backdrop} open={showBackdrop} onClick={handleCloseBackDrop}>
-                <CircularProgress color="inherit" />
-            </Backdrop>
+            {/* <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}> */}
+            {showBackDrop && <CircularProgress color="inherit" />}
+            {/* </Backdrop> */}
 
         </div>
     );

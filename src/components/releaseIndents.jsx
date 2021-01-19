@@ -33,6 +33,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import ReleaseMaterialIndent from './releaseMaterialIndent';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -122,7 +123,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function ReleaseIndent(props) {
+export default function ReleaseIndents(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -263,6 +264,8 @@ export default function ReleaseIndent(props) {
   const [totalVisited, setTotalVisited] = React.useState(0);
   const [materialIndents, setMaterialIndents] = React.useState([]);
   const [showBackDrop, setShowBackDrop] = React.useState(false);
+  const [releaseMaterialIndent, showReleaseMaterialIndent] = React.useState(false);
+  const [currentMaterialIndent, setCurrentMaterialIndent] = React.useState(null);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -352,8 +355,15 @@ export default function ReleaseIndent(props) {
   const handleRelease = (data) => {
     console.log("handleRelease: ", data);
 
+    setCurrentMaterialIndent(data);
+    showReleaseMaterialIndent(true);
     // props.setSelectedUser(userdata);
     // props.history.push("/handlerele");
+  };
+
+  const handleReleaseClose = () => {
+    showReleaseMaterialIndent(false);
+    getMaterialIndentList();
   };
 
   const handleAddUser = () => {
@@ -464,19 +474,11 @@ export default function ReleaseIndent(props) {
                 </TableBody>
               </Table>
             </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={pageLimits}
-              component="div"
-              count={totalCount}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-            />
           </Paper>
         </div>
-
       }
+      {releaseMaterialIndent && <ReleaseMaterialIndent currentMaterialIndent={currentMaterialIndent} closeAction={handleReleaseClose} {...props} />}
+
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}
