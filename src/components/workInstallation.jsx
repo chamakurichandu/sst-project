@@ -238,7 +238,7 @@ export default function WorkInstallation(props) {
   async function getMaterialIndentList() {
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/materialindent/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/materialindent/list?work=" + props.workData.work._id + "&showall=1&count=" + 1000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       // console.log(data);
