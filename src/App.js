@@ -150,6 +150,9 @@ function App(props) {
   const [project, setProject] = React.useState(null);
   const [procurement, setProcurement] = React.useState(null);
 
+  const [currentMode, setCurrentMode] = React.useState(0);
+  const [modes, setModes] = React.useState(["Home", "Procurement", "Warehouse", "Projects", "Outsourcing", "Finance", "HR & Payroll", "Analytics", "Admin Settings"]);
+
   const left = !drawerOpen ? '72px' : '240px';
   const right = !drawerOpen ? '72px' : '240px';
   const leftM = !drawerOpen ? '52px' : '240px';
@@ -765,8 +768,8 @@ function App(props) {
 
             {authSuccess && !showMentorVideo && !showNetworkingVideo && !showSalesVideoCall &&
               < BrowserRouter >
-                <NavBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} handleSignOut={handleSignOut} showBusinessCard={showBusinessCard} fullScreenHandleEnter={fullScreenHandle.enter} videoCallWaiting={videoCallWaiting} videoCallWaitingQueueSize={videoCallWaitingQueueSize} videoCallWaitingQueuePosition={videoCallWaitingQueuePosition} />
-                <ResponsiveDrawer drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} isSalesMen={isSalesMen} isExhibitor={isExhibitor} isManagePanels={isSalesMen || isExhibitor} themeChangedInApp={themeChanged} />
+                <NavBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} currentMode={currentMode} setCurrentMode={setCurrentMode} modes={modes} setModes={setModes} handleSignOut={handleSignOut} showBusinessCard={showBusinessCard} fullScreenHandleEnter={fullScreenHandle.enter} videoCallWaiting={videoCallWaiting} videoCallWaitingQueueSize={videoCallWaitingQueueSize} videoCallWaitingQueuePosition={videoCallWaitingQueuePosition} />
+                <ResponsiveDrawer drawerOpen={drawerOpen} currentMode={currentMode} setCurrentMode={setCurrentMode} modes={modes} setModes={setModes} setDrawerOpen={setDrawerOpen} isSalesMen={isSalesMen} isExhibitor={isExhibitor} isManagePanels={isSalesMen || isExhibitor} themeChangedInApp={themeChanged} />
                 <Switch>
                   {<Route exact path="/projects" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Projects refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedProject={setSelectedProject} setCustomers={setCustomers} setProject={setProject}  {...props} /> </div>} />}
                   {<Route exact path="/projects-utils" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProjectUtils refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
@@ -815,7 +818,7 @@ function App(props) {
                   <Route exact path="/not-found" component={NotFound} />
                   {<Route exact path="/index.html" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Warehouses refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} setSelectedWarehouse={setSelectedWarehouse} {...props} /> </div>} />}
                   {/* <Route exact path="/index.html" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Users refreshUI={refreshUI} onAuthFailure={onAuthFailure} setSelectedUser={setSelectedUser} {...props} /> </div>} /> */}
-                  <Route render={() => <Redirect to="/index.html" />} />
+                  <Route render={() => <Redirect to="/not-found" />} />
                 </Switch>
               </BrowserRouter>
             }

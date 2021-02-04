@@ -12,6 +12,9 @@ import Divider from '@material-ui/core/Divider';
 import profileImage from '../assets/svg/ss/profile.svg';
 import stopWatchImage from '../assets/svg/ss/stopwatch.svg';
 import Typography from '@material-ui/core/Typography';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -66,7 +69,12 @@ const useStyles = makeStyles((theme) => ({
         '@media (max-width: 420px)': {
             display: "none",
         }
-    }
+    },
+    formControl: {
+        marginTop: theme.spacing(1),
+        minWidth: 150,
+    },
+
 }));
 
 export default function NavBar(props) {
@@ -104,6 +112,11 @@ export default function NavBar(props) {
         props.fullScreenHandleEnter();
     };
 
+    const handleModeChange = (event) => {
+        props.setCurrentMode(event.target.value);
+    };
+
+
     return (
         <div className={classes.root}>
             <CssBaseline />
@@ -132,7 +145,25 @@ export default function NavBar(props) {
                     </IconButton>
                 </div>
 
+
                 <div className={classes.appBarRight}>
+                    <FormControl size="small" variant="outlined" className={classes.formControl}>
+                        <InputLabel size="small" id="project-select-label">Mode *</InputLabel>
+                        <Select
+                            labelId="project-select-label"
+                            id="project-select-label"
+                            value={props.currentMode === -1 ? "" : props.currentMode}
+                            onChange={handleModeChange}
+                            label="Project *"
+                            size="small"
+                        >
+                            {props.modes && props.modes.map((row, index) => {
+                                return (
+                                    <MenuItem key={"" + index} value={index}>{row}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </FormControl>
                     {props.videoCallWaiting && <div >
                         {/* className={classes.info}> */}
                         <IconButton

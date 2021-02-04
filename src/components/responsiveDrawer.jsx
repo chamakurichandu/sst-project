@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -130,6 +130,18 @@ export default function ResponsiveDrawer(props) {
     const history = useHistory();
     const classes = useStyles();
     const theme = useTheme();
+    const [homeModes, setHomeModes] = React.useState(["Profile", "Office Administration", "Company Policies"]);
+    const [procurementModes, setProcurementModes] = React.useState(["Dashboard", "Letter of Intents", "Purchase Orders"]);
+    const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "General Stock Transfer", "Generate DC"]);
+    const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Generate Project Indent", "Generate Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
+    const [outsourcingModes, setOutsourcingModes] = React.useState(["Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report"]);
+    const [financeModes, setFinanceModes] = React.useState([]);
+    const [hrpayrollModes, setHrpayrollModes] = React.useState([]);
+    const [analyticsModes, setAnalyticsModes] = React.useState([]);
+    const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Help", "Materials", "UOM", "Product Category", "Add Project", "Project Utils", "Supply Vendors", "Service Vendors", "Vendor Rate Contracts & Agreement"]);
+    const [menu, setMenu] = React.useState([]);
+
+    //React.useState(["Home", "Procurement", "Warehouse", "Projects", "Outsourcing", "Finance", "HR & Payroll", "Analytics", "Admin Settings"]);
 
     const [language, setLanguage] = React.useState('en');
 
@@ -164,6 +176,169 @@ export default function ResponsiveDrawer(props) {
         setDrawerOpen(false);
     };
 
+    useEffect(() => {
+
+        getMenuForMode(props.modes[props.currentMode]);
+        gotoMenu(props.modes[props.currentMode], 0);
+
+    }, [props.currentMode]);
+
+
+    const getMenuForMode = (mode) => {
+        console.log("getMenuForMode: ", mode);
+        switch (mode) {
+            case "Home":
+                setMenu(homeModes);
+                break;
+            case "Procurement":
+                setMenu(procurementModes);
+                break;
+            case "Warehouse":
+                setMenu(warehouseModes);
+                break;
+            case "Projects":
+                setMenu(projectModes);
+                break;
+            case "Outsourcing":
+                setMenu(outsourcingModes);
+                break;
+            case "Finance":
+                setMenu(financeModes);
+                break;
+            case "HR & Payroll":
+                setMenu(hrpayrollModes);
+                break;
+            case "Analytics":
+                setMenu(analyticsModes);
+                break;
+            case "Admin Settings":
+                setMenu(adminSettingsModes);
+                break;
+        }
+    }
+
+    const gotoMenu = (row, index) => {
+        if (props.modes[props.currentMode] === "Projects") {
+            switch (index) {
+                case 0:
+                    history.push("/projectsdashboard");
+                    break;
+                case 1:
+                    history.push("/approvals");
+                    break;
+                case 2:
+                    history.push("/lettercorr");
+                    break;
+                case 3:
+                    history.push("/dwaboq");
+                    break;
+                case 4:
+                    history.push("/projectestimates");
+                    break;
+                case 5:
+                    history.push("/workorders");
+                    break;
+                case 6:
+                    history.push("/projects");
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    break;
+                case 9:
+                    break;
+                case 10:
+                    break;
+                case 11:
+                    break;
+                case 12:
+                    break;
+            }
+        }
+        else if (props.modes[props.currentMode] === "Admin Settings") {
+            switch (index) {
+                case 0:
+                    history.push("/users");
+                    break;
+                case 1:
+                    history.push("/help");
+                    break;
+                case 2:
+                    history.push("/materials");
+                    break;
+                case 3:
+                    history.push("/uoms");
+                    break;
+                case 4:
+                    history.push("/product-category");
+                    break;
+                case 5:
+                    history.push("/addproject");
+                    break;
+                case 6:
+                    history.push("/projects-utils");
+                    break;
+                case 7:
+                    history.push("/supplyvendors");
+                    break;
+                case 8:
+                    history.push("/servicevendors");
+                    break;
+                case 9:
+                    history.push("/vendorratecontractsagreements");
+                    break;
+            }
+        }
+        else if (props.modes[props.currentMode] === "Procurement") {
+            switch (index) {
+                case 0:
+                    history.push("/procurementsdashboard");
+                    break;
+                case 1:
+                    history.push("/procurements");
+                    break;
+                case 2:
+                    history.push("/procurements");
+                    break;
+            }
+        }
+        else if (props.modes[props.currentMode] === "Warehouse") {
+            switch (index) {
+                case 0:
+                    history.push("/warehousesdashboard");
+                    break;
+                case 1:
+                    history.push("/warehouses");
+                    break;
+                case 2:
+                    // history.push("/materials");
+                    break;
+                case 3:
+                    // history.push("/uoms");
+                    break;
+                case 4:
+                    // history.push("/product-category");
+                    break;
+                case 5:
+                    // history.push("/addproject");
+                    break;
+                case 6:
+                    // history.push("/projects-utils");
+                    break;
+                case 7:
+                    // history.push("/supplyvendors");
+                    break;
+                case 8:
+                    // history.push("/servicevendors");
+                    break;
+                case 9:
+                    // history.push("/vendorratecontractsagreements");
+                    break;
+            }
+        }
+
+    };
+
     return (
 
         <div className={classes.root}>
@@ -195,6 +370,20 @@ export default function ResponsiveDrawer(props) {
                     </div>
 
                     <div>
+                        <List>
+                            {menu.map((row, index) => {
+                                return (
+                                    <ListItem size="small" button key={row} onClick={() => gotoMenu(row, index)}>
+                                        <ListItemIcon><img src={DashboardImage} height='25' alt="" /></ListItemIcon>
+                                        <ListItemText size="small" className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={row} />
+                                    </ListItem>
+                                );
+                            })
+                            }
+                        </List>
+                    </div>
+
+                    {/* <div>
                         <Divider />
                         <Typography className={clsx(classes.dividerFullWidth, theme.direction === 'rtl' ? classes.textStyle : classes.textNormal)} color="textSecondary" display="block" variant="caption">
                             {lstrings.Dashboard}
@@ -252,10 +441,6 @@ export default function ResponsiveDrawer(props) {
                             <ListItemIcon><img src={WarehouseImage} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Warehouses} />
                         </ListItem>
-                        {/* <ListItem button key={lstrings.Inventory} onClick={() => history.push("/inventory")}>
-                            <ListItemIcon><img src={InventoryImage} height='25' alt="" /></ListItemIcon>
-                            <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Inventory} />
-                        </ListItem> */}
                         <ListItem button key={lstrings.Materials} onClick={() => history.push("/materials")}>
                             <ListItemIcon><img src={MaterialsImage} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Materials} />
@@ -289,7 +474,7 @@ export default function ResponsiveDrawer(props) {
                             <ListItemIcon><img src={infoLogo} height='25' alt="" /></ListItemIcon>
                             <ListItemText className={theme.direction === 'rtl' ? classes.textStyle : classes.textNormal} primary={lstrings.Help} />
                         </ListItem>
-                    </List>
+                    </List>*/}
                 </div>
                 {/* {drawerOpen && <LanguageSelect language={language} themeChanged={themeChanged}></LanguageSelect>} */}
             </Drawer>
