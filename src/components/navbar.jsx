@@ -226,7 +226,7 @@ export default function NavBar(props) {
                             >
                                 {props.projects && props.projects.map((row, index) => {
                                     return (
-                                        <MenuItem key={"" + (index + 1)} value={index}>{"" + (index + 1) + " " + row.code}</MenuItem>
+                                        <MenuItem key={"" + (index + 1)} value={index}>{"" + (index + 1) + ". " + row.code}</MenuItem>
                                     );
                                 })}
                             </Select>

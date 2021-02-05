@@ -228,19 +228,19 @@ export default function ResponsiveDrawer(props) {
                     history.push("/projectsdashboard");
                     break;
                 case 1:
-                    history.push("/approvals");
+                    history.push("/project-approvals");
                     break;
                 case 2:
-                    history.push("/lettercorr");
+                    history.push("/project-lettercorr");
                     break;
                 case 3:
-                    history.push("/dwaboq");
+                    history.push("/project-dwaboq");
                     break;
                 case 4:
-                    history.push("/projectestimates");
+                    history.push("/project-projectestimates");
                     break;
                 case 5:
-                    history.push("/workorders");
+                    history.push("/project-workorders");
                     break;
                 case 6:
                     history.push("/projectdetails");

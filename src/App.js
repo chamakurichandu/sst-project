@@ -76,6 +76,7 @@ import WarehouseReceive from './components/warehouseReceive';
 import WarehouseReceiveDetails from './components/warehouseReceiveDetails';
 import UpdateProjectWork from './components/updateProjectWork';
 import ReleaseIndents from './components/releaseIndents';
+import DocumentsFolder from './components/documentsFolder';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -771,6 +772,12 @@ function App(props) {
                 <NavBar drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} currentMode={currentMode} setCurrentMode={setCurrentMode} modes={modes} setModes={setModes} projects={projects} setProjects={setProjects} setProject={setProject} handleSignOut={handleSignOut} showBusinessCard={showBusinessCard} fullScreenHandleEnter={fullScreenHandle.enter} videoCallWaiting={videoCallWaiting} videoCallWaitingQueueSize={videoCallWaitingQueueSize} videoCallWaitingQueuePosition={videoCallWaitingQueuePosition} />
                 <ResponsiveDrawer drawerOpen={drawerOpen} currentMode={currentMode} setCurrentMode={setCurrentMode} modes={modes} setModes={setModes} project={project} setDrawerOpen={setDrawerOpen} isSalesMen={isSalesMen} isExhibitor={isExhibitor} isManagePanels={isSalesMen || isExhibitor} themeChangedInApp={themeChanged} />
                 <Switch>
+                  {<Route exact path="/project-approvals" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"approvals"} project={project} {...props} /> </div>} />}
+                  {<Route exact path="/project-lettercorr" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"lettercorr"} project={project} {...props} /> </div>} />}
+                  {<Route exact path="/project-dwaboq" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"dwaboq"} project={project} {...props} /> </div>} />}
+                  {<Route exact path="/project-projectestimates" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"projectestimates"} project={project} {...props} /> </div>} />}
+                  {<Route exact path="/project-workorders" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"workorders"} project={project} {...props} /> </div>} />}
+
                   {<Route exact path="/projects" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Projects refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedProject={setSelectedProject} setCustomers={setCustomers} setProject={setProject}  {...props} /> </div>} />}
                   {<Route exact path="/projects-utils" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProjectUtils refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
                   {<Route exact path="/addproject" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddProject refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
