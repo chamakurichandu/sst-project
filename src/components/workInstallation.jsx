@@ -39,9 +39,11 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'code', numeric: false, disablePadding: false, label: 'Code' },
-    { id: 'warehouse', numeric: false, disablePadding: false, label: 'Warehouse' },
-    { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
-    { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
+    { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
+    { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
+    { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
+    { id: 'qty', numeric: false, disablePadding: false, label: 'Survey Quantity' },
+    { id: 'install_qty', numeric: false, disablePadding: false, label: 'Insallation Quantity' }
   ];
 
   const { classes, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -233,58 +235,148 @@ export default function WorkInstallation(props) {
   const [showAddMaterialIndent, setShowAddMaterialIndent] = React.useState(false);
   const [materialIndents, setMaterialIndents] = React.useState([]);
   const [warehouses, setWarehouses] = React.useState([]);
+  const [uoms, set_uoms] = React.useState([]);
+  const [work, set_work] = React.useState(null);
+  const [items, set_items] = React.useState([]);
+  const [items_error, set_items_error] = React.useState(null);
+  const [editMode, setEditMode] = React.useState(false);
+
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
-  async function getMaterialIndentList() {
+  async function getUOMList() {
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/materialindent/list?work=" + props.workData.work._id + "&showall=1&count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/uom/list";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
-      // console.log(data);
-      // console.log(data.list);
-
-      setMaterialIndents(data.list);
+      set_uoms(data.list);
 
       setShowBackDrop(false);
     }
     catch (e) {
-      console.log("Error in getting users list");
-      setErrorMessage("Error in getting users list");
+      if (e.response) {
+        console.log("Error in getting UOMs list");
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        console.log("Error in getting UOMs list");
+        setErrorMessage("Error in UOMs list");
+      }
       setShowError(true);
       setShowBackDrop(false);
     }
   }
 
-  async function getWarehouseList() {
+  async function getWorkDetails() {
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/warehouse/list";
+      let url = config["baseurl"] + "/api/work/details?id=" + props.projectWork.work._id;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      const { data } = await axios.get(url);
-      console.log(data);
-      console.log(data.count);
-      console.log(data.list);
 
-      setWarehouses(data.list);
+      const { data } = await axios.get(url);
+      set_work(data);
+
+      let newItems = [];
+      if (data.work.survey_materials) {
+        for (let i = 0; i < data.work.survey_materials.length; ++i) {
+          let item = getItem(data.work.survey_materials[i].item);
+          item.qty = data.work.survey_materials[i].qty ? parseInt(data.work.survey_materials[i].qty) : 0;
+          item.install_qty = data.work.survey_materials[i].install_qty ? parseInt(data.work.survey_materials[i].install_qty) : 0;
+          newItems.push(item);
+        }
+      }
+      set_items(newItems);
 
       setShowBackDrop(false);
-
-      getMaterialIndentList();
     }
     catch (e) {
-      console.log("Error in getting users list");
-      setErrorMessage("Error in getting users list");
+      if (e.response) {
+        console.log("Error in getting work details");
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        console.log("Error in getting work details");
+        setErrorMessage("Error in getting list");
+      }
       setShowError(true);
       setShowBackDrop(false);
     }
   }
 
   useEffect(() => {
-
-    getWarehouseList();
-
+    console.log("props.workData: ", props.workData);
+    getUOMList();
   }, []);
+
+  useEffect(() => {
+    if (props.allItems.length > 0)
+      getWorkDetails();
+  }, [props.allItems]);
+
+  // async function getMaterialIndentList() {
+  //   try {
+  //     setShowBackDrop(true);
+  //     let url = config["baseurl"] + "/api/materialindent/list?work=" + props.workData.work._id + "&showall=1&count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+  //     axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+  //     const { data } = await axios.get(url);
+  //     // console.log(data);
+  //     // console.log(data.list);
+
+  //     setMaterialIndents(data.list);
+
+  //     setShowBackDrop(false);
+  //   }
+  //   catch (e) {
+  //     console.log("Error in getting users list");
+  //     setErrorMessage("Error in getting users list");
+  //     setShowError(true);
+  //     setShowBackDrop(false);
+  //   }
+  // }
+
+  // async function getWarehouseList() {
+  //   try {
+  //     setShowBackDrop(true);
+  //     let url = config["baseurl"] + "/api/warehouse/list";
+  //     axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+  //     const { data } = await axios.get(url);
+  //     console.log(data);
+  //     console.log(data.count);
+  //     console.log(data.list);
+
+  //     setWarehouses(data.list);
+
+  //     setShowBackDrop(false);
+
+  //     getMaterialIndentList();
+  //   }
+  //   catch (e) {
+  //     console.log("Error in getting users list");
+  //     setErrorMessage("Error in getting users list");
+  //     setShowError(true);
+  //     setShowBackDrop(false);
+  //   }
+  // }
+
+  // useEffect(() => {
+
+  //   // getWarehouseList();
+
+  // }, []);
+
+  const getItem = (id) => {
+    for (let i = 0; i < props.allItems.length; ++i) {
+      if (props.allItems[i]._id === id)
+        return props.allItems[i];
+    }
+    return null;
+  };
+
+  const set_item_qty_for = (value, index) => {
+    let newItems = [...items];
+    newItems[index].install_qty = value;
+    set_items(newItems);
+  };
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -346,7 +438,16 @@ export default function WorkInstallation(props) {
 
   const closeAddMaterialIndentDialog = () => {
     setShowAddMaterialIndent(false);
-    getMaterialIndentList();
+    // getMaterialIndentList();
+  };
+
+  const handleSelectAllClick = (event) => {
+    // if (event.target.checked) {
+    //   const newSelecteds = rows.map((n) => n.name);
+    //   setSelected(newSelecteds);
+    //   return;
+    // }
+    // setSelected([]);
   };
 
   const handleRequestSort = (event, property) => {
@@ -368,6 +469,82 @@ export default function WorkInstallation(props) {
     return "Unknown";
   };
 
+  const getuomFor = (value) => {
+    for (let i = 0; i < uoms.length; ++i) {
+      if (value === uoms[i]._id)
+        return uoms[i].name;
+    }
+    return value;
+  }
+
+  const handleSave = async () => {
+    if (!editMode) {
+      setEditMode(true);
+      return;
+    }
+
+    let errorOccured = false;
+    for (let i = 0; i < items.length; ++i) {
+      if (parseInt(items[i].qty) === 0) {
+        setErrorMessage("qty cannot be zero");
+        setShowError(true);
+        errorOccured = true;
+        break;
+      }
+    }
+
+    if (errorOccured)
+      return;
+
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/work/setinstallationmaterials";
+
+      let postObj = {};
+      postObj["items"] = [];
+      for (let i = 0; i < items.length; ++i) {
+        if (parseInt(items[i].install_qty > parseInt(items[i].qty))) {
+          setErrorMessage("installation qty cannot be greater than survey qty");
+          setShowError(true);
+          return;
+        }
+
+        postObj["items"].push({ item: items[i]._id, install_qty: parseInt(items[i].install_qty) });
+      }
+
+      console.log("postObj: ", postObj);
+      let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
+
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+
+      const response = await axios.patch(url, updateObj);
+      console.log("successfully Saved");
+      setShowBackDrop(false);
+      setShowSaved(true);
+
+      setEditMode(false);
+
+      getWorkDetails();
+    }
+    catch (e) {
+      console.log("5");
+      if (e.response) {
+        console.log("Error in creating");
+        setErrorMessage(e.response.data["message"]);
+      }
+      else {
+        console.log("Error in creating");
+        setErrorMessage("Error in creating: ", e.message);
+      }
+      setShowError(true);
+      setShowBackDrop(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditMode(false);
+  };
+
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
@@ -375,14 +552,65 @@ export default function WorkInstallation(props) {
           <Grid container spacing={2}>
             <Grid item className={classes.totalAttendes}>
               <img src={ProcurementImage} width='25' alt="" />
-              <h1 className={classes.h1}>{indents.length}</h1>
-              <span>{"Material Indents"}</span>
+              <h1 className={classes.h1}>{items.length}</h1>
+              <span>{"Materials in installation"}</span>
+            </Grid>
+            <Grid item className={classes.addButton}>
+              {!editMode && <Button onClick={() => handleComplete()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 5 }} variant="contained" className={classes.button}>{"Complete Installation"}</Button>}
+              {!editMode && <Button onClick={() => handleAddMaterialIndent()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 5 }} variant="contained" className={classes.button}>{"Create Material Indent"}</Button>}
+
+              <Button onClick={() => handleSave()} style={{ marginLeft: 10, background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{editMode ? "Save Installation" : "Edit Installation"}</Button>
+              {editMode && <Button onClick={() => handleCancel()} style={{ marginLeft: 20, background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Cancel"}</Button>}
             </Grid>
           </Grid>
         </Paper>
 
         <Paper className={classes.grid}>
           <TableContainer>
+            <Table
+              className={classes.table}
+              aria-labelledby="tableTitle"
+              size={dense ? 'small' : 'medium'}
+              aria-label="enhanced table"
+            >
+              <EnhancedTableHead
+                classes={classes}
+                numSelected={selected.length}
+                order={order}
+                orderBy={orderBy}
+                onSelectAllClick={handleSelectAllClick}
+                onRequestSort={handleRequestSort}
+                rowCount={items.length}
+              />
+              <TableBody>
+                {items.map((row, index) => {
+                  const labelId = `enhanced-table-checkbox-${index}`;
+                  return (
+                    <TableRow hover tabIndex={-1} key={labelId}>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{(index + 1)}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.code}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.name}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.description}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{getuomFor(row.uomId)}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
+                        <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.qty} variant="outlined" disabled />
+                      </TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
+                        <TextField size="small" id={"formControl_installation_qty_" + index} type="number" value={row.install_qty}
+                          variant="outlined" disabled={!editMode} onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
+                      </TableCell>
+                      {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                        {editMode &&
+                          <IconButton color="primary" aria-label="delete" size="small" onClick={() => deleteAction(index)}><DeleteImage /></IconButton>
+                        }
+                      </TableCell> */}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          {/* <TableContainer>
             <Table
               className={classes.table}
               aria-labelledby="tableTitle"
@@ -416,10 +644,10 @@ export default function WorkInstallation(props) {
                 })}
               </TableBody>
             </Table>
-          </TableContainer>
+          </TableContainer> */}
         </Paper>
 
-        <Paper className={classes.grid}>
+        {/* <Paper className={classes.grid}>
           <Grid container spacing={2}>
             <Grid item className={classes.totalAttendes}>
             </Grid>
@@ -428,7 +656,7 @@ export default function WorkInstallation(props) {
               <Button onClick={() => handleComplete()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 5 }} variant="contained" className={classes.button}>{"Complete Installation"}</Button>
             </Grid>
           </Grid>
-        </Paper>
+        </Paper> */}
       </div>
 
       {showAddMaterialIndent && <AddMaterialIndent workData={props.workData} indents={indents} closeAction={closeAddMaterialIndentDialog} materialIndents={materialIndents} warehouses={warehouses} {...props} />}

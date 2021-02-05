@@ -534,6 +534,7 @@ export default function WorkSurvey(props) {
               <span>{"Materials from Survey"}</span>
             </Grid>
             <Grid item className={classes.addButton}>
+              {!editMode && <Button onClick={() => handleComplete()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Complete Survey"}</Button>}
               {editMode && <Button onClick={() => handleAddMaterial()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Material"}</Button>}
               <Button onClick={() => handleSave()} style={{ marginLeft: 10, background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{editMode ? "Save Survey" : "Edit Survey"}</Button>
               {editMode && <Button onClick={() => handleCancel()} style={{ marginLeft: 20, background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Cancel"}</Button>}
@@ -583,7 +584,7 @@ export default function WorkSurvey(props) {
             </Table>
           </TableContainer>
         </Paper>
-        <Paper className={classes.grid}>
+        {/* <Paper className={classes.grid}>
           <Grid container spacing={2}>
             <Grid item className={classes.totalAttendes}>
             </Grid>
@@ -591,7 +592,7 @@ export default function WorkSurvey(props) {
               <Button onClick={() => handleComplete()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Complete Survey"}</Button>
             </Grid>
           </Grid>
-        </Paper>
+        </Paper> */}
       </div>
 
       { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={props.allItems} type={"Materials"} />}
