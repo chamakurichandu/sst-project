@@ -122,7 +122,12 @@ const useStyles = makeStyles((theme) => ({
     textNormal: {
         textAlign: 'left',
         paddingLeft: '5px'
-    }
+    },
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
+    },
+
 }));
 
 export default function ResponsiveDrawer(props) {
@@ -183,7 +188,6 @@ export default function ResponsiveDrawer(props) {
 
     }, [props.currentMode]);
 
-
     const getMenuForMode = (mode) => {
         console.log("getMenuForMode: ", mode);
         switch (mode) {
@@ -239,7 +243,7 @@ export default function ResponsiveDrawer(props) {
                     history.push("/workorders");
                     break;
                 case 6:
-                    history.push("/projects");
+                    history.push("/projectdetails");
                     break;
                 case 7:
                     break;
@@ -382,7 +386,6 @@ export default function ResponsiveDrawer(props) {
                             }
                         </List>
                     </div>
-
                     {/* <div>
                         <Divider />
                         <Typography className={clsx(classes.dividerFullWidth, theme.direction === 'rtl' ? classes.textStyle : classes.textNormal)} color="textSecondary" display="block" variant="caption">
@@ -478,6 +481,7 @@ export default function ResponsiveDrawer(props) {
                 </div>
                 {/* {drawerOpen && <LanguageSelect language={language} themeChanged={themeChanged}></LanguageSelect>} */}
             </Drawer>
+
         </div >
     );
 }

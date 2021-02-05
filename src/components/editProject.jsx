@@ -382,11 +382,11 @@ export default function EditProject(props) {
           <EnhancedTableToolbar title={"Edit Project"} />
 
           <Breadcrumbs aria-label="breadcrumb">
-            <Link color="inherit" onClick={handleBreadCrumClick}>
+            {/* <Link color="inherit" onClick={handleBreadCrumClick}>
               {"Projects"}
-            </Link>
+            </Link> */}
             <Link color="inherit" onClick={handleBreadCrumProjectDetailsClick}>
-              {props.project.name}
+              {props.project.code}
             </Link>
             <Typography color="textPrimary">{"Edit Project"}</Typography>
           </Breadcrumbs>

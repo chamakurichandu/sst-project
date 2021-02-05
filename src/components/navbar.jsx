@@ -15,6 +15,12 @@ import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import axios from 'axios';
+import config from "../config.json";
+import Utils from "./utils.js";
+import DateFnsUtils from '@date-io/date-fns';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -81,6 +87,40 @@ export default function NavBar(props) {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+    const [showError, setShowError] = React.useState(false);
+    const [errorMessage, setErrorMessage] = React.useState(null);
+    const [showBackDrop, setShowBackDrop] = React.useState(false);
+    const [currentProject, setCurrentProject] = React.useState(-1);
+
+    async function getProjectList() {
+        try {
+            let url = config["baseurl"] + "/api/project/list?count=" + 10000 + "&offset=" + 0 + "&search=";
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+            const { data } = await axios.get(url);
+            console.log(data);
+            let projs = [];
+            for (let i = 0; i < data.list.docs.length; ++i) {
+                let proj = data.list.docs[i]
+                const dateFns = new DateFnsUtils();
+                proj.startdate_conv = dateFns.date(proj.startdate);
+                proj.exp_enddate_conv = dateFns.date(proj.exp_enddate);
+
+                projs.push(proj);
+            }
+
+            props.setProjects(projs);
+        }
+        catch (e) {
+
+            if (e.response) {
+                setErrorMessage(e.response.data.message);
+            }
+            else {
+                setErrorMessage("Error in getting list");
+            }
+            setShowError(true);
+        }
+    }
 
     const handleDrawerOpen = () => {
         props.setDrawerOpen(true);
@@ -113,8 +153,17 @@ export default function NavBar(props) {
     };
 
     const handleModeChange = (event) => {
+        console.log("event.target.value: ", event.target.value);
         props.setCurrentMode(event.target.value);
+        if (event.target.value === 3)
+            getProjectList();
     };
+
+    const handleProjectChange = (event) => {
+        console.log("event.target.value: ", event.target.value);
+        setCurrentProject(event.target.value)
+        props.setProject(props.projects[event.target.value]);
+    }
 
 
     return (
@@ -148,13 +197,13 @@ export default function NavBar(props) {
 
                 <div className={classes.appBarRight}>
                     <FormControl size="small" variant="outlined" className={classes.formControl}>
-                        <InputLabel size="small" id="project-select-label">Mode *</InputLabel>
+                        <InputLabel size="small" id="mode-select-label">Mode *</InputLabel>
                         <Select
-                            labelId="project-select-label"
-                            id="project-select-label"
+                            labelId="mode-select-label"
+                            id="mode-select-label"
                             value={props.currentMode === -1 ? "" : props.currentMode}
                             onChange={handleModeChange}
-                            label="Project *"
+                            label="mode *"
                             size="small"
                         >
                             {props.modes && props.modes.map((row, index) => {
@@ -164,6 +213,25 @@ export default function NavBar(props) {
                             })}
                         </Select>
                     </FormControl>
+                    {props.currentMode === 3 &&
+                        <FormControl size="small" variant="outlined" className={classes.formControl}>
+                            <InputLabel size="small" id="project-select-label">Project *</InputLabel>
+                            <Select
+                                labelId="project-select-label"
+                                id="project-select-label"
+                                value={currentProject === -1 ? "" : currentProject}
+                                onChange={handleProjectChange}
+                                label="Project *"
+                                size="small"
+                            >
+                                {props.projects && props.projects.map((row, index) => {
+                                    return (
+                                        <MenuItem key={"" + (index + 1)} value={index}>{"" + (index + 1) + " " + row.code}</MenuItem>
+                                    );
+                                })}
+                            </Select>
+                        </FormControl>
+                    }
                     {props.videoCallWaiting && <div >
                         {/* className={classes.info}> */}
                         <IconButton
@@ -216,6 +284,11 @@ export default function NavBar(props) {
                 </Menu>
                 {/* </div> */}
             </AppBar>
+
+            <Backdrop className={classes.backdrop} open={showBackDrop}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
+
         </div >
     );
 }

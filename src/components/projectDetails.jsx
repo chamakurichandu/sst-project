@@ -553,7 +553,6 @@ export default function ProjectDetails(props) {
 
   const [activityName, setActivityName] = React.useState(null);
   const [selectedActivity, setSelectedActivity] = React.useState(null);
-  const [currentProj, setCurrentProj] = React.useState(null);
 
   const [showBackdrop, setShowBackdrop] = React.useState(false);
 
@@ -567,35 +566,35 @@ export default function ProjectDetails(props) {
     return ['Survey', 'Installation', 'Commissioning & Testing', "Acceptance", "Hand Over"];
   }
 
-  async function getProject() {
-    try {
-      let url = config["baseurl"] + "/api/project/details";
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      axios.defaults.headers.common['_id'] = props.project._id;
-      const { data } = await axios.get(url);
-      delete axios.defaults.headers.common['_id'];
-      console.log(data);
+  // async function getProject() {
+  //   try {
+  //     let url = config["baseurl"] + "/api/project/details";
+  //     axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+  //     axios.defaults.headers.common['_id'] = props.project._id;
+  //     const { data } = await axios.get(url);
+  //     delete axios.defaults.headers.common['_id'];
+  //     console.log("ProjectDetails: project: ", data);
 
-      const dateFns = new DateFnsUtils();
-      data.startdate_conv = dateFns.date(data.startdate);
-      data.exp_enddate_conv = dateFns.date(data.exp_enddate);
+  //     const dateFns = new DateFnsUtils();
+  //     data.startdate_conv = dateFns.date(data.startdate);
+  //     data.exp_enddate_conv = dateFns.date(data.exp_enddate);
 
-      setCurrentProj(data);
-      props.setProject(data);
+  //     setCurrentProj(data);
+  //     props.setProject(data);
 
-      getDivisionList();
-    }
-    catch (e) {
+  //     getDivisionList();
+  //   }
+  //   catch (e) {
 
-      if (e.response) {
-        setErrorMessage(e.response.data.message);
-      }
-      else {
-        setErrorMessage("Error in getting list");
-      }
-      setShowError(true);
-    }
-  }
+  //     if (e.response) {
+  //       setErrorMessage(e.response.data.message);
+  //     }
+  //     else {
+  //       setErrorMessage("Error in getting list");
+  //     }
+  //     setShowError(true);
+  //   }
+  // }
 
 
   const getDivisionList = async () => {
@@ -655,7 +654,7 @@ export default function ProjectDetails(props) {
     try {
       setShowBackdrop(true);
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/projectPlace/list?type=division&project=" + currentProj._id + "&parent=parent" + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=division&project=" + props.project._id + "&parent=parent" + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       // console.log(data);
@@ -739,7 +738,7 @@ export default function ProjectDetails(props) {
     try {
       setShowBackdrop(true);
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/projectPlace/list?type=subdivision&project=" + currentProj._id + "&parent=" + projectDivisions[currentDivision].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=subdivision&project=" + props.project._id + "&parent=" + projectDivisions[currentDivision].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
@@ -818,7 +817,7 @@ export default function ProjectDetails(props) {
       setShowBackdrop(true);
       // console.log("page: ", page);
 
-      let url = config["baseurl"] + "/api/projectPlace/list?type=section&project=" + currentProj._id + "&parent=" + projectSubDivisions[currentSubDivision].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=section&project=" + props.project._id + "&parent=" + projectSubDivisions[currentSubDivision].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
 
@@ -894,7 +893,7 @@ export default function ProjectDetails(props) {
       setShowBackdrop(true);
       // console.log("page: ", page);
 
-      let url = config["baseurl"] + "/api/projectPlace/list?type=feeder&project=" + currentProj._id + "&parent=" + projectSections[currentSection].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/projectPlace/list?type=feeder&project=" + props.project._id + "&parent=" + projectSections[currentSection].place + "&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
 
@@ -994,10 +993,12 @@ export default function ProjectDetails(props) {
 
   useEffect(() => {
 
+    console.log("ProjectDetails: project 1 : ", props.project);
 
-    getProject();
+    if (props.project)
+      getDivisionList();
 
-  }, []);
+  }, [props.project]);
 
   useEffect(() => {
     if (divisions.length > 0)
@@ -1335,26 +1336,26 @@ export default function ProjectDetails(props) {
   };
 
   const handleOpenDoc = (index) => {
-    const file = currentProj.docs[index];
+    const file = props.project.docs[index];
     console.log(file);
     window.open(file.path, '_blank');
   };
 
   return (
     <div className={clsx(classes.root)}>
-      {props.refreshUI &&
+      {props.refreshUI && props.project &&
         <div>
           {/* <PDFDownloadLink document={<Quixote />} fileName="somename.pdf">
             {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download now!')}
           </PDFDownloadLink> */}
           <div className={classes.paper}>
-            <EnhancedTableToolbar title={lstrings.Projects} />
-            <Breadcrumbs aria-label="breadcrumb">
+            <EnhancedTableToolbar title={"Project: " + props.project.code} />
+            {/* <Breadcrumbs aria-label="breadcrumb">
               <Link color="inherit" onClick={handleBreadCrumClick}>
-                {"Projects"}
+                {"Project Details"}
               </Link>
               <Typography color="textPrimary">{props.project.code}</Typography>
-            </Breadcrumbs>
+            </Breadcrumbs> */}
 
             <Paper className={classes.grid}>
               <TableContainer>
@@ -1374,18 +1375,18 @@ export default function ProjectDetails(props) {
                     rowCount={rows.length}
                   />
 
-                  {currentProj &&
+                  {props.project &&
                     <TableBody>
                       <TableRow hover tabIndex={-1} key={"1"}>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{currentProj.code}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{currentProj.name}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getCustomer(currentProj.customer)}</span></TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{currentProj.status}</span></TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{currentProj.startdate_conv.toDateString()}</span></TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{currentProj.exp_enddate_conv.toDateString()}</span></TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{currentProj.remark}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{props.project.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{props.project.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getCustomer(props.project.customer)}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.project.status}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.project.startdate_conv.toDateString()}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.project.exp_enddate_conv.toDateString()}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.project.remark}</span></TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          {currentProj.docs.map((file, index) => {
+                          {props.project.docs.map((file, index) => {
                             return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} />);
                           })}
                         </TableCell>
@@ -1574,20 +1575,20 @@ export default function ProjectDetails(props) {
         </div >
       }
 
-      { showSelectDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectDivision} project={currentProj} parent={""} items={divisions} type={"division"} mode={"add"} />}
-      { showRemoveDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectDivision} project={currentProj} orginalItems={divisions} items={projectDivisions} type={"division"} mode={"remove"} />}
+      { showSelectDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectDivision} project={props.project} parent={""} items={divisions} type={"division"} mode={"add"} />}
+      { showRemoveDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectDivision} project={props.project} orginalItems={divisions} items={projectDivisions} type={"division"} mode={"remove"} />}
 
-      { showSelectSubDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSubDivision} project={currentProj} parent={projectDivisions[currentDivision].place} items={subDivisions} type={"subdivision"} mode={"add"} />}
-      { showRemoveSubDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSubDivision} project={currentProj} orginalItems={subDivisions} items={projectSubDivisions} type={"subdivision"} mode={"remove"} />}
+      { showSelectSubDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSubDivision} project={props.project} parent={projectDivisions[currentDivision].place} items={subDivisions} type={"subdivision"} mode={"add"} />}
+      { showRemoveSubDivision && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSubDivision} project={props.project} orginalItems={subDivisions} items={projectSubDivisions} type={"subdivision"} mode={"remove"} />}
 
-      { showSelectSection && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSection} project={currentProj} parent={projectSubDivisions[currentSubDivision].place} items={sections} type={"section"} mode={"add"} />}
-      { showRemoveSection && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSection} project={currentProj} orginalItems={sections} items={projectSections} type={"section"} mode={"remove"} />}
+      { showSelectSection && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSection} project={props.project} parent={projectSubDivisions[currentSubDivision].place} items={sections} type={"section"} mode={"add"} />}
+      { showRemoveSection && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectSection} project={props.project} orginalItems={sections} items={projectSections} type={"section"} mode={"remove"} />}
 
-      { showSelectFeeder && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectFeeder} project={currentProj} parent={projectSections[currentSection].place} items={feeders} type={"feeder"} mode={"add"} />}
-      { showRemoveFeeder && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectFeeder} project={currentProj} orginalItems={feeders} items={projectFeeders} type={"feeder"} mode={"remove"} />}
+      { showSelectFeeder && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectFeeder} project={props.project} parent={projectSections[currentSection].place} items={feeders} type={"feeder"} mode={"add"} />}
+      { showRemoveFeeder && <SelectPlace closeAction={closeSelectPlaceDialogAction} onSelect={onSelectFeeder} project={props.project} orginalItems={feeders} items={projectFeeders} type={"feeder"} mode={"remove"} />}
 
       { showAddActivityDialog && (projectFeeders.length > 0) && (currentFeeder !== -1) &&
-        <SelectActivity closeAction={closeAddActivityAction} onSavedAction={onNewActivitySavedAction} project={currentProj} items={activities} feeder_ref_id={projectFeeders[currentFeeder].place} />}
+        <SelectActivity closeAction={closeAddActivityAction} onSavedAction={onNewActivitySavedAction} project={props.project} items={activities} feeder_ref_id={projectFeeders[currentFeeder].place} />}
 
       { showEditActivityDialog && <UpdateActivity closeAction={closeEditActivityAction} deleteAction={deleteActivityAction} onSavedAction={onEditActivitySavedAction} activityName={activityName} activity={selectedActivity} />}
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
