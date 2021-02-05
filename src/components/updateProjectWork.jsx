@@ -745,11 +745,8 @@ export default function UpdateProjectWork(props) {
       {props.refreshUI &&
         <div>
           <div className={classes.paper}>
-            <EnhancedTableToolbar title={lstrings.Projects} />
+            <EnhancedTableToolbar title={"Project: " + props.project.code + " : " + (workData ? workData.activity.name : "")} />
             <Breadcrumbs aria-label="breadcrumb">
-              <Link color="inherit" onClick={() => handleBreadCrumClick(1)}>
-                {"Projects"}
-              </Link>
               <Link color="inherit" onClick={() => handleBreadCrumClick(2)}>
                 {props.project.code}
               </Link>

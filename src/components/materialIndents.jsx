@@ -26,7 +26,11 @@ import SelectItem from './selectItem';
 import cloneDeep from 'lodash/cloneDeep';
 import TextField from '@material-ui/core/TextField';
 import AddMaterialIndent from './addMaterialIndent';
+import MaterialIndentImage from '@material-ui/icons/Assignment';
 import DetailImage from '@material-ui/icons/ArrowForward';
+import TablePagination from '@material-ui/core/TablePagination';
+import EnhancedTableToolbar from './enhancedToolbar';
+import DateFnsUtils from '@date-io/date-fns';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -41,6 +45,7 @@ function EnhancedTableHead(props) {
     { id: 'code', numeric: false, disablePadding: false, label: 'Code' },
     { id: 'warehouse', numeric: false, disablePadding: false, label: 'Warehouse' },
     { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
+    { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
     { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
   ];
 
@@ -86,7 +91,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function WorkInstallation(props) {
+export default function MaterialIndents(props) {
 
   // console.log("props: " + props);
 
@@ -234,17 +239,29 @@ export default function WorkInstallation(props) {
   const [materialIndents, setMaterialIndents] = React.useState([]);
   const [warehouses, setWarehouses] = React.useState([]);
   const [showBackDrop, setShowBackDrop] = React.useState(false);
+  const [totalCount, setTotalCount] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  async function getMaterialIndentList() {
+  const pageLimits = [10, 25, 50];
+  let offset = 0;
+
+  async function getMaterialIndentList(numberOfRows, search = "") {
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/materialindent/list?work=" + props.workData.work._id + "&showall=1&count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/materialindent/list?project=" + props.project._id + "&showall=1&count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
-      // console.log(data);
+      console.log(data);
       // console.log(data.list);
+      let newRows = [];
+      const dateFns = new DateFnsUtils();
+      for (let i = 0; i < data.list.length; ++i) {
+        data.list[i].createdDate_conv = dateFns.date(data.list[i].indent.createdDate);
+        newRows.push(data.list[i]);
+      }
 
-      setMaterialIndents(data.list);
+      setTotalCount(data.totalDocs);
+      setMaterialIndents(newRows);
 
       setShowBackDrop(false);
     }
@@ -270,7 +287,7 @@ export default function WorkInstallation(props) {
 
       setShowBackDrop(false);
 
-      getMaterialIndentList();
+      getMaterialIndentList(rowsPerPage);
     }
     catch (e) {
       console.log("Error in getting users list");
@@ -284,7 +301,7 @@ export default function WorkInstallation(props) {
 
     getWarehouseList();
 
-  }, []);
+  }, [props.project]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -306,53 +323,33 @@ export default function WorkInstallation(props) {
 
   };
 
-  const handleComplete = async () => {
-    try {
-      setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/work/completestep";
-
-      let postObj = {};
-      postObj["step"] = "installation";
-
-      let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
-
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-
-      const response = await axios.patch(url, updateObj);
-      console.log("successfully Saved");
-      setShowBackDrop(false);
-      setShowSaved(true);
-
-      props.goto(1);
-    }
-    catch (e) {
-      console.log("5");
-      if (e.response) {
-        console.log("Error in creating");
-        setErrorMessage(e.response.data["message"]);
-      }
-      else {
-        console.log("Error in creating");
-        setErrorMessage("Error in creating: ", e.message);
-      }
-      setShowError(true);
-      setShowBackDrop(false);
-    }
-  };
-
   const handleAddMaterialIndent = () => {
     setShowAddMaterialIndent(true);
   };
 
   const closeAddMaterialIndentDialog = () => {
     setShowAddMaterialIndent(false);
-    getMaterialIndentList();
+    getMaterialIndentList(rowsPerPage);
   };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    offset = newPage * rowsPerPage;
+    setPage(newPage);
+    getMaterialIndentList(rowsPerPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    setRowsPerPage(newRowsPerPage);
+    setPage(0);
+    offset = 0;
+    getMaterialIndentList(newRowsPerPage);
   };
 
   const gotoIndentDetails = () => {
@@ -371,13 +368,19 @@ export default function WorkInstallation(props) {
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
+        <EnhancedTableToolbar title={"Material Indents"} />
+
         <Paper className={classes.grid}>
           <Grid container spacing={2}>
             <Grid item className={classes.totalAttendes}>
-              <img src={ProcurementImage} width='25' alt="" />
-              <h1 className={classes.h1}>{indents.length}</h1>
+              <MaterialIndentImage />
+              {/* <img src={MaterialIndentImage} width='25' alt="" /> */}
+              <h1 className={classes.h1}>{totalCount}</h1>
               <span>{"Material Indents"}</span>
             </Grid>
+            {/* <Grid item className={classes.addButton}>
+              <Button onClick={() => handleAddMaterialIndent()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Material Indent"}</Button>
+            </Grid> */}
           </Grid>
         </Paper>
 
@@ -398,14 +401,15 @@ export default function WorkInstallation(props) {
                 rowCount={materialIndents.length}
               />
 
-              <TableBody>
+              <TableBody size="small">
                 {materialIndents.map((row, index) => {
                   return (
-                    <TableRow hover tabIndex={-1} key={"" + index}  >
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1)}</TableCell>
+                    <TableRow hover tabIndex={-1} key={"" + index} size="small" >
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + ((page * rowsPerPage) + index + 1)}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.indent.code}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + getWarehouseName(row.indent.warehouse)}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + ((parseInt(row.indent.dispatched) === 1) ? "YES" : "NO")}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + ((parseInt(row.indent.dispatched) === 1) ? "Released" : "Pending")}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.createdDate_conv.toDateString() + ", " + row.createdDate_conv.toLocaleTimeString('en-US', { hour12: false })}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                         <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => gotoIndentDetails(row)}>
                           <DetailImage />
@@ -417,21 +421,18 @@ export default function WorkInstallation(props) {
               </TableBody>
             </Table>
           </TableContainer>
-        </Paper>
+          <TablePagination
+            rowsPerPageOptions={pageLimits}
+            component="div"
+            count={totalCount}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
 
-        <Paper className={classes.grid}>
-          <Grid container spacing={2}>
-            <Grid item className={classes.totalAttendes}>
-            </Grid>
-            <Grid item className={classes.addButton}>
-              <Button onClick={() => handleAddMaterialIndent()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 5 }} variant="contained" className={classes.button}>{"Add Material Indent"}</Button>
-              <Button onClick={() => handleComplete()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 5 }} variant="contained" className={classes.button}>{"Complete Installation"}</Button>
-            </Grid>
-          </Grid>
         </Paper>
       </div>
-
-      {showAddMaterialIndent && <AddMaterialIndent workData={props.workData} indents={indents} closeAction={closeAddMaterialIndentDialog} materialIndents={materialIndents} warehouses={warehouses} {...props} />}
 
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">

@@ -468,7 +468,7 @@ export default function DocumentsFolder(props) {
       {props.refreshUI && props.project &&
 
         <div className={classes.paper}>
-          <EnhancedTableToolbar title={"Documents: " + props.project.code + ": " + props.type} />
+          <EnhancedTableToolbar title={"Documents: " + props.project.code + ": " + props.name} />
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>

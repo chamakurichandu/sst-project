@@ -138,7 +138,7 @@ export default function ResponsiveDrawer(props) {
     const [homeModes, setHomeModes] = React.useState(["Profile", "Office Administration", "Company Policies"]);
     const [procurementModes, setProcurementModes] = React.useState(["Dashboard", "Letter of Intents", "Purchase Orders"]);
     const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "General Stock Transfer", "Generate DC"]);
-    const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Generate Project Indent", "Generate Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
+    const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
     const [outsourcingModes, setOutsourcingModes] = React.useState(["Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report"]);
     const [financeModes, setFinanceModes] = React.useState([]);
     const [hrpayrollModes, setHrpayrollModes] = React.useState([]);
@@ -246,16 +246,17 @@ export default function ResponsiveDrawer(props) {
                     history.push("/projectdetails");
                     break;
                 case 7:
+                    history.push("/materialindents");
                     break;
                 case 8:
+                    history.push("/returnindents");
                     break;
                 case 9:
+                    history.push("/project-documents");
                     break;
                 case 10:
                     break;
                 case 11:
-                    break;
-                case 12:
                     break;
             }
         }
