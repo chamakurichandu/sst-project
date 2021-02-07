@@ -566,7 +566,7 @@ export default function ReleasedMaterials(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_no}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_date_conv.toDateString()}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
