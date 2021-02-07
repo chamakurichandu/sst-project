@@ -91,6 +91,7 @@ export default function NavBar(props) {
     const [errorMessage, setErrorMessage] = React.useState(null);
     const [showBackDrop, setShowBackDrop] = React.useState(false);
     const [currentProject, setCurrentProject] = React.useState(-1);
+    const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
 
     async function getProjectList() {
         try {
@@ -118,6 +119,22 @@ export default function NavBar(props) {
             else {
                 setErrorMessage("Error in getting list");
             }
+            setShowError(true);
+        }
+    }
+
+    async function getWarehouses() {
+        try {
+            let url = config["baseurl"] + "/api/warehouse/list";
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+            const { data } = await axios.get(url);
+            console.log(data);
+
+            props.setWarehouses(data.list);
+        }
+        catch (e) {
+            console.log("Error in getting users list");
+            setErrorMessage("Error in getting users list");
             setShowError(true);
         }
     }
@@ -157,6 +174,8 @@ export default function NavBar(props) {
         props.setCurrentMode(event.target.value);
         if (event.target.value === 3)
             getProjectList();
+        if (event.target.value === 2)
+            getWarehouses();
     };
 
     const handleProjectChange = (event) => {
@@ -165,6 +184,11 @@ export default function NavBar(props) {
         props.setProject(props.projects[event.target.value]);
     }
 
+    const handleWarehouseChange = (event) => {
+        console.log("event.target.value: ", event.target.value);
+        setCurrentWarehouse(event.target.value)
+        props.setSelectedWarehouse(props.warehouses[event.target.value]);
+    }
 
     return (
         <div className={classes.root}>
@@ -227,6 +251,25 @@ export default function NavBar(props) {
                                 {props.projects && props.projects.map((row, index) => {
                                     return (
                                         <MenuItem key={"" + (index + 1)} value={index}>{"" + (index + 1) + ". " + row.code}</MenuItem>
+                                    );
+                                })}
+                            </Select>
+                        </FormControl>
+                    }
+                    {props.currentMode === 2 &&
+                        <FormControl size="small" variant="outlined" className={classes.formControl} >
+                            <InputLabel size="small" id="warehouse-select-label">Warehouse *</InputLabel>
+                            <Select
+                                labelId="warehouse-select-label"
+                                id="warehouse-select-label"
+                                value={currentWarehouse === -1 ? "" : currentWarehouse}
+                                onChange={handleWarehouseChange}
+                                label="Warehouse *"
+                                size="small"
+                            >
+                                {props.warehouses && props.warehouses.map((row, index) => {
+                                    return (
+                                        <MenuItem key={"" + (index + 1)} value={index}>{"" + (index + 1) + ". " + row.name}</MenuItem>
                                     );
                                 })}
                             </Select>

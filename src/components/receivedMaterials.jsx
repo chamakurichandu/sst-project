@@ -290,12 +290,12 @@ export default function ReceivedMaterials(props) {
       let url = config["baseurl"] + "/api/materialreceivetransaction/list?count=" + numberOfRows + "&warehouse=" + props.warehouse._id + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
-      // console.log(data);
+      console.log(data);
       let newRows = [];
       setTotalCount(data.totalDocs);
       const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.length; ++i) {
-        data.list[i].createddate_conv = dateFns.date(data.list[i].createdDate);
+        data.list[i].createddate_conv = dateFns.date(data.list[i].transaction.createdDate);
         data.list[i].transaction.bill_date_conv = dateFns.date(data.list[i].transaction.bill_date);
 
         newRows.push(createData((offset + i + 1),
@@ -320,9 +320,10 @@ export default function ReceivedMaterials(props) {
   }
 
   useEffect(() => {
-    getReceivedMaterials(rowsPerPage);
+    if (props.warehouse)
+      getReceivedMaterials(rowsPerPage);
 
-  }, []);
+  }, [props.warehouse]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -531,82 +532,87 @@ export default function ReceivedMaterials(props) {
 
   return (
     <div className={clsx(classes.root)}>
-      <div className={classes.paper}>
-        <Paper className={classes.grid}>
-          <Grid container spacing={2}>
-            <Grid item className={classes.totalAttendes}>
-              <img src={ProcurementImage} width='25' alt="" />
-              <h1 className={classes.h1}>{totalCount}</h1>
-              <span>{"Received Materials Transactions"}</span>
+      {
+        props.warehouse &&
+        <div className={classes.paper}>
+          {/* <EnhancedTableToolbar title={"Received Materials"} /> */}
+
+          <Paper className={classes.grid}>
+            <Grid container spacing={2}>
+              <Grid item className={classes.totalAttendes}>
+                <img src={ProcurementImage} width='25' alt="" />
+                <h1 className={classes.h1}>{totalCount}</h1>
+                <span>{"Received Materials Transactions"}</span>
+              </Grid>
             </Grid>
-          </Grid>
-        </Paper>
-        <Paper className={classes.grid}>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
-            </div>
-            <InputBase
-              placeholder="Search"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-              onChange={onSearchChange}
-            />
-          </div>
-          <TableContainer>
-            <Table
-              className={classes.table}
-              aria-labelledby="tableTitle"
-              size={dense ? 'small' : 'medium'}
-              aria-label="enhanced table"
-            >
-              <EnhancedTableHead
-                classes={classes}
-                numSelected={selected.length}
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={rows.length}
+          </Paper>
+          <Paper className={classes.grid}>
+            <div className={classes.search}>
+              <div className={classes.searchIcon}>
+                <SearchIcon />
+              </div>
+              <InputBase
+                placeholder="Search"
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+                inputProps={{ 'aria-label': 'search' }}
+                onChange={onSearchChange}
               />
-              <TableBody>
-                {rows.map((row, index) => {
-                  const labelId = `enhanced-table-checkbox-${index}`;
-                  const deleted = (row.data.transaction.deleted === 1);
-                  return (
-                    <TableRow hover tabIndex={-1} key={row.slno}>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.code}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{getTypeString(row.data.transaction.type)}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.po ? row.data.po.code : "N/A"}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.bill_no}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.bill_date_conv.toDateString()}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.project.name}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.supply_vendor ? row.data.supply_vendor.name : "N/A"}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} ><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                        <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}><DetailImage /></IconButton>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={pageLimits}
-            component="div"
-            count={totalCount}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
-          />
-        </Paper>
-      </div>
+            </div>
+            <TableContainer>
+              <Table
+                className={classes.table}
+                aria-labelledby="tableTitle"
+                size={dense ? 'small' : 'medium'}
+                aria-label="enhanced table"
+              >
+                <EnhancedTableHead
+                  classes={classes}
+                  numSelected={selected.length}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={rows.length}
+                />
+                <TableBody>
+                  {rows.map((row, index) => {
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    const deleted = (row.data.transaction.deleted === 1);
+                    return (
+                      <TableRow hover tabIndex={-1} key={row.slno}>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{getTypeString(row.data.transaction.type)}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.po ? row.data.po.code : "N/A"}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.bill_no}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.bill_date_conv.toDateString()}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.project.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.supply_vendor ? row.data.supply_vendor.name : "N/A"}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} ><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}><DetailImage /></IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={pageLimits}
+              component="div"
+              count={totalCount}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Paper>
+        </div>
+      }
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}
@@ -616,7 +622,6 @@ export default function ReceivedMaterials(props) {
       <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
         <CircularProgress color="inherit" />
       </Backdrop>
-
     </div >
   );
 }

@@ -219,8 +219,9 @@ export default function EditWarehouse(props) {
   let offset = 0;
 
   useEffect(() => {
-    getList(100);
-  }, []);
+    if (props.selectedWarehouse)
+      getList(100);
+  }, [props.selectedWarehouse]);
 
   async function getList(numberOfRows) {
     try {
@@ -259,11 +260,11 @@ export default function EditWarehouse(props) {
   };
 
   const handleBreadCrumClick = () => {
-    props.history.push("/warehouses");
+    props.history.push("/warehouseHome");
   };
 
   const handleCancel = () => {
-    props.history.push("/warehouses");
+    props.history.push("/warehouseHome");
   };
 
   const validateData = () => {
@@ -360,7 +361,7 @@ export default function EditWarehouse(props) {
 
         console.log("successfully Saved");
         setContactingServer(false);
-        props.history.push("/warehouses");
+        props.history.push("/warehouseHome");
       }
       catch (e) {
         if (e.response) {
@@ -468,7 +469,7 @@ export default function EditWarehouse(props) {
 
   return (
     <div className={clsx(classes.root)}>
-      {props.refreshUI &&
+      {props.refreshUI && props.selectedWarehouse &&
 
         <div className={classes.paper}>
 
@@ -476,7 +477,7 @@ export default function EditWarehouse(props) {
 
           <Breadcrumbs aria-label="breadcrumb">
             <Link color="inherit" onClick={handleBreadCrumClick}>
-              {lstrings.Warehouses}
+              {props.selectedWarehouse.name}
             </Link>
             <Typography color="textPrimary">{"Edit Warehouse"}</Typography>
           </Breadcrumbs>

@@ -292,8 +292,9 @@ export default function ReleaseIndents(props) {
   }
 
   useEffect(() => {
-    getMaterialIndentList();
-  }, []);
+    if (props.warehouse)
+      getMaterialIndentList();
+  }, [props.warehouse]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -393,11 +394,11 @@ export default function ReleaseIndents(props) {
 
   return (
     <div className={clsx(classes.root)}>
-      {props.refreshUI &&
+      {props.refreshUI && props.warehouse &&
 
         <div className={classes.paper}>
           <EnhancedTableToolbar title={"Material Indents"} />
-          <Breadcrumbs aria-label="breadcrumb">
+          {/* <Breadcrumbs aria-label="breadcrumb">
             <Link color="inherit" onClick={() => handleBreadCrumClick(1)}>
               {"Warehouses"}
             </Link>
@@ -405,7 +406,7 @@ export default function ReleaseIndents(props) {
               {props.warehouse.name}
             </Link>
             <Typography color="textPrimary">{"Material Indent"}</Typography>
-          </Breadcrumbs>
+          </Breadcrumbs> */}
 
           <Paper className={classes.grid}>
             <Grid container spacing={2}>

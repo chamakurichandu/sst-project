@@ -137,7 +137,7 @@ export default function ResponsiveDrawer(props) {
     const theme = useTheme();
     const [homeModes, setHomeModes] = React.useState(["Profile", "Office Administration", "Company Policies"]);
     const [procurementModes, setProcurementModes] = React.useState(["Dashboard", "Letter of Intents", "Purchase Orders"]);
-    const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "General Stock Transfer", "Generate DC"]);
+    const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "Receive Materials", "Release Materials", "Inventory", "General Stock Transfer", "Generate DC"]);
     const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
     const [outsourcingModes, setOutsourcingModes] = React.useState(["Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report"]);
     const [financeModes, setFinanceModes] = React.useState([]);
@@ -313,13 +313,13 @@ export default function ResponsiveDrawer(props) {
                     history.push("/warehousesdashboard");
                     break;
                 case 1:
-                    history.push("/warehouses");
+                    history.push("/warehouseHome");
                     break;
                 case 2:
-                    // history.push("/materials");
+                    history.push("/warehousereceive");
                     break;
                 case 3:
-                    // history.push("/uoms");
+                    history.push("/releaseindents");
                     break;
                 case 4:
                     // history.push("/product-category");

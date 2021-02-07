@@ -422,14 +422,16 @@ export default function Warehouses(props) {
   };
 
   useEffect(() => {
-    getUsers();
-    let tab = window.localStorage.getItem("warehousehometab");
-    if (tab === null)
-      tab = "0";
+    if (props.warehouse) {
+      getUsers();
+      let tab = window.localStorage.getItem("warehousehometab");
+      if (tab === null)
+        tab = "0";
 
-    console.log("tab: ", tab);
-    setValue(parseInt(tab));
-  }, []);
+      console.log("tab: ", tab);
+      setValue(parseInt(tab));
+    }
+  }, [props.warehouse]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -579,16 +581,16 @@ export default function Warehouses(props) {
 
   return (
     <div className={clsx(classes.root)}>
-      {props.refreshUI &&
+      {props.refreshUI && props.warehouse &&
 
         <div className={classes.paper}>
           <EnhancedTableToolbar title={props.warehouse.name} />
-          <Breadcrumbs aria-label="breadcrumb">
+          {/* <Breadcrumbs aria-label="breadcrumb">
             <Link color="inherit" onClick={handleBreadCrumClick}>
               {"Warehouses"}
             </Link>
             <Typography color="textPrimary">{props.warehouse.name}</Typography>
-          </Breadcrumbs>
+          </Breadcrumbs> */}
 
           <Paper className={classes.grid}>
             <TableContainer>
@@ -623,10 +625,10 @@ export default function Warehouses(props) {
               </Table>
             </TableContainer>
           </Paper>
-          <Paper className={classes.grid}>
+          {/* <Paper className={classes.grid}>
             <Button size="small" onClick={() => ReceiveMaterial()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 10 }} variant="contained" className={classes.button}>{"Receive Material"}</Button>
             <Button size="small" onClick={() => ReleaseMaterial()} style={{ background: "#314293", color: "#FFFFFF", marginLeft: 30 }} variant="contained" className={classes.button}>{"Release Material Indents"}</Button>
-          </Paper>
+          </Paper> */}
           {value != -1 &&
             <Paper className={classes.grid}>
               <AppBar position="static">

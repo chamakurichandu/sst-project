@@ -315,9 +315,10 @@ export default function ReleasedMaterials(props) {
   }
 
   useEffect(() => {
-    getReleasedTransactions(rowsPerPage);
+    if (props.warehouse)
+      getReleasedTransactions(rowsPerPage);
 
-  }, []);
+  }, [props.warehouse]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -505,79 +506,83 @@ export default function ReleasedMaterials(props) {
 
   return (
     <div className={clsx(classes.root)}>
-      <div className={classes.paper}>
-        <Paper className={classes.grid}>
-          <Grid container spacing={2}>
-            <Grid item className={classes.totalAttendes}>
-              <img src={ProcurementImage} width='25' alt="" />
-              <h1 className={classes.h1}>{totalCount}</h1>
-              <span>{"Materials"}</span>
+      {props.warehouse &&
+        <div className={classes.paper}>
+          {/* <EnhancedTableToolbar title={"Released Materials"} /> */}
+
+          <Paper className={classes.grid}>
+            <Grid container spacing={2}>
+              <Grid item className={classes.totalAttendes}>
+                <img src={ProcurementImage} width='25' alt="" />
+                <h1 className={classes.h1}>{totalCount}</h1>
+                <span>{"Materials"}</span>
+              </Grid>
             </Grid>
-          </Grid>
-        </Paper>
-        <Paper className={classes.grid}>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
-            </div>
-            <InputBase
-              placeholder="Search"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-              onChange={onSearchChange}
-            />
-          </div>
-          <TableContainer>
-            <Table
-              className={classes.table}
-              aria-labelledby="tableTitle"
-              size={dense ? 'small' : 'medium'}
-              aria-label="enhanced table"
-            >
-              <EnhancedTableHead
-                classes={classes}
-                numSelected={selected.length}
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={rows.length}
+          </Paper>
+          <Paper className={classes.grid}>
+            <div className={classes.search}>
+              <div className={classes.searchIcon}>
+                <SearchIcon />
+              </div>
+              <InputBase
+                placeholder="Search"
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+                inputProps={{ 'aria-label': 'search' }}
+                onChange={onSearchChange}
               />
-              <TableBody>
-                {rows.map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-                  return (
-                    <TableRow hover tabIndex={-1} key={row.slno}>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.code}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.name}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.createddate_conv.toDateString()}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                        <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
-                          <DetailImage />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={pageLimits}
-            component="div"
-            count={totalCount}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
-          />
-        </Paper>
-      </div>
+            </div>
+            <TableContainer>
+              <Table
+                className={classes.table}
+                aria-labelledby="tableTitle"
+                size={dense ? 'small' : 'medium'}
+                aria-label="enhanced table"
+              >
+                <EnhancedTableHead
+                  classes={classes}
+                  numSelected={selected.length}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={rows.length}
+                />
+                <TableBody>
+                  {rows.map((row, index) => {
+                    const isItemSelected = isSelected(row.name);
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    return (
+                      <TableRow hover tabIndex={-1} key={row.slno}>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.createddate_conv.toDateString()}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
+                            <DetailImage />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={pageLimits}
+              component="div"
+              count={totalCount}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Paper>
+        </div>
+      }
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}
