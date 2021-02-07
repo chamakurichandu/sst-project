@@ -39,6 +39,7 @@ import Box from '@material-ui/core/Box';
 import ReceivedMaterials from "./receivedMaterials";
 import WarehouseInventory from "./warehouseInventory";
 import ReleasedMaterials from './releasedMaterials';
+import DeliveryChallans from './deliveryChallans';
 
 function a11yProps(index) {
   return {
@@ -636,6 +637,7 @@ export default function Warehouses(props) {
                   <Tab label="Inventory" {...a11yProps(0)} />
                   <Tab label="Received Materials" {...a11yProps(1)} />
                   <Tab label="Released Materials" {...a11yProps(2)} />
+                  <Tab label="Delivery Challans" {...a11yProps(3)} />
                 </Tabs>
               </AppBar>
               <TabPanel value={value} index={0}>
@@ -646,6 +648,9 @@ export default function Warehouses(props) {
               </TabPanel>
               <TabPanel value={value} index={2}>
                 <ReleasedMaterials {...props} />
+              </TabPanel>
+              <TabPanel value={value} index={3}>
+                <DeliveryChallans {...props} />
               </TabPanel>
             </Paper>
           }

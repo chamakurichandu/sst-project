@@ -137,7 +137,7 @@ export default function ResponsiveDrawer(props) {
     const theme = useTheme();
     const [homeModes, setHomeModes] = React.useState(["Profile", "Office Administration", "Company Policies"]);
     const [procurementModes, setProcurementModes] = React.useState(["Dashboard", "Letter of Intents", "Purchase Orders"]);
-    const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "Receive Materials", "Release Materials", "Inventory", "General Stock Transfer", "Generate DC"]);
+    const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "Receive Materials", "Release Materials", "Stock Transfer", "Generate DC"]);
     const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
     const [outsourcingModes, setOutsourcingModes] = React.useState(["Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report"]);
     const [financeModes, setFinanceModes] = React.useState([]);
@@ -146,7 +146,7 @@ export default function ResponsiveDrawer(props) {
     const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Help", "Materials", "UOM", "Product Category", "Add Project", "Project Utils", "Supply Vendors", "Service Vendors", "Vendor Rate Contracts & Agreement"]);
     const [menu, setMenu] = React.useState([]);
 
-    //React.useState(["Home", "Procurement", "Warehouse", "Projects", "Outsourcing", "Finance", "HR & Payroll", "Analytics", "Admin Settings"]);
+    //React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Finance", "HR & Payroll", "Analytics", "Admin Settings"]);
 
     const [language, setLanguage] = React.useState('en');
 
@@ -203,7 +203,7 @@ export default function ResponsiveDrawer(props) {
             case "Projects":
                 setMenu(projectModes);
                 break;
-            case "Outsourcing":
+            case "Sub-Contract":
                 setMenu(outsourcingModes);
                 break;
             case "Finance":
@@ -322,22 +322,9 @@ export default function ResponsiveDrawer(props) {
                     history.push("/releaseindents");
                     break;
                 case 4:
-                    // history.push("/product-category");
                     break;
                 case 5:
-                    // history.push("/addproject");
-                    break;
-                case 6:
-                    // history.push("/projects-utils");
-                    break;
-                case 7:
-                    // history.push("/supplyvendors");
-                    break;
-                case 8:
-                    // history.push("/servicevendors");
-                    break;
-                case 9:
-                    // history.push("/vendorratecontractsagreements");
+                    history.push("/generate-dc");
                     break;
             }
         }

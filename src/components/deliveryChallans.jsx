@@ -21,9 +21,18 @@ import axios from 'axios';
 import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import lstrings from '../lstrings';
-import ProductionImage from '../assets/svg/ss/architect-3.svg';
-import Chip from '@material-ui/core/Chip';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import DateFnsUtils from '@date-io/date-fns';
+import ProcurementImage from '../assets/svg/ss/commercial-2.svg';
+import IconButton from '@material-ui/core/IconButton';
+import EditImage from '@material-ui/icons/Edit';
+import GetAppImage from '@material-ui/icons/GetApp';
+import DetailImage from '@material-ui/icons/ArrowForward';
+
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -65,17 +74,13 @@ function EnhancedTableHead(props) {
 
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
-    { id: 'code', numeric: false, disablePadding: false, label: 'Code' },
-    { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'address', numeric: false, disablePadding: false, label: 'Address' },
-    { id: 'billingaddress', numeric: false, disablePadding: false, label: 'Billing Address' },
-    { id: 'officephone', numeric: false, disablePadding: false, label: 'Office Phone' },
-    { id: 'GST', numeric: false, disablePadding: false, label: 'GST' },
-    { id: 'contactperson', numeric: false, disablePadding: false, label: 'Contact Person' },
-    { id: 'location', numeric: false, disablePadding: false, label: 'Location' },
-    { id: 'website', numeric: false, disablePadding: false, label: 'Website' },
-    { id: 'documents', numeric: false, disablePadding: false, label: 'Documents' },
-    { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
+    { id: 'transactioncode', numeric: false, disablePadding: false, label: 'Delivery Challan' },
+    { id: 'indentcode', numeric: false, disablePadding: false, label: 'Indent Code' },
+    { id: 'esugam', numeric: false, disablePadding: false, label: 'e-sugam' },
+    { id: 'esugam-date', numeric: false, disablePadding: false, label: 'e-sugam date' },
+    { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
+    { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
+    { id: 'action', numeric: false, disablePadding: false, label: 'Actions' }
   ];
 
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -121,7 +126,9 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function ServiceVendors(props) {
+export default function ReleasedMaterials(props) {
+
+  // console.log("props: " + props);
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -245,6 +252,10 @@ export default function ServiceVendors(props) {
         width: "300px",
       }
     },
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
+    },
 
   }));
 
@@ -259,29 +270,44 @@ export default function ServiceVendors(props) {
   const [rows, setRows] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [supplyVendors, setSupplyVendors] = React.useState([]);
+  const [allItems, set_allItems] = React.useState([]);
+  const [uoms, set_uoms] = React.useState([]);
+  const [projects, setProjects] = React.useState([]);
+  const [warehouses, setWarehouses] = React.useState([]);
+
+  const [showBackDrop, setShowBackDrop] = React.useState(false);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
-  async function getList(numberOfRows, search = "") {
+  async function getDeliveryChallans(numberOfRows, search = "") {
     try {
+      setShowBackDrop(true);
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/servicevendor/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/deliverychallan/list?count=" + numberOfRows + "&warehouse=" + props.warehouse._id + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
-      setTotalCount(data.list.totalDocs);
       let newRows = [];
-      for (let i = 0; i < data.list.docs.length; ++i) {
+      setTotalCount(data.totalDocs);
+      const dateFns = new DateFnsUtils();
+      for (let i = 0; i < data.list.length; ++i) {
+        data.list[i].transaction.createddate_conv = dateFns.date(data.list[i].transaction.createdDate);
+        data.list[i].transaction.esugam_date_conv = dateFns.date(data.list[i].transaction.esugam_date);
         newRows.push(createData((offset + i + 1),
-          data.list.docs[i]
+          data.list[i]
         ));
       }
 
+      console.log("newRows:", newRows);
+
       setRows(newRows);
+
+      setShowBackDrop(false);
     }
     catch (e) {
-
+      setShowBackDrop(false);
       if (e.response) {
         setErrorMessage(e.response.data.message);
       }
@@ -293,8 +319,10 @@ export default function ServiceVendors(props) {
   }
 
   useEffect(() => {
-    getList(rowsPerPage);
-  }, []);
+    if (props.warehouse)
+      getDeliveryChallans(rowsPerPage);
+
+  }, [props.warehouse]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -342,7 +370,7 @@ export default function ServiceVendors(props) {
   const handleChangePage = (event, newPage) => {
     offset = newPage * rowsPerPage;
     setPage(newPage);
-    getList(rowsPerPage);
+    getDeliveryChallans(rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -350,18 +378,12 @@ export default function ServiceVendors(props) {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
     offset = 0;
-    getList(newRowsPerPage);
-  };
-
-  const handleEdit = (data) => {
-    console.log("handleEdit: ", data);
-
-    props.setSelectedServiceVendor(data);
-    props.history.push("/editservicevendor");
+    getDeliveryChallans(newRowsPerPage);
   };
 
   const handleAdd = () => {
-    props.history.push("/addservicevendor");
+    console.log("calling goto");
+    props.goto("receivematerial");
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -394,30 +416,110 @@ export default function ServiceVendors(props) {
   const onSearchChange = (event) => {
     console.log(event.target.value);
 
-    getList(rowsPerPage, event.target.value);
+    getDeliveryChallans(rowsPerPage, event.target.value);
   };
 
-  const handleOpenDoc = (data, index) => {
-    const file = data.data.docs[index];
-    console.log(file);
-    window.open(file.path, '_blank');
+  const handleCloseBackDrop = () => {
+
+  };
+
+  const getSupplyVendorName = (id) => {
+    for (let i = 0; i < supplyVendors.length; ++i) {
+      if (supplyVendors[i]._id === id)
+        return supplyVendors[i].name;
+    }
+    return id;
+  };
+
+  const getSupplyVendor = (id) => {
+    for (let i = 0; i < supplyVendors.length; ++i) {
+      if (supplyVendors[i]._id === id)
+        return supplyVendors[i];
+    }
+    return null;
+  };
+
+  const editAction = (data) => {
+    console.log(data);
+    props.setPO(data);
+    props.goto("editPO", data);
+  };
+
+  const getItem = (id) => {
+    for (let i = 0; i < allItems.length; ++i) {
+      if (allItems[i]._id === id)
+        return allItems[i];
+    }
+    return null;
+  };
+
+  const getBase64ImageFromURL = (url) => {
+    return new Promise((resolve, reject) => {
+      var img = new Image();
+      img.setAttribute("crossOrigin", "anonymous");
+      img.onload = () => {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        var dataURL = canvas.toDataURL("image/png");
+        resolve(dataURL);
+      };
+      img.onerror = error => {
+        reject(error);
+      };
+      img.src = url;
+    });
+  };
+
+  const getUOMName = (id) => {
+    for (let i = 0; i < uoms.length; ++i) {
+      if (uoms[i]._id === id) {
+        return uoms[i].name;
+      }
+    }
+
+    return id;
+  };
+
+  const getProjectName = (id) => {
+    for (let i = 0; i < projects.length; ++i) {
+      if (projects[i]._id === id)
+        return projects[i].name;
+    }
+  };
+
+  const getWarehouseName = (id) => {
+    for (let i = 0; i < warehouses.length; ++i) {
+      if (warehouses[i]._id === id)
+        return warehouses[i].name;
+    }
+  };
+
+  const getWarehouseAddress = (id) => {
+    for (let i = 0; i < warehouses.length; ++i) {
+      if (warehouses[i]._id === id)
+        return warehouses[i].address;
+    }
+  };
+
+  const detailAction = (data) => {
+
   };
 
   return (
     <div className={clsx(classes.root)}>
-      {props.refreshUI &&
-
+      {props.warehouse &&
         <div className={classes.paper}>
-          <EnhancedTableToolbar title={lstrings.ServiceVendor} />
+          {/* <EnhancedTableToolbar title={"Released Materials"} /> */}
+
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>
-                <img src={ProductionImage} width='25' alt="" />
+                <img src={ProcurementImage} width='25' alt="" />
                 <h1 className={classes.h1}>{totalCount}</h1>
-                <span>{lstrings.ServiceVendor}</span>
-              </Grid>
-              <Grid item className={classes.addButton}>
-                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddServiceVendor}</Button>
+                <span>{"Materials"}</span>
               </Grid>
             </Grid>
           </Paper>
@@ -452,44 +554,28 @@ export default function ServiceVendors(props) {
                   onRequestSort={handleRequestSort}
                   rowCount={rows.length}
                 />
-
                 <TableBody>
-                  {stableSort(rows, getComparator(order, orderBy))
-                    .map((row, index) => {
-                      const isItemSelected = isSelected(row.name);
-                      const labelId = `enhanced-table-checkbox-${index}`;
-                      return (
-                        <TableRow hover tabIndex={-1} key={row.slno}>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.address}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.billingAddress}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.officePhone}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.gst}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><div>{row.data.contactName}</div>
-                            <div>{row.data.contactEmail}</div>
-                            <div>{row.data.contactPhone}</div>
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><div>{row.data.city}</div>
-                            <div>{row.data.district}</div>
-                            <div>{row.data.country}</div>
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.website}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div>
-                              {row.data.docs.map((file, fileindex) => {
-                                return (<Chip size="small" style={{ marginTop: 5, marginRight: 5 }} key={"chip" + fileindex} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(row, fileindex)} />);
-                              })}
-                            </div>
-                          </TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
-                          </TableCell>
-
-                        </TableRow>
-                      );
-                    })}
+                  {rows.map((row, index) => {
+                    const isItemSelected = isSelected(row.name);
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    console.log("row: ", row);
+                    return (
+                      <TableRow hover tabIndex={-1} key={row.slno}>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_no}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_date_conv.toDateString()}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.createddate_conv.toDateString()}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
+                            <DetailImage />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -504,13 +590,17 @@ export default function ServiceVendors(props) {
             />
           </Paper>
         </div>
-
       }
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}
         </Alert>
       </Snackbar>
+
+      <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
     </div >
   );
 }

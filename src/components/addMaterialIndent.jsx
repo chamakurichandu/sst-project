@@ -200,21 +200,82 @@ export default function AddMaterialIndent(props) {
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
 
+    const [serviceVendors, setServiceVendors] = React.useState([]);
+    const [currentServiceVendor, setCurrentServiceVendor] = React.useState(-1);
+    const [current_service_vendor_error, set_current_service_vendor_error] = React.useState(null);
+
+    const [warehouses, setWarehouses] = React.useState([]);
     const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
     const [current_warehouse_error, set_current_warehouse_error] = React.useState(null);
+
+    const [materialIndents, setMaterialIndents] = React.useState([]);
 
     const [contactingServer, setContactingServer] = React.useState(false);
     const [showBackdrop, setShowBackdrop] = React.useState(false);
 
     const [items, set_items] = React.useState([]);
 
+    async function getMaterialIndentList() {
+        try {
+            setShowBackdrop(true);
+            let url = config["baseurl"] + "/api/materialindent/list?project=" + props.project._id + "&showall=1&count=" + 10000 + "&offset=" + 0 + "&search=" + "";
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+            const { data } = await axios.get(url);
+            console.log(data);
+
+            let newItems = [];
+
+            const surveyMats = props.workData.work.survey_materials;
+            for (let i = 0; i < surveyMats.length; ++i) {
+                for (let k = 0; k < props.allItems.length; ++k) {
+                    if (surveyMats[i].item === props.allItems[k]._id) {
+                        let newCopy = cloneDeep(props.allItems[k]);
+                        newCopy.qty = surveyMats[i].qty;
+                        newCopy.qtyOrdered = 0;
+                        newCopy.qtyToOrder = 0;
+                        newItems.push(newCopy);
+                        break;
+                    }
+                }
+            }
+
+            for (let i = 0; i < data.list.length; ++i) {
+                const mats = data.list[i].indent.materials;
+                for (let k = 0; k < mats.length; ++k) {
+                    for (let m = 0; m < newItems.length; ++m) {
+                        if (mats[k].item === newItems[m]._id) {
+                            newItems[m].qtyOrdered += mats[k].qty;
+                        }
+                    }
+                }
+            }
+
+            set_items(newItems);
+
+            setMaterialIndents(data.list);
+
+            setShowBackdrop(false);
+        }
+        catch (e) {
+            console.log("Error in getting users list");
+            setErrorMessage("Error in getting users list");
+            setShowError(true);
+            setShowBackdrop(false);
+        }
+    }
+
     const handleSave = async () => {
         setShowError(false);
         set_current_warehouse_error(null);
+        set_current_service_vendor_error(null);
 
         let errorOccurred = false;
         if (currentWarehouse === -1) {
             set_current_warehouse_error("warehouse required");
+            errorOccurred = true;
+        }
+        if (currentServiceVendor === -1) {
+            set_current_service_vendor_error("Service Vendor required");
             errorOccurred = true;
         }
 
@@ -251,7 +312,8 @@ export default function AddMaterialIndent(props) {
             }
 
             postObj["work"] = props.workData.work._id;
-            postObj["warehouse"] = props.warehouses[currentWarehouse]._id;
+            postObj["warehouse"] = warehouses[currentWarehouse]._id;
+            postObj["servicevendor"] = serviceVendors[currentServiceVendor]._id;
             postObj["project"] = props.project._id;
 
             console.log(postObj);
@@ -295,40 +357,98 @@ export default function AddMaterialIndent(props) {
         setCurrent(index);
     };
 
+    async function getWarehouseList() {
+        try {
+            setShowBackdrop(true);
+            let url = config["baseurl"] + "/api/warehouse/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+            const { data } = await axios.get(url);
+            console.log(data);
+
+            setWarehouses(data.list);
+            setShowBackdrop(false);
+
+            getServiceVendors();
+        }
+        catch (e) {
+            setShowBackdrop(false);
+            console.log("getWarehouseList: e: ", e);
+            if (e.response) {
+                setErrorMessage(e.response.data.message);
+            }
+            else {
+                setErrorMessage("Error in getting list");
+            }
+            setShowError(true);
+        }
+    }
+
+    async function getServiceVendors() {
+        try {
+            setShowBackdrop(true);
+            let url = config["baseurl"] + "/api/servicevendor/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+            const { data } = await axios.get(url);
+            console.log(data);
+            setServiceVendors(data.list.docs);
+            setShowBackdrop(false);
+
+            getMaterialIndentList();
+        }
+        catch (e) {
+            setShowBackdrop(false);
+            if (e.response) {
+                setErrorMessage(e.response.data.message);
+            }
+            else {
+                setErrorMessage("Error in getting list");
+            }
+            setShowError(true);
+        }
+    }
+
     useEffect(() => {
-        let newItems = [];
-        const surveyMats = props.workData.work.survey_materials;
-        for (let i = 0; i < surveyMats.length; ++i) {
-            for (let k = 0; k < props.allItems.length; ++k) {
-                if (surveyMats[i].item === props.allItems[k]._id) {
-                    let newCopy = cloneDeep(props.allItems[k]);
-                    newCopy.qty = surveyMats[i].qty;
-                    newCopy.qtyOrdered = 0;
-                    newCopy.qtyToOrder = 0;
-                    newItems.push(newCopy);
-                    break;
-                }
-            }
-        }
+        // let newItems = [];
+        // const surveyMats = props.workData.work.survey_materials;
+        // for (let i = 0; i < surveyMats.length; ++i) {
+        //     for (let k = 0; k < props.allItems.length; ++k) {
+        //         if (surveyMats[i].item === props.allItems[k]._id) {
+        //             let newCopy = cloneDeep(props.allItems[k]);
+        //             newCopy.qty = surveyMats[i].qty;
+        //             newCopy.qtyOrdered = 0;
+        //             newCopy.qtyToOrder = 0;
+        //             newItems.push(newCopy);
+        //             break;
+        //         }
+        //     }
+        // }
 
-        for (let i = 0; i < props.materialIndents.length; ++i) {
-            const mats = props.materialIndents[i].indent.materials;
-            for (let k = 0; k < mats.length; ++k) {
-                for (let m = 0; m < newItems.length; ++m) {
-                    if (mats[k].item === newItems[m]._id) {
-                        newItems[m].qtyOrdered += mats[k].qty;
-                    }
-                }
-            }
-        }
+        // console.log("props.materialIndents: ", props.materialIndents);
+        // for (let i = 0; i < props.materialIndents.length; ++i) {
+        //     const mats = props.materialIndents[i].indent.materials;
+        //     for (let k = 0; k < mats.length; ++k) {
+        //         for (let m = 0; m < newItems.length; ++m) {
+        //             if (mats[k].item === newItems[m]._id) {
+        //                 newItems[m].qtyOrdered += mats[k].qty;
+        //             }
+        //         }
+        //     }
+        // }
 
-        set_items(newItems);
+        // set_items(newItems);
+
+        getWarehouseList();
 
     }, []);
 
     const handleWarehouseChange = (event) => {
         setCurrentWarehouse(event.target.value);
         set_current_warehouse_error(null);
+    };
+
+    const handleServiceVendorChange = (event) => {
+        setCurrentServiceVendor(event.target.value);
+        set_current_service_vendor_error(null);
     };
 
     const set_item_qty_for = (value, index) => {
@@ -359,7 +479,7 @@ export default function AddMaterialIndent(props) {
                                     onChange={handleWarehouseChange}
                                     label="Warehouse *"
                                 >
-                                    {props.warehouses && props.warehouses.map((row, index) => {
+                                    {warehouses && warehouses.map((row, index) => {
                                         return (
                                             <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
                                         );
@@ -367,6 +487,23 @@ export default function AddMaterialIndent(props) {
                                 </Select>
                             </FormControl>
                             {current_warehouse_error && <Alert className={classes.alert} severity="error"> {current_warehouse_error} </Alert>}
+                            <FormControl size="small" variant="outlined" className={classes.formControl}>
+                                <InputLabel id="service-vendor-select-label">Service Vendor *</InputLabel>
+                                <Select
+                                    labelId="service-vendor-select-label"
+                                    id="service-vendor-select-label"
+                                    value={currentServiceVendor === -1 ? "" : currentServiceVendor}
+                                    onChange={handleServiceVendorChange}
+                                    label="Service Vendor *"
+                                >
+                                    {serviceVendors && serviceVendors.map((row, index) => {
+                                        return (
+                                            <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
+                                        );
+                                    })}
+                                </Select>
+                            </FormControl>
+                            {current_service_vendor_error && <Alert className={classes.alert} severity="error"> {current_service_vendor_error} </Alert>}
                             <br></br>
                             <TableContainer className={classes.container}>
                                 <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
