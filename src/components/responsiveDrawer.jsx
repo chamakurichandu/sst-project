@@ -300,10 +300,10 @@ export default function ResponsiveDrawer(props) {
                     history.push("/procurementsdashboard");
                     break;
                 case 1:
-                    history.push("/procurements");
+                    history.push("/loi");
                     break;
                 case 2:
-                    history.push("/procurements");
+                    history.push("/po");
                     break;
             }
         }

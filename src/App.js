@@ -81,6 +81,12 @@ import MaterialIndents from './components/materialIndents';
 import ReceivedMaterials from './components/receivedMaterials';
 import ReleasedMaterials from './components/releasedMaterials';
 import WarehouseGenerateDC from './components/warehouseGenerateDC';
+import LOI from './components/loi';
+import AddLOI from './components/addLOI';
+import EditLOI from './components/editLOI';
+import PO from './components/po';
+import AddPO from './components/addPO';
+import EditPO from './components/editPO';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -155,8 +161,12 @@ function App(props) {
   const [project, setProject] = React.useState(null);
   const [procurement, setProcurement] = React.useState(null);
 
+  const [loi, setLoi] = React.useState(null);
+  const [po, setPO] = React.useState(null);
+
   const [currentMode, setCurrentMode] = React.useState(0);
   const [modes, setModes] = React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Finance", "HR & Payroll", "Analytics", "Admin Settings"]);
+
 
   const left = !drawerOpen ? '72px' : '240px';
   const right = !drawerOpen ? '72px' : '240px';
@@ -796,7 +806,24 @@ function App(props) {
                   {<Route exact path="/projectdetails" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProjectDetails refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} setProject={setProject} customers={customers} setSelectedProjectWork={setSelectedProjectWork} {...props} /> </div>} />}
                   {<Route exact path="/updateprojectwork" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <UpdateProjectWork refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} customers={customers} projectWork={selectedProjectWork} {...props} /> </div>} />}
 
-                  {<Route exact path="/procurements" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Procurements refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setProcurement={setProcurement} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
+                  {<Route exact path="/loi" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <LOI refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setProcurement={setProcurement} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} setLoi={setLoi} {...props} /> </div>} />}
+                  {<Route exact path="/add-loi" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddLOI projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
+                  {<Route exact path="/edit-loi" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditLOI loi={loi} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
+
+                  {<Route exact path="/po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <PO setPO={setPO} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
+                  {<Route exact path="/add-po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddPO projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
+                  {<Route exact path="/edit-po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditPO projects={projects} po={po} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
+
+
+                  {/* {loiState === 0 && <LOI goto={gotoFromLOI} setLoi={setLoi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+            {loiState === 1 && <AddLOI goto={gotoFromLOI} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+            {loiState === 2 && <EditLOI goto={gotoFromLOI} loi={loi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />} */}
+
+                  {/* {poState === 0 && <PO goto={gotoFromPO} setPO={setPO} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+            {poState === 1 && <AddPO goto={gotoFromPO} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+            {poState === 2 && <EditPO goto={gotoFromPO} po={po} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+            {poState === 3 && <AddPO goto={gotoFromPO} loi={loi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />} */}
+
 
                   {<Route exact path="/customers" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Customers refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedCustomer={setSelectedCustomer}  {...props} /> </div>} />}
                   {<Route exact path="/addcustomer" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddCustomer refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} {...props} /> </div>} />}

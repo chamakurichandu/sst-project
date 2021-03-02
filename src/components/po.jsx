@@ -494,7 +494,7 @@ export default function PO(props) {
 
   const handleAdd = () => {
     console.log("calling goto");
-    props.goto("addPO");
+    props.history.push("/add-po");
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -553,7 +553,7 @@ export default function PO(props) {
   const editAction = (data) => {
     console.log(data);
     props.setPO(data);
-    props.goto("editPO", data);
+    props.history.push("/edit-po");
   };
 
   const getItem = (id) => {
@@ -747,6 +747,7 @@ export default function PO(props) {
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
+        <EnhancedTableToolbar title={"Purchase Orders"} />
         <Paper className={classes.grid}>
           <Grid container spacing={2}>
             <Grid item className={classes.totalAttendes}>

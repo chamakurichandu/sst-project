@@ -369,11 +369,11 @@ export default function AddLOI(props) {
   };
 
   const handleBreadCrumClick = () => {
-    props.goto("loi");
+    props.history.push("/loi");
   };
 
   const handleCancel = () => {
-    props.goto("loi");
+    props.history.push("/loi");
   };
 
   const validateData = () => {
@@ -587,7 +587,7 @@ export default function AddLOI(props) {
       console.log("4");
       console.log("successfully Saved");
       setShowBackDrop(false);
-      props.goto("loi");
+      props.history.push("/loi");
     }
     catch (e) {
       console.log("5");
@@ -690,7 +690,7 @@ export default function AddLOI(props) {
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
 
-        {/* <EnhancedTableToolbar title={"Add LOI"} /> */}
+        <EnhancedTableToolbar title={"Add LOI"} />
 
         <Breadcrumbs aria-label="breadcrumb">
           <Link color="inherit" onClick={handleBreadCrumClick}>

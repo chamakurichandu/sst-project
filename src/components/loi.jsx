@@ -494,7 +494,7 @@ export default function LOI(props) {
 
   const handleAdd = () => {
     console.log("calling goto");
-    props.goto("addLOI");
+    props.history.push("/add-loi");
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -553,7 +553,7 @@ export default function LOI(props) {
   const editAction = (data) => {
     console.log(data);
     props.setLoi(data);
-    props.goto("editLOI", data);
+    props.history.push("/edit-loi");
   };
 
   const getItem = (id) => {
@@ -747,6 +747,7 @@ export default function LOI(props) {
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
+        <EnhancedTableToolbar title={"Letter Of Intents"} />
         <Paper className={classes.grid}>
           <Grid container spacing={2}>
             <Grid item className={classes.totalAttendes}>

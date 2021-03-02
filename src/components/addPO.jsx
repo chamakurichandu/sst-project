@@ -439,11 +439,11 @@ export default function AddPO(props) {
   };
 
   const handleBreadCrumClick = () => {
-    props.goto("po");
+    props.history.push("/po");
   };
 
   const handleCancel = () => {
-    props.goto("po");
+    props.history.push("/po");
   };
 
   const validateData = () => {
@@ -659,7 +659,7 @@ export default function AddPO(props) {
       console.log("4");
       console.log("successfully Saved");
       setShowBackDrop(false);
-      props.goto("po");
+      props.history.push("/po");
     }
     catch (e) {
       console.log("5");
@@ -760,7 +760,7 @@ export default function AddPO(props) {
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
 
-        {/* <EnhancedTableToolbar title={"Add po"} /> */}
+        <EnhancedTableToolbar title={"Add po"} />
 
         <Breadcrumbs aria-label="breadcrumb">
           <Link color="inherit" onClick={handleBreadCrumClick}>

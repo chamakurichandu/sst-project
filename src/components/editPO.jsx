@@ -404,11 +404,11 @@ export default function EditPO(props) {
   };
 
   const handleBreadCrumClick = () => {
-    props.goto("po");
+    props.history.push("/po");
   };
 
   const handleCancel = () => {
-    props.goto("po");
+    props.history.push("/po");
   };
 
   const validateData = () => {
@@ -454,10 +454,6 @@ export default function EditPO(props) {
 
     return allerrors;
   }
-
-  const handlePO = () => {
-    props.goto("createPO");
-  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -628,7 +624,7 @@ export default function EditPO(props) {
 
       console.log("successfully Saved");
       setShowBackDrop(false);
-      props.goto("po");
+      props.history.push("/po");
     }
     catch (e) {
       console.log("5");
@@ -734,6 +730,8 @@ export default function EditPO(props) {
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
+
+        <EnhancedTableToolbar title={"Edit po"} />
 
         <Breadcrumbs aria-label="breadcrumb">
           <Link color="inherit" onClick={handleBreadCrumClick}>

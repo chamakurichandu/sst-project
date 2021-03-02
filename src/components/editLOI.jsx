@@ -404,11 +404,11 @@ export default function EditLOI(props) {
   };
 
   const handleBreadCrumClick = () => {
-    props.goto("loi");
+    props.history.push("/loi");
   };
 
   const handleCancel = () => {
-    props.goto("loi");
+    props.history.push("/loi");
   };
 
   const validateData = () => {
@@ -734,6 +734,8 @@ export default function EditLOI(props) {
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
+
+        <EnhancedTableToolbar title={"Edit LOI"} />
 
         <Breadcrumbs aria-label="breadcrumb">
           <Link color="inherit" onClick={handleBreadCrumClick}>
