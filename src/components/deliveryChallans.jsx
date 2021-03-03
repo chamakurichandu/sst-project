@@ -270,7 +270,6 @@ export default function ReleasedMaterials(props) {
   const [rows, setRows] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [supplyVendors, setSupplyVendors] = React.useState([]);
   const [allItems, set_allItems] = React.useState([]);
   const [uoms, set_uoms] = React.useState([]);
   const [projects, setProjects] = React.useState([]);
@@ -306,6 +305,8 @@ export default function ReleasedMaterials(props) {
       setRows(newRows);
 
       setShowBackDrop(false);
+
+      getAllItemList();
     }
     catch (e) {
       setShowBackDrop(false);
@@ -315,6 +316,47 @@ export default function ReleasedMaterials(props) {
       else {
         setErrorMessage("Error in getting list");
       }
+      setShowError(true);
+    }
+  }
+
+  async function getAllItemList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/material/list?count=" + 10000 + "&offset=" + 0 + "&search=";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      // console.log(data);
+
+      set_allItems(data.list.docs);
+      setShowBackDrop(false);
+
+      getUOMList();
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("Error in getting all items");
+      setErrorMessage("Error in getting all items");
+      setShowError(true);
+    }
+  }
+
+  async function getUOMList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/uom/list?count=" + 10000 + "&offset=" + 0 + "&search=";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log("uoms: ", data);
+
+      set_uoms(data.list);
+      setShowBackDrop(false);
+
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("Error in getting all items");
+      setErrorMessage("Error in getting all items");
       setShowError(true);
     }
   }
@@ -424,22 +466,6 @@ export default function ReleasedMaterials(props) {
 
   };
 
-  const getSupplyVendorName = (id) => {
-    for (let i = 0; i < supplyVendors.length; ++i) {
-      if (supplyVendors[i]._id === id)
-        return supplyVendors[i].name;
-    }
-    return id;
-  };
-
-  const getSupplyVendor = (id) => {
-    for (let i = 0; i < supplyVendors.length; ++i) {
-      if (supplyVendors[i]._id === id)
-        return supplyVendors[i];
-    }
-    return null;
-  };
-
   const editAction = (data) => {
     console.log(data);
     props.setPO(data);
@@ -509,6 +535,107 @@ export default function ReleasedMaterials(props) {
 
   };
 
+  const downloadAction = async (data) => {
+
+    setShowBackDrop(true);
+
+    await createPDFAndDownload(data, "Original");
+    await createPDFAndDownload(data, "Transporter Copy");
+    await createPDFAndDownload(data, "WH Copy");
+    await createPDFAndDownload(data, "Office Copy");
+
+    setShowBackDrop(false);
+  }
+
+  const createPDFAndDownload = async (data, title) => {
+
+    let enqItems = [];
+    enqItems.push([{ text: 'S.No.', style: 'tableHeader', fontSize: 10 }, { text: 'HSN Code', style: 'tableHeader', fontSize: 10 }, { text: 'Material Description', style: 'tableHeader', fontSize: 10 }, { text: 'UOM', style: 'tableHeader', fontSize: 10 }, { text: 'Scheduled Date', style: 'tableHeader', fontSize: 10 }, { text: 'Qty', style: 'tableHeader', fontSize: 10 }, { text: 'Rate', style: 'tableHeader', fontSize: 10 }, { text: 'Amount(Rs)', style: 'tableHeader', fontSize: 10 }]);
+
+    let numberFormatter = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 });
+    let totalAmount = 0;
+    data.items.forEach(function (item, index) {
+      let completeItem = getItem(item.item);
+      const dateFns = new DateFnsUtils();
+      if (!completeItem.hsncode)
+        completeItem.hsncode = " ";
+      completeItem.scheduled_date_conv = dateFns.date(item.scheduled_date);
+      completeItem.total = item.qty * item.rate;
+      totalAmount += completeItem.total;
+      enqItems.push(["" + (index + 1), completeItem.hsncode, completeItem.description, getUOMName(completeItem.uomId), completeItem.scheduled_date_conv.toDateString(), { text: numberFormatter.format(item.qty), fontSize: 10, alignment: 'right' }, { text: "" + numberFormatter.format(item.rate), fontSize: 10, alignment: 'right' }, { text: numberFormatter.format(completeItem.total), fontSize: 10, alignment: 'right' }]);
+    });
+    enqItems.push([{}, {}, {}, {}, {}, {}, {}, {}]);
+    enqItems.push([{}, {}, {}, {}, {}, {}, { text: "Total:", bold: true }, { text: "" + numberFormatter.format(totalAmount), bold: true, alignment: 'right' }]);
+    const profileInfo = JSON.parse(window.localStorage.getItem("profile"));
+
+    var docDefinition = {
+      pageMargins: [40, 140, 40, 60],
+      header: { image: await getBase64ImageFromURL("https://demossga.s3.ap-south-1.amazonaws.com/temp/RajashreeElectricalsHeader.png"), width: 594, height: 130, alignment: "center" },
+      content: [
+        {
+          style: 'tableExample',
+          color: '#444',
+          table: {
+            widths: ["*", "*", "*", "*"],
+            headerRows: 1,
+            // keepWithHeaderRows: 1,
+            body: [
+              [{ text: 'DELIVERY CHALLAN (' + title + ')', style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: 'M/s. Rajashree Electrical\nNo.154, Nijalingappa Layout, Davanagere - 577004\nGSTIN/UIN : 29AKTPR1041D1Z1 | Karnataka Code: 29 | projects@rajashreeelectricals.com', bold: false, fontSize: 11, style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: 'DC Number:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.code, bold: false, fontSize: 10, alignment: 'center' }, { text: 'DC Date:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.createddate_conv.toDateString(), bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: 'Vendor Name & Address:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.servicevendor.name + "\n" + data.servicevendor.address, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Delivery Type:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.type, bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: 'Vendor Contact Details:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.servicevendor.contactPhone + "\n" + data.servicevendor.contactEmail, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Reference No', bold: true, fontSize: 10, alignment: 'center' }, { text: data.indent.code, bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: 'Vendor GST No:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.servicevendor.gst, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Verified By', bold: true, fontSize: 10, alignment: 'center' }, { text: profileInfo.name, bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: 'E-Sugam No', bold: true, fontSize: 10, alignment: 'center' }, { text: "" + data.transaction.esugam_no, bold: false, fontSize: 10, alignment: 'center' }, { text: 'E-Sugam Date', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.esugam_date_conv.toDateString(), bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: 'Transporter:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.transporter, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Vehicle No:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.vehicle_no, bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: 'Project Code:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.project.code, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Project Name:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.project.name, bold: false, fontSize: 10, alignment: 'center' }],
+
+              [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [
+                {
+                  table: {
+                    widths: [25, 30, "*", 30, 45, 30, 60, 70],
+                    headerRows: 1,
+                    body: enqItems
+                  },
+                  colSpan: 4
+                },
+                {}, {}, {}
+              ],
+              [{ text: "Inpected By: \n\n", colSpan: 4, alignment: 'left' }, {}, {}, {}],
+            ]
+          }
+        }
+      ],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          margin: [0, 0, 0, 10]
+        },
+        subheader: {
+          fontSize: 16,
+          bold: true,
+          margin: [0, 10, 0, 5]
+        },
+        tableExample: {
+          margin: [0, 5, 0, 15]
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 13,
+          color: 'black'
+        }
+      },
+      defaultStyle: {
+        fontSize: 10
+        // alignment: 'justify'
+      }
+    };
+    pdfMake.createPdf(docDefinition).download(data.transaction.code + "_" + title + ".pdf");
+  };
+
   return (
     <div className={clsx(classes.root)}>
       {props.warehouse &&
@@ -572,6 +699,9 @@ export default function ReleasedMaterials(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
                             <DetailImage />
+                          </IconButton>
+                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => downloadAction(row.data)}>
+                            <GetAppImage />
                           </IconButton>
                         </TableCell>
                       </TableRow>
