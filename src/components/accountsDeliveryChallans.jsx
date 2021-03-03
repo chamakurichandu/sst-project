@@ -29,7 +29,6 @@ import IconButton from '@material-ui/core/IconButton';
 import EditImage from '@material-ui/icons/Edit';
 import GetAppImage from '@material-ui/icons/GetApp';
 import DetailImage from '@material-ui/icons/ArrowForward';
-
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -79,6 +78,7 @@ function EnhancedTableHead(props) {
     { id: 'esugam', numeric: false, disablePadding: false, label: 'e-sugam' },
     { id: 'esugam-date', numeric: false, disablePadding: false, label: 'e-sugam date' },
     { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
+    { id: 'warehouse', numeric: false, disablePadding: false, label: 'Warehouse' },
     { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' }
   ];
@@ -285,7 +285,11 @@ export default function ReleasedMaterials(props) {
     try {
       setShowBackDrop(true);
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/deliverychallan/list?count=" + numberOfRows + "&warehouse=" + props.warehouse._id + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/deliverychallan/listall?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      console.log("props.waitingonly: ", props.waitingonly);
+      if (props.waitingonly)
+        url = url + "&waitingonly=1";
+      console.log("url: ", url);
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
@@ -320,10 +324,9 @@ export default function ReleasedMaterials(props) {
   }
 
   useEffect(() => {
-    if (props.warehouse)
-      getDeliveryChallans(rowsPerPage);
+    getDeliveryChallans(rowsPerPage);
 
-  }, [props.warehouse]);
+  }, [props.waitingonly]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -442,8 +445,8 @@ export default function ReleasedMaterials(props) {
 
   const editAction = (data) => {
     console.log(data);
-    props.setPO(data);
-    props.goto("editPO", data);
+    props.setDC(data);
+    props.history.push("/edit-delivery-challan-accounts");
   };
 
   const getItem = (id) => {
@@ -511,16 +514,16 @@ export default function ReleasedMaterials(props) {
 
   return (
     <div className={clsx(classes.root)}>
-      {props.warehouse &&
+      {
         <div className={classes.paper}>
-          {/* <EnhancedTableToolbar title={"Released Materials"} /> */}
+          <EnhancedTableToolbar title={"Delivery Challans: " + (props.waitingonly ? "[eSugam waiting]" : "[All]")} />
 
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>
                 <img src={ProcurementImage} width='25' alt="" />
                 <h1 className={classes.h1}>{totalCount}</h1>
-                <span>{"Materials"}</span>
+                <span>{"Delivery Challans"}</span>
               </Grid>
             </Grid>
           </Paper>
@@ -559,7 +562,7 @@ export default function ReleasedMaterials(props) {
                   {rows.map((row, index) => {
                     const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
-                    console.log("row: ", row);
+                    // console.log("row: ", row);
                     return (
                       <TableRow hover tabIndex={-1} key={row.slno}>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
@@ -568,8 +571,12 @@ export default function ReleasedMaterials(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_no ? row.data.transaction.esugam_no : "Waiting in Accounts"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_date_conv ? row.data.transaction.esugam_date_conv.toDateString() : "Waiting in Accounts"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.warehouse.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => editAction(row.data)}>
+                            <EditImage />
+                          </IconButton>
                           <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
                             <DetailImage />
                           </IconButton>

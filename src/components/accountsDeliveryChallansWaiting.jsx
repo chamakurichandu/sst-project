@@ -285,7 +285,7 @@ export default function ReleasedMaterials(props) {
     try {
       setShowBackDrop(true);
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/deliverychallan/list?count=" + numberOfRows + "&warehouse=" + props.warehouse._id + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/deliverychallan/list?count=" + numberOfRows + "&warehouse=" + props.warehouse._id + "&offset=" + offset + "&waitingonly=1" + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);

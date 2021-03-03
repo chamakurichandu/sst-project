@@ -397,7 +397,7 @@ export default function ReleaseIndents(props) {
       {props.refreshUI && props.warehouse &&
 
         <div className={classes.paper}>
-          <EnhancedTableToolbar title={"Material Indents"} />
+          <EnhancedTableToolbar title={"Release Material Indents"} />
           {/* <Breadcrumbs aria-label="breadcrumb">
             <Link color="inherit" onClick={() => handleBreadCrumClick(1)}>
               {"Warehouses"}

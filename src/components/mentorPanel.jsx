@@ -23,7 +23,7 @@ import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import MentoringApplyForm from './mentoringApplyForm';
-import Image, { Shimmer } from 'react-shimmer'
+import Image, { Shimmer } from 'react-shimmer';
 import ProfileImage from '../assets/svg/ss/man.svg';
 import lstrings from '../lstrings.js';
 

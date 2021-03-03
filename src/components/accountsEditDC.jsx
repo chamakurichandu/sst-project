@@ -161,9 +161,6 @@ export default function WarehouseReceive(props) {
   const [prouctCategories, set_prouctCategories] = React.useState([]);
   const [uoms, set_uoms] = React.useState([]);
 
-  const [currentSupplyVendor, setCurrentSupplyVendor] = React.useState(-1);
-  const [currentSupplyVendor_error, setCurrentSupplyVendor_error] = React.useState(null);
-
   const [currentProject, setCurrentProject] = React.useState(-1);
   const [current_project_error, set_current_project_error] = React.useState(null);
 
@@ -213,11 +210,11 @@ export default function WarehouseReceive(props) {
   const [gate_entry_info, set_gate_entry_info] = React.useState('');
   const [gate_entry_info_error, set_gate_entry_info_error] = React.useState(null);
 
-  // const [esugam, set_esugam] = React.useState('');
-  // const [esugam_error, set_esugam_error] = React.useState(null);
+  const [esugam, set_esugam] = React.useState('');
+  const [esugam_error, set_esugam_error] = React.useState(null);
 
-  // const [esugam_date, set_esugam_date] = React.useState(new Date());
-  // const [esugam_date_error, set_esugam_date_error] = React.useState(null);
+  const [esugam_date, set_esugam_date] = React.useState(new Date());
+  const [esugam_date_error, set_esugam_date_error] = React.useState(null);
 
   const [bill_no, set_bill_no] = React.useState('');
   const [bill_no_error, set_bill_no_error] = React.useState(null);
@@ -319,64 +316,12 @@ export default function WarehouseReceive(props) {
 
       setShowBackDrop(false);
 
-      getProjectList();
     }
     catch (e) {
       console.log("Error in getting UOMs list");
       setErrorMessage("Error in getting UOMs list");
       setShowError(true);
       setShowBackDrop(false);
-    }
-  }
-
-  async function getProjectList() {
-    try {
-      setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/project/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      const { data } = await axios.get(url);
-      console.log(data);
-      setProjects(data.list.docs);
-      setShowBackDrop(false);
-
-      console.log("Projects: ", data.list.docs);
-
-      getWarehouseList();
-    }
-    catch (e) {
-      setShowBackDrop(false);
-      console.log("getProjectList e: ", e);
-      if (e.response) {
-        setErrorMessage(e.response.data.message);
-      }
-      else {
-        setErrorMessage("Error in getting list");
-      }
-      setShowError(true);
-    }
-  }
-
-  async function getWarehouseList() {
-    try {
-      setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/warehouse/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      const { data } = await axios.get(url);
-      console.log(data);
-
-      setWarehouses(data.list);
-      setShowBackDrop(false);
-    }
-    catch (e) {
-      setShowBackDrop(false);
-      console.log("getWarehouseList: e: ", e);
-      if (e.response) {
-        setErrorMessage(e.response.data.message);
-      }
-      else {
-        setErrorMessage("Error in getting list");
-      }
-      setShowError(true);
     }
   }
 
@@ -412,9 +357,27 @@ export default function WarehouseReceive(props) {
   }
 
   useEffect(() => {
-    if (props.warehouse)
-      getAllItemList(10000);
-  }, [props.warehouse]);
+    getAllItemList(10000);
+
+    console.log(props.dc);
+
+  }, []);
+
+  useEffect(() => {
+    if (uoms && uoms.length > 0) {
+      populateDCDetails();
+    }
+
+  }, [uoms]);
+
+  const populateDCDetails = () => {
+    if (props.dc.transaction.type === "projects") {
+      setCurrentType(0);
+    }
+    else if (props.dc.transaction.type === "stocktransfer") {
+
+    }
+  };
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -434,16 +397,10 @@ export default function WarehouseReceive(props) {
 
   const validateData = () => {
     const schema = Joi.object({
-      // esugam: Joi.string().min(1).max(1024).required(),
-      lr_no: Joi.string().min(1).max(8192).required(),
-      transporter: Joi.string().min(1).max(8192).required(),
-      vehicle_no: Joi.string().min(1).max(8192).required(),
+      esugam: Joi.string().min(1).max(1024).required(),
     });
     const { error } = schema.validate({
-      // esugam: esugam.trim(),
-      lr_no: lr_no.trim(),
-      transporter: transporter.trim(),
-      vehicle_no: vehicle_no.trim(),
+      esugam: esugam.trim()
     }, { abortEarly: false });
     const allerrors = {};
     if (error) {
@@ -483,14 +440,7 @@ export default function WarehouseReceive(props) {
   };
 
   const generateDCForProjects = async () => {
-    set_current_type_error(null)
-    set_current_project_error(null);
-    set_current_released_indent_error(null);
-    // set_esugam_error(null);
-    set_lr_no_error(null);
-    set_transporter_error(null);
-    set_vehicle_no_error(null);
-    set_remark_error(null);
+    set_esugam_error(null);
 
     const errors = validateData();
 
@@ -499,36 +449,12 @@ export default function WarehouseReceive(props) {
       set_current_type_error("Type Required");
       errorOccured = true;
     }
-    if (currentProject === -1) {
-      set_current_project_error("Project Required");
-      errorOccured = true;
-    }
-    if (currentReleasedTransaction === -1) {
-      set_current_released_indent_error("Release Indent Required");
-      errorOccured = true;
-    }
-    if (errors["remark"]) {
-      set_remark_error(errors["remark"]);
-      errorOccured = true;
-    }
-    // if (errors["esugam"]) {
-    //   set_esugam_error(errors["esugam"]);
-    //   errorOccured = true;
-    // }
-    if (errors["lr_no"]) {
-      set_lr_no_error(errors["lr_no"]);
-      errorOccured = true;
-    }
-    if (errors["transporter"]) {
-      set_transporter_error(errors["transporter"]);
-      errorOccured = true;
-    }
-    if (errors["vehicle_no"]) {
-      set_vehicle_no_error(errors["vehicle_no"]);
+    if (errors["esugam"]) {
+      set_esugam_error(errors["esugam"]);
       errorOccured = true;
     }
 
-    if (items.length === 0) {
+    if (props.dc.items.length === 0) {
       set_items_error("Items required");
       errorOccured = true;
     }
@@ -538,40 +464,24 @@ export default function WarehouseReceive(props) {
 
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/deliverychallan/add";
+      let url = config["baseurl"] + "/api/deliverychallan/update";
 
       let postObj = {};
-      postObj["warehouse"] = props.warehouse._id;
-      postObj["type"] = getTypeString(currentType);
-      postObj["project"] = projects[currentProject]._id;
-      postObj["releasedtransaction"] = releasedTransactions[currentReleasedTransaction].transaction._id;
-      postObj["esugam_no"] = null;//esugam.trim();
-      postObj["esugam_date"] = null;//esugam_date.toUTCString();
-      postObj["lr_no"] = lr_no.trim();
-      postObj["lr_date"] = lr_date.toUTCString();
-      postObj["transporter"] = transporter.trim();
-      postObj["vehicle_no"] = vehicle_no.trim();
-      postObj["remark"] = remark.trim();
-
-      postObj["docs"] = [];
-      for (let i = 0; i < files.length; ++i) {
-        postObj["docs"].push({ name: files[i].name, path: files[i].path });
-      }
-
-      // postObj["items"] = [];
-      // for (let i = 0; i < items.length; ++i) {
-      //   postObj["items"].push({ item: items[i]._id, qty: parseInt(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
-      // }
+      postObj["esugam_no"] = esugam.trim();
+      postObj["esugam_date"] = esugam_date.toUTCString();
 
       console.log("postObj: ", postObj);
 
+      let updateObj = { _id: props.dc.transaction._id, updateParams: postObj };
+
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      console.log("3");
-      const response = await axios.post(url, postObj);
+
+      const updated = await axios.patch(url, updateObj);
+
       console.log("4");
       console.log("successfully Saved");
       setShowBackDrop(false);
-      props.history.push("/warehousehome");
+      props.history.push("/accounts-dc");
     }
     catch (e) {
       console.log("5");
@@ -676,9 +586,9 @@ export default function WarehouseReceive(props) {
         }
         break;
       case 1:
-        if (!pos) {
-          getWarehouseList();
-        }
+        // if (!pos) {
+        //   getWarehouseList();
+        // }
         break;
       case 2:
         break;
@@ -702,12 +612,6 @@ export default function WarehouseReceive(props) {
 
     getReleaseIndents(projects[event.target.value]);
   }
-
-  const handleSupplyVendorChange = (event) => {
-    setCurrentSupplyVendor(event.target.value);
-    setCurrentSupplyVendor_error(null);
-    set_supply_vendor_error(null);
-  };
 
   const getItemName = (id) => {
     for (let i = 0; i < props.allItems.length; ++i) {
@@ -820,148 +724,97 @@ export default function WarehouseReceive(props) {
 
   return (
     <div className={clsx(classes.root)}>
-      {props.warehouse &&
-        <div className={classes.paper}>
+      <div className={classes.paper}>
 
-          <EnhancedTableToolbar title={props.warehouse.name + ": Generate DC"} />
+        <EnhancedTableToolbar title={"Edit DC"} />
 
-          <form className={classes.papernew} autoComplete="off" noValidate>
-            <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="type-select-label">Delivery Type *</InputLabel>
-              <Select
-                labelId="type-select-label"
-                id="type-select-label"
-                value={currentType === -1 ? "" : currentType}
-                onChange={handleTypeChange}
-                label="Delivery Type *"
-              >
-                {types && types.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{"" + row}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-            {current_type_error && <Alert className={classes.alert} severity="error"> {current_type_error} </Alert>}
+        <form className={classes.papernew} autoComplete="off" noValidate>
+          <FormControl size="small" variant="outlined" className={classes.formControl}>
+            <InputLabel id="type-select-label">Delivery Type *</InputLabel>
+            <Select
+              labelId="type-select-label"
+              id="type-select-label"
+              value={currentType === -1 ? "" : currentType}
+              onChange={handleTypeChange}
+              label="Delivery Type *"
+              disabled
+            >
+              {types && types.map((row, index) => {
+                return (
+                  <MenuItem key={"" + index} value={index}>{"" + row}</MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+          {current_type_error && <Alert className={classes.alert} severity="error"> {current_type_error} </Alert>}
 
-            {currentType === 0 && <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="po-select-label">Project *</InputLabel>
-              <Select
-                labelId="po-select-label"
-                id="po-select-label"
-                value={currentProject === -1 ? "" : currentProject}
-                onChange={handleProjectChange}
-                label="Project *"
-              >
-                {projects && projects.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{"" + row.code}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>}
-            {currentType === 0 && current_po_error && <Alert className={classes.alert} severity="error"> {current_po_error} </Alert>}
+          {currentType === 0 &&
+            <TextField size="small" className={classes.inputFields} id="formControl_projects" value={props.dc.project.code}
+              label="Project" variant="outlined" disabled />}
 
-            {currentType === 1 && <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="warehouse-select-label">Warehouse *</InputLabel>
-              <Select
-                labelId="warehouse-select-label"
-                id="warehouse-select-label"
-                value={currentWarehouse === -1 ? "" : currentWarehouse}
-                onChange={handleWarehouseChange}
-                label="Warehouse *"
-              >
-                {warehouses && warehouses.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>}
-            {currentType === 1 && current_warehouse_error && <Alert className={classes.alert} severity="error"> {current_warehouse_error} </Alert>}
+          {currentType === 1 && <FormControl size="small" variant="outlined" className={classes.formControl}>
+            <InputLabel id="warehouse-select-label">Warehouse *</InputLabel>
+            <Select
+              labelId="warehouse-select-label"
+              id="warehouse-select-label"
+              value={currentWarehouse === -1 ? "" : currentWarehouse}
+              onChange={handleWarehouseChange}
+              label="Warehouse *"
+            >
+              {warehouses && warehouses.map((row, index) => {
+                return (
+                  <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>}
+          {currentType === 1 && current_warehouse_error && <Alert className={classes.alert} severity="error"> {current_warehouse_error} </Alert>}
 
-            {currentType === 0 && <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="materialindent-select-label">Released Indent *</InputLabel>
-              <Select
-                labelId="materialindent-select-label"
-                id="materialindent-select-label"
-                value={currentReleasedTransaction === -1 ? "" : currentReleasedTransaction}
-                onChange={handleReleasedIndentChange}
-                label="Released Indent *"
-              >
-                {releasedTransactions && releasedTransactions.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{"" + row.indent.code}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>}
-            {currentType === 0 && current_released_indent_error && <Alert className={classes.alert} severity="error"> {current_released_indent_error} </Alert>}
+          {currentType === 0 &&
+            <TextField size="small" className={classes.inputFields} id="formControl_indent" value={props.dc.indent.code}
+              label="Material Indent" variant="outlined" disabled />}
 
-            {currentType === 0 && projects && (currentProject >= 0) && releasedTransactions && (currentReleasedTransaction >= 0)
-              && <TextField size="small" className={classes.inputFields} id="formControl_servicevendor_name"
-                value={releasedTransactions[currentReleasedTransaction].servicevendor ? (releasedTransactions[currentReleasedTransaction].servicevendor.code + " : " + releasedTransactions[currentReleasedTransaction].servicevendor.name) : "Older Data. Dont do anything. Cannot create DC!!!!"}
-                label="ServiceVendor Name" variant="outlined" multiline disabled />}
+          {currentType === 0
+            && <TextField size="small" className={classes.inputFields} id="formControl_servicevendor_name"
+              value={("" + props.dc.servicevendor.code + props.dc.servicevendor.name)}
+              label="ServiceVendor Name" variant="outlined" disabled />}
 
-            {/* <TextField size="small" className={classes.inputFields} id="formControl_esugam" defaultValue={esugam}
-              label="E-Sugam Num" variant="outlined"
-              onChange={(event) => { set_esugam(event.target.value); set_esugam_error(null); }} />
-            {esugam_error && <Alert className={classes.alert} severity="error"> {esugam_error} </Alert>} */}
+          {currentType === 0 && <TextField size="small" className={classes.inputFields} id="formControl_lr_no" value={props.dc.transaction.lr_no}
+            label="LR Num" variant="outlined" disabled />}
 
-            {/* {<FormControl variant="outlined" size="small" className={classes.formControl}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils} >
-                <DatePicker size="small" label="E-Sugam Date" inputVariant="outlined" format="dd/MM/yyyy" value={esugam_date} onChange={set_esugam_date} />
-              </MuiPickersUtilsProvider>
-            </FormControl>}
-            {esugam_date_error && <Alert className={classes.alert} severity="error"> {esugam_date_error} </Alert>} */}
+          {currentType === 0 && <TextField size="small" className={classes.inputFields} id="formControl_lr_date" value={props.dc.transaction.lr_date}
+            label="LR Date" variant="outlined" disabled />}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_lr_no" defaultValue={lr_no}
-              label="LR Num" variant="outlined" multiline
-              onChange={(event) => { set_lr_no(event.target.value); set_lr_no_error(null); }} />
-            {lr_no_error && <Alert className={classes.alert} severity="error"> {lr_no_error} </Alert>}
+          {currentType === 0 && <TextField size="small" className={classes.inputFields} id="formControl_transporter" value={props.dc.transaction.transporter}
+            label="Transporter" variant="outlined" disabled />}
 
-            <FormControl variant="outlined" size="small" className={classes.formControl}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils} >
-                <DatePicker size="small" label="LR Date" inputVariant="outlined" format="dd/MM/yyyy" value={lr_date} onChange={set_lr_date} />
-              </MuiPickersUtilsProvider>
-            </FormControl>
-            {lr_date_error && <Alert className={classes.alert} severity="error"> {lr_date_error} </Alert>}
+          {currentType === 0 && <TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" value={props.dc.transaction.vehicle_no}
+            label="Vehicle no" variant="outlined" disabled />}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_transporter" defaultValue={transporter}
-              label="Transporter" variant="outlined" multiline
-              onChange={(event) => { set_transporter(event.target.value); set_transporter_error(null); }} />
-            {transporter_error && <Alert className={classes.alert} severity="error"> {transporter_error} </Alert>}
+          {currentType === 0 && <TextField size="small" className={classes.inputFields} id="formControl_remark" value={props.dc.transaction.remark}
+            label="Remark" variant="outlined" disabled />}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" defaultValue={vehicle_no}
-              label="Vehicle Num" variant="outlined" multiline
-              onChange={(event) => { set_vehicle_no(event.target.value); set_vehicle_no_error(null); }} />
-            {vehicle_no_error && <Alert className={classes.alert} severity="error"> {vehicle_no_error} </Alert>}
-
-            <TextField size="small" className={classes.inputFields} id="formControl_remark" defaultValue={remark}
-              label="Remark" variant="outlined" multiline
-              onChange={(event) => { set_remark(event.target.value); set_remark_error(null); }} />
-            {remark_error && <Alert className={classes.alert} severity="error"> {remark_error} </Alert>}
-
-            <div style={{ marginTop: 10 }}>
-              <div>
-                {files.map((file, index) => {
-                  return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
-                })}
-              </div>
-              <div style={{ marginTop: 5 }}>
-                <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
-                  Upload Document
-                  <input type="file" hidden />
-                </Button>
-              </div>
+          {/* <div style={{ marginTop: 10 }}>
+            <div>
+              {files.map((file, index) => {
+                return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
+              })}
             </div>
+            <div style={{ marginTop: 5 }}>
+              <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
+                Upload Document
+                  <input type="file" hidden />
+              </Button>
+            </div>
+          </div> */}
 
+          {currentType === 0 &&
             <Paper className={classes.paper} style={{ marginTop: 10 }}>
               <TableContainer className={classes.container}>
                 <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                  <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
+                  <EnhancedTableHeadSmall title="Releasing Items" onClick={addItem} />
                   <TableBody>
-                    {items.map((row, index) => {
+                    {props.dc.items.map((row, index) => {
                       return (
                         <TableRow hover tabIndex={-1} key={"" + index} >
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.details.description}</TableCell>
@@ -974,23 +827,34 @@ export default function WarehouseReceive(props) {
                 </Table>
               </TableContainer>
             </Paper>
-            {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
+          }
 
-            <div className={classes.submit}>
-              {/* <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button> */}
-              <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button>
-            </div>
+          <TextField size="small" className={classes.inputFields} id="formControl_esugam" defaultValue={esugam}
+            label="E-Sugam Num" variant="outlined"
+            onChange={(event) => { set_esugam(event.target.value); set_esugam_error(null); }} />
+          {esugam_error && <Alert className={classes.alert} severity="error"> {esugam_error} </Alert>}
 
-          </form>
-          {/* </Paper> */}
-        </div>
-      }
+          {<FormControl variant="outlined" size="small" className={classes.formControl}>
+            <MuiPickersUtilsProvider utils={DateFnsUtils} >
+              <DatePicker size="small" label="E-Sugam Date" inputVariant="outlined" format="dd/MM/yyyy" value={esugam_date} onChange={set_esugam_date} />
+            </MuiPickersUtilsProvider>
+          </FormControl>}
+          {esugam_date_error && <Alert className={classes.alert} severity="error"> {esugam_date_error} </Alert>}
 
-      { showSelectItem && <SelectItem2 closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={(currentType === 0) ? poItems : allItems} selectedItems={items} type={"Receivable Items"} />}
+          <div className={classes.submit}>
+            {/* <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button> */}
+            <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button>
+          </div>
+
+        </form>
+        {/* </Paper> */}
+      </div>
+
+      {/* { showSelectItem && <SelectItem2 closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={(currentType === 0) ? poItems : allItems} selectedItems={items} type={"Receivable Items"} />}
 
       { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />}
 
-      { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects} />}
+      { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects} />} */}
 
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
