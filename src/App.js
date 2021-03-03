@@ -163,6 +163,7 @@ function App(props) {
 
   const [loi, setLoi] = React.useState(null);
   const [po, setPO] = React.useState(null);
+  const [createFromLoi, setCreateFromLoi] = React.useState(false);
 
   const [currentMode, setCurrentMode] = React.useState(0);
   const [modes, setModes] = React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Finance", "HR & Payroll", "Analytics", "Admin Settings"]);
@@ -808,10 +809,10 @@ function App(props) {
 
                   {<Route exact path="/loi" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <LOI refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setProcurement={setProcurement} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} setLoi={setLoi} {...props} /> </div>} />}
                   {<Route exact path="/add-loi" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddLOI projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
-                  {<Route exact path="/edit-loi" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditLOI loi={loi} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
+                  {<Route exact path="/edit-loi" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditLOI setCreateFromLoi={setCreateFromLoi} loi={loi} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
 
                   {<Route exact path="/po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <PO setPO={setPO} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
-                  {<Route exact path="/add-po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddPO projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
+                  {<Route exact path="/add-po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddPO createFromLoi={createFromLoi} setCreateFromLoi={setCreateFromLoi} loi={loi} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
                   {<Route exact path="/edit-po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditPO projects={projects} po={po} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
 
 

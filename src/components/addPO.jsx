@@ -231,7 +231,7 @@ export default function AddPO(props) {
       setSupplyVendors(data.list.docs);
       setShowBackDrop(false);
 
-      if (props.loi) {
+      if (props.createFromLoi && props.loi) {
         for (let i = 0; i < data.list.docs.length; ++i) {
           if (props.loi.supply_vendor === data.list.docs[i]._id) {
             setCurrentSupplyVendor(i);
@@ -266,7 +266,7 @@ export default function AddPO(props) {
       setShowBackDrop(false);
 
       const dateFns = new DateFnsUtils();
-      if (props.loi) {
+      if (props.createFromLoi && props.loi) {
         let newItems = cloneDeep(props.loi.items);
         for (let k = 0; k < newItems.length; ++k) {
           let item = newItems[k];
@@ -344,7 +344,7 @@ export default function AddPO(props) {
       setProjects(data.list.docs);
       setShowBackDrop(false);
 
-      if (props.loi) {
+      if (props.createFromLoi && props.loi) {
         for (let i = 0; i < data.list.docs.length; ++i) {
           if (props.loi.project === data.list.docs[i]._id) {
             setCurrentProject(i);
@@ -379,7 +379,7 @@ export default function AddPO(props) {
       setWarehouses(data.list);
       setShowBackDrop(false);
 
-      if (props.loi) {
+      if (props.createFromLoi && props.loi) {
         for (let i = 0; i < data.list.length; ++i) {
           if (props.loi.warehouse === data.list[i]._id) {
             setCurrentWarehouse(i);
@@ -402,7 +402,7 @@ export default function AddPO(props) {
   }
 
   const checkForLOI = () => {
-    if (!props.loi)
+    if (!(props.createFromLoi && props.loi))
       return;
 
     set_reference_number(props.loi.reference_number ? props.loi.reference_number : '');

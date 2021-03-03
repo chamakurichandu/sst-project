@@ -456,7 +456,8 @@ export default function EditLOI(props) {
   }
 
   const handlePO = () => {
-    props.goto("createPO");
+    props.setCreateFromLoi(true);
+    props.history.push("/add-po");
   };
 
   const handleSave = async (e) => {
@@ -628,7 +629,7 @@ export default function EditLOI(props) {
 
       console.log("successfully Saved");
       setShowBackDrop(false);
-      props.goto("loi");
+      props.history.push("/loi");
     }
     catch (e) {
       console.log("5");
