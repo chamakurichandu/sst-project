@@ -140,13 +140,13 @@ export default function ResponsiveDrawer(props) {
     const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "Receive Materials", "Release Materials", "Stock Transfer", "Generate DC"]);
     const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
     const [outsourcingModes, setOutsourcingModes] = React.useState(["Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report"]);
-    const [financeModes, setFinanceModes] = React.useState([]);
+    const [accountsModes, setAccountsModes] = React.useState([]);
     const [hrpayrollModes, setHrpayrollModes] = React.useState([]);
     const [analyticsModes, setAnalyticsModes] = React.useState([]);
     const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Help", "Materials", "UOM", "Product Category", "Add Project", "Project Utils", "Supply Vendors", "Service Vendors", "Vendor Rate Contracts & Agreement"]);
     const [menu, setMenu] = React.useState([]);
 
-    //React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Finance", "HR & Payroll", "Analytics", "Admin Settings"]);
+    //React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Accounts", "HR & Payroll", "Analytics", "Admin Settings"]);
 
     const [language, setLanguage] = React.useState('en');
 
@@ -206,8 +206,8 @@ export default function ResponsiveDrawer(props) {
             case "Sub-Contract":
                 setMenu(outsourcingModes);
                 break;
-            case "Finance":
-                setMenu(financeModes);
+            case "Accounts":
+                setMenu(accountsModes);
                 break;
             case "HR & Payroll":
                 setMenu(hrpayrollModes);

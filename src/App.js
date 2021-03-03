@@ -166,7 +166,7 @@ function App(props) {
   const [createFromLoi, setCreateFromLoi] = React.useState(false);
 
   const [currentMode, setCurrentMode] = React.useState(0);
-  const [modes, setModes] = React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Finance", "HR & Payroll", "Analytics", "Admin Settings"]);
+  const [modes, setModes] = React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Accounts", "HR & Payroll", "Analytics", "Admin Settings"]);
 
 
   const left = !drawerOpen ? '72px' : '240px';
