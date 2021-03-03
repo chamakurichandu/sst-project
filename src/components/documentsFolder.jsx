@@ -29,7 +29,12 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DateFnsUtils from '@date-io/date-fns';
 import AddDocument from './addDocument';
+import AddFolder from './addFolder';
 import IconButton from '@material-ui/core/IconButton';
+import fileImage from '../assets/svg/ss/file.svg';
+import folderImage from '../assets/svg/ss/folder.svg';
+import Typography from '@material-ui/core/Typography';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -72,9 +77,8 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Document Name' },
-    { id: 'uploadeddate', numeric: false, disablePadding: false, label: 'Uploaded Date' },
     { id: 'remarks', numeric: false, disablePadding: false, label: 'Remarks' },
-    { id: 'date', numeric: false, disablePadding: false, label: 'Created Date' },
+    { id: 'uploadeddate', numeric: false, disablePadding: false, label: 'Uploaded Date' },
     { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
   ];
 
@@ -264,16 +268,20 @@ export default function DocumentsFolder(props) {
   const [totalCount, setTotalCount] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [showAddDocument, setShowAddDocument] = React.useState(false);
+  const [showAddFolder, setShowAddFolder] = React.useState(false);
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
+
+  const [currentPath, setCurrentPath] = React.useState("/" + props.type);
+  const [currentPathArr, setCurrentPathArr] = React.useState([]);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
-  async function getList(numberOfRows, search = "") {
+  async function getList(parent, numberOfRows, search = "") {
     try {
-      console.log("page: ", page);
-      let url = config["baseurl"] + "/api/document/list?type=" + props.type + "&project=" + props.project._id + "&count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      console.log(props.project);
+      let url = config["baseurl"] + "/api/document/list?project=" + props.project._id + "&count=" + numberOfRows + "&offset=" + offset + "&search=" + search + "&parent=" + parent;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
@@ -315,8 +323,7 @@ export default function DocumentsFolder(props) {
 
       console.log("Delete Saved");
       setShowBackDrop(false);
-
-      getList(rowsPerPage);
+      getList(currentPath, rowsPerPage);
     }
     catch (e) {
       if (e.response) {
@@ -333,15 +340,25 @@ export default function DocumentsFolder(props) {
   }
 
   useEffect(() => {
+    if (!props.project)
+      return;
+
     setRows([]);
 
     setPage(0);
     offset = 0;
-    getList(rowsPerPage);
+    setPath("/" + props.type);
+    getList(("/" + props.type), rowsPerPage);
 
     console.log(props.type);
 
+
   }, [props.type, props.project]);
+
+  const setPath = (path) => {
+    setCurrentPath(path);
+    setCurrentPathArr(path.split("/"));
+  }
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -389,7 +406,7 @@ export default function DocumentsFolder(props) {
   const handleChangePage = (event, newPage) => {
     offset = newPage * rowsPerPage;
     setPage(newPage);
-    getList(rowsPerPage);
+    getList(currentPath, rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -397,7 +414,7 @@ export default function DocumentsFolder(props) {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
     offset = 0;
-    getList(newRowsPerPage);
+    getList(currentPath, newRowsPerPage);
   };
 
   const handleEdit = (data) => {
@@ -407,8 +424,12 @@ export default function DocumentsFolder(props) {
     props.history.push("/editproject");
   };
 
-  const handleAdd = () => {
+  const handleAddFile = () => {
     setShowAddDocument(true);
+  };
+
+  const handleAddFolder = () => {
+    setShowAddFolder(true);
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -441,13 +462,20 @@ export default function DocumentsFolder(props) {
   const onSearchChange = (event) => {
     console.log(event.target.value);
 
-    getList(rowsPerPage, event.target.value);
+    getList(currentPath, rowsPerPage, event.target.value);
   };
 
   const onDetails = (index) => {
 
     console.log(rows[index].data.path);
-    window.open(rows[index].data.path, '_blank');
+    if (rows[index].data.type === "folder") {
+      let newPath = rows[index].data.parent + "/" + rows[index].data.name
+      setPath(newPath);
+      getList(newPath, rowsPerPage);
+    }
+    else {
+      window.open(rows[index].data.path, '_blank');
+    }
   };
 
   const handleCloseBackDrop = () => {
@@ -456,19 +484,52 @@ export default function DocumentsFolder(props) {
 
   const addDocumentCloseAction = () => {
     setShowAddDocument(false);
+    setShowAddFolder(false);
   };
 
   const onNewDocumentSavedAction = () => {
     setShowAddDocument(false);
-    getList(rowsPerPage);
+    getList(currentPath, rowsPerPage);
+  }
+
+  const onNewFolderSavedAction = () => {
+    setShowAddFolder(false);
+    getList(currentPath, rowsPerPage);
+  }
+
+  const handleBreadCrumClick = (index) => {
+    console.log("currentPathArr: ", currentPathArr);
+    let path = "";
+    for (let i = 0; i < currentPathArr.length; ++i) {
+      if (currentPathArr[i].length > 0)
+        path += "/" + currentPathArr[i];
+
+      if (i === index)
+        break;
+    }
+
+    console.log("path: ", path);
+
+    setPath(path);
+    getList(path, rowsPerPage);
   }
 
   return (
     <div className={clsx(classes.root)}>
       {props.refreshUI && props.project &&
-
         <div className={classes.paper}>
           <EnhancedTableToolbar title={"Documents: " + props.project.code + ": " + props.name} />
+          {/* <span>{currentPath}</span> */}
+
+          <Breadcrumbs aria-label="breadcrumb">
+            {currentPathArr.map((row, index) => {
+              return <Link key={"" + index} color="inherit" style={{ cursor: 'pointer' }} onClick={() => handleBreadCrumClick(index)}>
+                {row}
+              </Link>
+            })
+            }
+          </Breadcrumbs>
+
           <Paper className={classes.grid}>
             <Grid container spacing={2}>
               <Grid item className={classes.totalAttendes}>
@@ -477,7 +538,8 @@ export default function DocumentsFolder(props) {
                 <span>{"Documents"}</span>
               </Grid>
               <Grid item className={classes.addButton}>
-                <Button onClick={() => handleAdd()} size="small" style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Document"}</Button>
+                <Button onClick={() => handleAddFolder()} size="small" style={{ marginRight: 10, background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Folder"}</Button>
+                <Button onClick={() => handleAddFile()} size="small" style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Document"}</Button>
               </Grid>
             </Grid>
           </Paper>
@@ -521,8 +583,9 @@ export default function DocumentsFolder(props) {
                       return (
                         <TableRow hover tabIndex={-1} key={row.slno}>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'} ><Link href="#" onClick={() => onDetails(index)} color="inherit">{row.data.code}</Link></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><Link href="#" onClick={() => onDetails(index)} color="inherit">{row.data.name}</Link></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                            <Link href="#" onClick={() => onDetails(index)} color="inherit"><div className={classes.flex}><img src={row.data.type === "file" ? fileImage : folderImage} width='25' alt="" /><span>{"  " + row.data.name}</span></div></Link>
+                          </TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.remark}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.createdDate_conv.toDateString()}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
@@ -550,7 +613,8 @@ export default function DocumentsFolder(props) {
 
       }
 
-      {showAddDocument && <AddDocument closeAction={addDocumentCloseAction} onNewSaved={onNewDocumentSavedAction} {...props} />}
+      {showAddDocument && <AddDocument closeAction={addDocumentCloseAction} onNewSaved={onNewDocumentSavedAction} parent={currentPath} {...props} />}
+      {showAddFolder && <AddFolder closeAction={addDocumentCloseAction} onNewSaved={onNewFolderSavedAction} parent={currentPath} {...props} />}
 
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">

@@ -17,7 +17,7 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { v4 as uuidv4 } from 'uuid';
 import Snackbar from '@material-ui/core/Snackbar';
-import titleImage from '../assets/svg/ss/file.svg';
+import titleImage from '../assets/svg/ss/folder.svg';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -133,12 +133,6 @@ export default function AddDocument(props) {
     const [remark, set_remark] = React.useState('');
     const [remark_error, set_remark_error] = React.useState(null);
 
-    const [filename, set_filename] = React.useState('');
-    const [filename_error, set_filename_error] = React.useState(null);
-
-    const [filePath, set_filePath] = React.useState('');
-    const [file_error, set_file_error] = React.useState(null);
-
     const [showBackdrop, setShowBackdrop] = React.useState(false);
 
     const handleSave = async () => {
@@ -147,11 +141,6 @@ export default function AddDocument(props) {
             set_name_error("Name Requried");
             error_occured = true;
         }
-        if (filePath.trim() === 0) {
-            set_file_error("File Requried");
-            error_occured = true;
-        }
-
         if (error_occured)
             return;
 
@@ -161,15 +150,15 @@ export default function AddDocument(props) {
 
             let postObj = {};
             postObj["name"] = name.trim();
-            postObj["type"] = "file";
+            postObj["type"] = "folder";
             postObj["parent"] = props.parent;
-            postObj["path"] = filePath;
+            postObj["path"] = "folder-folder";
             postObj["remark"] = remark.trim();
             postObj["project"] = props.project._id;
 
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
-            // console.log("postObj: ", postObj);
+            console.log("postObj: ", postObj);
             const response = await axios.post(url, postObj);
 
             console.log("successfully Saved");
@@ -191,60 +180,6 @@ export default function AddDocument(props) {
         }
     };
 
-    const onFileSelected = (event) => {
-        console.log(event.target.files[0]);
-
-        let fileParts = event.target.files[0].name.split('.');
-        console.log(fileParts);
-        let file = { file: event.target.files[0], name: uuidv4() + "." + fileParts[1] };
-
-        uploadFile(file)
-    };
-
-    const uploadFile = async (myfile) => {
-        setShowBackdrop(true);
-
-        console.log("Preparing the upload");
-        let url = config["baseurl"] + "/api/cloud/sign_s3";
-        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-        const profileInfo = JSON.parse(window.localStorage.getItem("profile"));
-        try {
-            const response = await axios.post(url, {
-                fileName: myfile.name,
-                fileType: myfile.file.fileType,
-                folder: "project_docs"
-            });
-
-            if (response) {
-                var returnData = response.data.data.returnData;
-                var signedRequest = returnData.signedRequest;
-
-                // Put the fileType in the headers for the upload
-                var options = { headers: { 'x-amz-acl': 'public-read', 'Content-Type': myfile.file.type } };
-                try {
-                    const result = await axios.put(signedRequest, myfile.file, options);
-
-                    set_filename(myfile.file.name);
-                    set_filePath(returnData.url);
-
-                    setShowBackdrop(false);
-
-                    console.log("Response from s3 Success: ", returnData.url);
-                }
-                catch (error) {
-                    console.log("ERROR: ", JSON.stringify(error));
-                    setShowBackdrop(false);
-                    alert("ERROR " + JSON.stringify(error));
-                }
-            }
-        }
-        catch (error) {
-            console.log("error: ", error);
-            setShowBackdrop(false);
-            alert(JSON.stringify(error));
-        }
-    };
-
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -256,7 +191,7 @@ export default function AddDocument(props) {
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={open}>
-                <DialogTitle id="alert-dialog-title">{"New Document"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"New Folder"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
 
@@ -270,20 +205,6 @@ export default function AddDocument(props) {
                         <TextField className={classes.inputFields} id="formControl_remark" defaultValue={remark}
                             label="Remark *" variant="outlined"
                             onChange={(event) => { set_remark(event.target.value); set_remark_error(null); }} />
-
-                        <TextField className={classes.inputFields} id="formControl_filename" value={filename}
-                            label="File *" variant="outlined" disabled
-                            onChange={(event) => { set_filename(event.target.value); set_filename_error(null); }} />
-
-                        <div style={{ marginTop: 10 }}>
-                            <div style={{ marginTop: 5 }}>
-                                <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
-                                    Upload Document
-                                    <input type="file" hidden />
-                                </Button>
-                            </div>
-                        </div>
-                        {file_error && <Alert className={classes.alert} severity="error"> {file_error} </Alert>}
                     </form>
                 </DialogContent>
 
