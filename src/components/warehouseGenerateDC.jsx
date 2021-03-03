@@ -723,6 +723,7 @@ export default function WarehouseReceive(props) {
 
   const handleProjectChange = (event) => {
     setCurrentProject(event.target.value);
+    setCurrentReleasedTransaction(-1);
     set_current_project_error(null);
 
     getReleaseIndents(projects[event.target.value]);
