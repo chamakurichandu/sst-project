@@ -197,6 +197,10 @@ export default function AddPO(props) {
   const [payment_terms, set_payment_terms] = React.useState('');
   const [payment_terms_error, set_payment_terms_error] = React.useState(null);
 
+  const [extra1, set_extra1] = React.useState('');
+  const [extra2, set_extra2] = React.useState('');
+  const [extra3, set_extra3] = React.useState('');
+
   const [items, set_items] = React.useState([]);
   const [items_error, set_items_error] = React.useState(null);
 
@@ -650,6 +654,10 @@ export default function AddPO(props) {
       postObj["acceptance"] = acceptance.trim();
       postObj["frieght_and_insurance"] = frieght_and_insurance.trim();
       postObj["payment_terms"] = payment_terms.trim();
+      postObj["extra1"] = extra1.trim();
+      postObj["extra2"] = extra2.trim();
+      postObj["extra3"] = extra3.trim();
+
       console.log(4);
       console.log("postObj: ", postObj);
 
@@ -937,6 +945,16 @@ export default function AddPO(props) {
             label="Payment Terms *" variant="outlined" multiline
             onChange={(event) => { set_payment_terms(event.target.value); set_payment_terms_error(null); }} />
           {payment_terms_error && <Alert className={classes.alert} severity="error"> {payment_terms_error} </Alert>}
+
+          <TextField size="small" className={classes.inputFields} id="formControl_extra1" defaultValue={extra1}
+            label="" variant="outlined" multiline
+            onChange={(event) => { set_extra1(event.target.value); }} />
+          <TextField size="small" className={classes.inputFields} id="formControl_extra2" defaultValue={extra2}
+            label="" variant="outlined" multiline
+            onChange={(event) => { set_extra2(event.target.value); }} />
+          <TextField size="small" className={classes.inputFields} id="formControl_extra3" defaultValue={extra3}
+            label="" variant="outlined" multiline
+            onChange={(event) => { set_extra3(event.target.value); }} />
 
           <div className={classes.submit}>
             <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button>

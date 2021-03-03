@@ -199,6 +199,10 @@ export default function EditLOI(props) {
   const [payment_terms, set_payment_terms] = React.useState(props.loi.payment_terms);
   const [payment_terms_error, set_payment_terms_error] = React.useState(null);
 
+  const [extra1, set_extra1] = React.useState(props.loi.extra1 ? props.loi.extra1 : "");
+  const [extra2, set_extra2] = React.useState(props.loi.extra2 ? props.loi.extra2 : "");
+  const [extra3, set_extra3] = React.useState(props.loi.extra3 ? props.loi.extra3 : "");
+
   const [key_remark, set_key_remark] = React.useState(props.loi.key_remark);
   const [key_remark_error, set_key_remark_error] = React.useState(null);
 
@@ -620,6 +624,9 @@ export default function EditLOI(props) {
       postObj["acceptance"] = acceptance.trim();
       postObj["frieght_and_insurance"] = frieght_and_insurance.trim();
       postObj["payment_terms"] = payment_terms.trim();
+      postObj["extra1"] = extra1.trim();
+      postObj["extra2"] = extra2.trim();
+      postObj["extra3"] = extra3.trim();
 
       let updateObj = { _id: props.loi._id, updateParams: postObj };
 
@@ -920,6 +927,16 @@ export default function EditLOI(props) {
             label="Payment Terms *" variant="outlined" multiline
             onChange={(event) => { set_payment_terms(event.target.value); set_payment_terms_error(null); }} />
           {payment_terms_error && <Alert className={classes.alert} severity="error"> {payment_terms_error} </Alert>}
+
+          <TextField size="small" className={classes.inputFields} id="formControl_extra1" defaultValue={extra1}
+            label="" variant="outlined" multiline
+            onChange={(event) => { set_extra1(event.target.value); }} />
+          <TextField size="small" className={classes.inputFields} id="formControl_extra2" defaultValue={extra2}
+            label="" variant="outlined" multiline
+            onChange={(event) => { set_extra2(event.target.value); }} />
+          <TextField size="small" className={classes.inputFields} id="formControl_extra3" defaultValue={extra3}
+            label="" variant="outlined" multiline
+            onChange={(event) => { set_extra3(event.target.value); }} />
 
           <div className={classes.submit}>
             <Button style={{ marginRight: 30 }} variant="contained" color="primary" onClick={handlePO} >Create PO</Button>

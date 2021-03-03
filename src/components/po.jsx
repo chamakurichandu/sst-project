@@ -715,6 +715,12 @@ export default function PO(props) {
         { text: '\n' },
         { text: '14. Payment Terms', bold: true },
         { text: data.payment_terms, bold: false },
+        { text: '\n' },
+        { text: data.extra1 ? data.extra1 : "", bold: false },
+        { text: '\n' },
+        { text: data.extra2 ? data.extra2 : "", bold: false },
+        { text: '\n' },
+        { text: data.extra3 ? data.extra3 : "", bold: false },
       ],
       styles: {
         header: {
