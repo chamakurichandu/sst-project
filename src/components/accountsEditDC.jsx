@@ -188,27 +188,8 @@ export default function WarehouseReceive(props) {
   const [currentReleasedTransaction, setCurrentReleasedTransaction] = React.useState(-1);
   const [current_released_indent_error, set_current_released_indent_error] = React.useState(null);
 
-  const [poItems, setPOItems] = React.useState([]);
-
-  const [supplyVendor, setSupplyVendor] = React.useState(null);
-
-  const [po_date, set_po_date] = React.useState('');
-  const [po_date_error, set_po_date_error] = React.useState(null);
-
-  const [supplier_name, set_supplier_name] = React.useState('');
-  const [supplier_name_error, set_supplier_name_error] = React.useState(null);
-
-  const [supplier_address, set_supplier_address] = React.useState('');
-  const [supplier_address_error, set_supplier_address_error] = React.useState(null);
-
-  const [supplier_gst, set_supplier_gst] = React.useState('');
-  const [supplier_gst_error, set_supplier_gst_error] = React.useState(null);
-
   const [project, set_project] = React.useState(null);
   const [project_error, set_project_error] = React.useState(null);
-
-  const [gate_entry_info, set_gate_entry_info] = React.useState('');
-  const [gate_entry_info_error, set_gate_entry_info_error] = React.useState(null);
 
   const [esugam, set_esugam] = React.useState(props.dc.transaction.esugam_no ? props.dc.transaction.esugam_no : "");
   const [esugam_error, set_esugam_error] = React.useState(null);
@@ -216,34 +197,7 @@ export default function WarehouseReceive(props) {
   const [esugam_date, set_esugam_date] = React.useState(new Date());
   const [esugam_date_error, set_esugam_date_error] = React.useState(null);
 
-  const [bill_no, set_bill_no] = React.useState('');
-  const [bill_no_error, set_bill_no_error] = React.useState(null);
-
-  const [bill_date, set_bill_date] = React.useState(new Date());
-  const [bill_date_error, set_bill_date_error] = React.useState(null);
-
-  const [dc_no, set_dc_no] = React.useState('');
-  const [dc_no_error, set_dc_no_error] = React.useState(null);
-
-  const [dc_date, set_dc_date] = React.useState(new Date());
-  const [dc_date_error, set_dc_date_error] = React.useState(null);
-
-  const [lr_no, set_lr_no] = React.useState('');
-  const [lr_no_error, set_lr_no_error] = React.useState(null);
-
-  const [lr_date, set_lr_date] = React.useState(new Date());
-  const [lr_date_error, set_lr_date_error] = React.useState(null);
-
-  const [transporter, set_transporter] = React.useState('');
-  const [transporter_error, set_transporter_error] = React.useState(null);
-
-  const [vehicle_no, set_vehicle_no] = React.useState('');
-  const [vehicle_no_error, set_vehicle_no_error] = React.useState(null);
-
-  const [remark, set_remark] = React.useState('');
-  const [remark_error, set_remark_error] = React.useState(null);
-
-  const [files, set_files] = React.useState([]);
+  const [files, set_files] = React.useState(props.dc.transaction.esugam_docs ? props.dc.transaction.esugam_docs : []);
 
   const dateFns = new DateFnsUtils();
 
@@ -469,6 +423,12 @@ export default function WarehouseReceive(props) {
       let postObj = {};
       postObj["esugam_no"] = esugam.trim();
       postObj["esugam_date"] = esugam_date.toUTCString();
+      console.log("1");
+      console.log("files: ", files);
+      postObj["esugam_docs"] = [];
+      for (let i = 0; i < files.length; ++i) {
+        postObj["esugam_docs"].push({ name: files[i].name, path: files[i].path });
+      }
 
       console.log("postObj: ", postObj);
 
@@ -681,7 +641,7 @@ export default function WarehouseReceive(props) {
       const response = await axios.post(url, {
         fileName: myfile.name,
         fileType: myfile.file.fileType,
-        folder: "warehouse_received_docs"
+        folder: "warehouse_esugam_docs"
       });
 
       if (response) {
@@ -840,6 +800,20 @@ export default function WarehouseReceive(props) {
             </MuiPickersUtilsProvider>
           </FormControl>}
           {esugam_date_error && <Alert className={classes.alert} severity="error"> {esugam_date_error} </Alert>}
+
+          <div style={{ marginTop: 10 }}>
+            <div>
+              {files.map((file, index) => {
+                return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
+              })}
+            </div>
+            <div style={{ marginTop: 5 }}>
+              <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
+                Upload E-Sugam Document
+                                    <input type="file" hidden />
+              </Button>
+            </div>
+          </div>
 
           <div className={classes.submit}>
             {/* <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button> */}

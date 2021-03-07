@@ -59,8 +59,11 @@ function EnhancedTableHeadSmall(props) {
 
   const headCells = [
     { id: 'name', numeric: false, disablePadding: false, label: props.title },
+    { id: 'description', numeric: false, disablePadding: false, label: "description" },
     { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
     { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
+    { id: 'qtyordered', numeric: true, disablePadding: false, label: "Qty (PO)" },
+    { id: 'qtyreceived', numeric: true, disablePadding: false, label: "Qty Received" },
     { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
   ];
 
@@ -237,6 +240,8 @@ export default function WarehouseReceive(props) {
 
   const [files, set_files] = React.useState([]);
 
+  const [receivedTransactions, set_receivedTransactions] = React.useState(null);
+
   const dateFns = new DateFnsUtils();
 
   async function getPOs() {
@@ -393,6 +398,32 @@ export default function WarehouseReceive(props) {
       setShowError(true);
     }
   }
+
+  async function getReceivedMaterials(po_id) {
+    console.log("getReceivedMaterials 1: ", po_id)
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/materialreceivetransaction/list?count=10000&warehouse=" + props.warehouse._id + "&offset=0&search=&po_id=" + po_id;
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log("getReceivedMaterials 2: ", data);
+      console.log("getReceivedMaterials 3: ", data.list);
+      set_receivedTransactions(data.list);
+      setShowBackDrop(false);
+    }
+    catch (e) {
+
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+      setShowBackDrop(false);
+    }
+  }
+
 
   useEffect(() => {
     if (props.warehouse)
@@ -600,7 +631,20 @@ export default function WarehouseReceive(props) {
 
       postObj["items"] = [];
       for (let i = 0; i < items.length; ++i) {
-        postObj["items"].push({ item: items[i]._id, qty: parseInt(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
+        if (parseInt(items[i].qty) < 0) {
+          throw "Cannot receive negative qty";
+        }
+
+        let receivedQty = getReceivedQty(items[i]);
+        console.log("receivedQty: ", receivedQty);
+        console.log("items[i].qty: ", items[i].qty);
+        console.log("items[i].canreceiveqty: ", items[i].canreceiveqty);
+        if (receivedQty + parseInt(items[i].qty) > parseInt(items[i].canreceiveqty)) {
+          throw "Cannot receive more than PO ordered qty";
+        }
+        else {
+          postObj["items"].push({ item: items[i]._id, qty: parseInt(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
+        }
       }
 
       console.log("postObj: ", postObj);
@@ -614,14 +658,14 @@ export default function WarehouseReceive(props) {
       props.history.push("/warehousehome");
     }
     catch (e) {
-      console.log("5");
+      console.log(e);
       if (e.response) {
         console.log("Error in creating");
         setErrorMessage(e.response.data["message"]);
       }
       else {
         console.log("Error in creating");
-        setErrorMessage("Error in creating: ", e.message);
+        setErrorMessage("Error in creating: " + e);
       }
       setShowError(true);
       setShowBackDrop(false);
@@ -651,6 +695,7 @@ export default function WarehouseReceive(props) {
     console.log(newitem);
 
     let newCopy = cloneDeep(newitem);
+    newCopy.canreceiveqty = newitem.qty;
     newCopy.qty = 0;
 
     let newItems = [...items, newCopy];
@@ -729,6 +774,7 @@ export default function WarehouseReceive(props) {
 
   const handlePOChange = (event) => {
     setCurrentPO(event.target.value);
+    set_receivedTransactions(null);
     set_current_po_error(null);
     setSupplyVendor(null);
     const vendor = getSupplyVendor(pos[event.target.value].supply_vendor);
@@ -741,6 +787,8 @@ export default function WarehouseReceive(props) {
     }
 
     console.log(pos[event.target.value]);
+
+    getReceivedMaterials(pos[event.target.value]._id);
 
     set_items([]);
 
@@ -888,6 +936,21 @@ export default function WarehouseReceive(props) {
     }
 
     return null;
+  };
+
+  const getReceivedQty = (receivableItem) => {
+    console.log("receivableItem: ", receivableItem);
+
+    let total = 0;
+    for (let i = 0; i < receivedTransactions.length; ++i) {
+      for (let k = 0; k < receivedTransactions[i].transaction.items.length; ++k) {
+        if (receivedTransactions[i].transaction.items[k].item === receivableItem._id) {
+          total += receivedTransactions[i].transaction.items[k].qty;
+        }
+      }
+    }
+
+    return total;
   };
 
   return (
@@ -1058,15 +1121,15 @@ export default function WarehouseReceive(props) {
                 <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
                   <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
                   <TableBody>
-                    {items.map((row, index) => {
+                    {receivedTransactions && items.map((row, index) => {
                       return (
                         <TableRow hover tabIndex={-1} key={"" + index} >
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.description}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.description}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <TextField size="small" id={"formControl_rate_" + index} type="number" defaultValue={row.rate}
-                              disabled={currentType === 0} variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
-                          </TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.rate}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.canreceiveqty}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getReceivedQty(row)}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                             <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
                               variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />

@@ -54,6 +54,50 @@ const styles = (theme) => ({
 
 });
 
+function EnhancedTableHead(props) {
+    const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
+    const setDir = (dir === 'rtl' ? true : false);
+
+    const headCells = [
+        { id: 'name', numeric: false, disablePadding: false, label: 'Item Name' },
+        { id: 'scheduleddate', numeric: false, disablePadding: false, label: 'Scheduled Date' },
+        { id: 'rate', numeric: false, disablePadding: false, label: 'Rate' },
+        { id: 'qty', numeric: false, disablePadding: false, label: 'Qty' }
+    ];
+
+    const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+    const createSortHandler = (property) => (event) => {
+        onRequestSort(event, property);
+    };
+    return (
+        <TableHead>
+            <TableRow>
+                {headCells.map((headCell) => (
+                    <TableCell
+                        key={headCell.id}
+                        align={!setDir ? 'left' : 'right'}
+                        padding={headCell.disablePadding ? 'none' : 'default'}
+                        sortDirection={orderBy === headCell.id ? order : false}
+                    >
+                        <TableSortLabel
+                            active={orderBy === headCell.id}
+                            direction={orderBy === headCell.id ? order : 'asc'}
+                            onClick={createSortHandler(headCell.id)}
+                        >
+                            {headCell.label}
+                            {orderBy === headCell.id ? (
+                                <span className={classes.visuallyHidden}>
+                                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                                </span>
+                            ) : null}
+                        </TableSortLabel>
+                    </TableCell>
+                ))}
+            </TableRow>
+        </TableHead>
+    );
+}
+
 const DialogTitle = withStyles(styles)((props) => {
     const { children, classes, onClose, ...other } = props;
     return (
@@ -144,6 +188,8 @@ export default function SelectItem2(props) {
     const [errorMessage, setErrorMessage] = React.useState(null);
 
     const [current, setCurrent] = React.useState(-1);
+    const [order, setOrder] = React.useState('asc');
+    const [orderBy, setOrderBy] = React.useState('calories');
 
     const [contactingServer, setContactingServer] = React.useState(false);
 
@@ -177,6 +223,15 @@ export default function SelectItem2(props) {
         return false;
     };
 
+    const handleRequestSort = (event, property) => {
+        const isAsc = orderBy === property && order === 'asc';
+        setOrder(isAsc ? 'desc' : 'asc');
+        setOrderBy(property);
+    };
+
+    const handleSelectAllClick = (event) => {
+    };
+
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={true}>
@@ -185,6 +240,16 @@ export default function SelectItem2(props) {
                     <Paper className={classes.paper}>
                         <TableContainer className={classes.container}>
                             <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
+                                <EnhancedTableHead
+                                    classes={classes}
+                                    numSelected={0}
+                                    order={order}
+                                    orderBy={orderBy}
+                                    onSelectAllClick={handleSelectAllClick}
+                                    onRequestSort={handleRequestSort}
+                                    rowCount={props.items.length}
+                                />
+
                                 <TableBody>
                                     {props.items.map((row, index) => {
                                         const color = isSelectedAlready(row) ? "gray" : "black";

@@ -29,6 +29,7 @@ import IconButton from '@material-ui/core/IconButton';
 import EditImage from '@material-ui/icons/Edit';
 import GetAppImage from '@material-ui/icons/GetApp';
 import DetailImage from '@material-ui/icons/ArrowForward';
+import Chip from '@material-ui/core/Chip';
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -78,6 +79,7 @@ function EnhancedTableHead(props) {
     { id: 'indentcode', numeric: false, disablePadding: false, label: 'Indent Code' },
     { id: 'esugam', numeric: false, disablePadding: false, label: 'e-sugam' },
     { id: 'esugam-date', numeric: false, disablePadding: false, label: 'e-sugam date' },
+    { id: 'esugam-docs', numeric: false, disablePadding: false, label: 'e-sugam docs' },
     { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
     { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' }
@@ -569,8 +571,8 @@ export default function ReleasedMaterials(props) {
     const profileInfo = JSON.parse(window.localStorage.getItem("profile"));
 
     var docDefinition = {
-      pageMargins: [40, 140, 40, 60],
-      header: { image: await getBase64ImageFromURL("https://demossga.s3.ap-south-1.amazonaws.com/temp/RajashreeElectricalsHeader.png"), width: 594, height: 130, alignment: "center" },
+      pageMargins: [40, 50, 40, 60],
+      // header: { image: await getBase64ImageFromURL("https://demossga.s3.ap-south-1.amazonaws.com/temp/RajashreeElectricalsHeader.png"), width: 594, height: 130, alignment: "center" },
       content: [
         {
           style: 'tableExample',
@@ -636,6 +638,15 @@ export default function ReleasedMaterials(props) {
     pdfMake.createPdf(docDefinition).download(data.transaction.code + "_" + title + ".pdf");
   };
 
+  const handleOpenDoc = (index, docIndex) => {
+    console.log("index: ", index);
+    console.log("rows[index]: ", rows[index].data.transaction.esugam_docs);
+
+    const file = rows[index].data.transaction.esugam_docs[docIndex];
+    console.log(file);
+    window.open(file.path, '_blank');
+  };
+
   return (
     <div className={clsx(classes.root)}>
       {props.warehouse &&
@@ -686,7 +697,7 @@ export default function ReleasedMaterials(props) {
                   {rows.map((row, index) => {
                     const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
-                    console.log("row: ", row);
+                    // console.log("row: ", row);
                     return (
                       <TableRow hover tabIndex={-1} key={row.slno}>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
@@ -694,6 +705,15 @@ export default function ReleasedMaterials(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_no ? row.data.transaction.esugam_no : "Waiting in Accounts"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_date_conv ? row.data.transaction.esugam_date_conv.toDateString() : "Waiting in Accounts"}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
+                          {row.data.transaction.esugam_docs && <div>
+                            {row.data.transaction.esugam_docs.map((file, index2) => {
+                              return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index2} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index, index2)} />);
+                            })}
+                          </div>
+                          }
+                        </TableCell>
+
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
