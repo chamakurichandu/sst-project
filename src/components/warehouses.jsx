@@ -462,9 +462,9 @@ export default function Warehouses(props) {
                                 fallback={<Shimmer width={25} height={25} />} />
 
                               <span>
-                                <Link color="inherit" href="#" onClick={() => onGoNextLevel(row.data)} >
-                                  {row.data.name}
-                                </Link>
+                                {/* <Link color="inherit" href="#" onClick={() => onGoNextLevel(row.data)} > */}
+                                {row.data.name}
+                                {/* </Link> */}
                               </span>
                             </div>
                           </TableCell>
@@ -474,9 +474,9 @@ export default function Warehouses(props) {
                             <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => handleEdit(row.data)}>
                               <EditImage />
                             </IconButton>
-                            <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => onGoNextLevel(row.data)}>
+                            {/* <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => onGoNextLevel(row.data)}>
                               <DetailImage />
-                            </IconButton>
+                            </IconButton> */}
                           </TableCell>
                         </TableRow>
                       );

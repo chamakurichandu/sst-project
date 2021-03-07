@@ -210,7 +210,7 @@ export default function WarehouseReceive(props) {
   const [gate_entry_info, set_gate_entry_info] = React.useState('');
   const [gate_entry_info_error, set_gate_entry_info_error] = React.useState(null);
 
-  const [esugam, set_esugam] = React.useState('');
+  const [esugam, set_esugam] = React.useState(props.dc.transaction.esugam_no ? props.dc.transaction.esugam_no : "");
   const [esugam_error, set_esugam_error] = React.useState(null);
 
   const [esugam_date, set_esugam_date] = React.useState(new Date());
@@ -829,7 +829,7 @@ export default function WarehouseReceive(props) {
             </Paper>
           }
 
-          <TextField size="small" className={classes.inputFields} id="formControl_esugam" defaultValue={esugam}
+          <TextField size="small" className={classes.inputFields} id="formControl_esugam" value={esugam}
             label="E-Sugam Num" variant="outlined"
             onChange={(event) => { set_esugam(event.target.value); set_esugam_error(null); }} />
           {esugam_error && <Alert className={classes.alert} severity="error"> {esugam_error} </Alert>}

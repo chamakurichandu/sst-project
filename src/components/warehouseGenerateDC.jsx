@@ -942,7 +942,7 @@ export default function WarehouseReceive(props) {
               onChange={(event) => { set_remark(event.target.value); set_remark_error(null); }} />
             {remark_error && <Alert className={classes.alert} severity="error"> {remark_error} </Alert>}
 
-            <div style={{ marginTop: 10 }}>
+            {/* <div style={{ marginTop: 10 }}>
               <div>
                 {files.map((file, index) => {
                   return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
@@ -954,7 +954,7 @@ export default function WarehouseReceive(props) {
                   <input type="file" hidden />
                 </Button>
               </div>
-            </div>
+            </div> */}
 
             <Paper className={classes.paper} style={{ marginTop: 10 }}>
               <TableContainer className={classes.container}>

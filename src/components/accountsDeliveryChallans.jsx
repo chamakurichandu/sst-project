@@ -563,6 +563,7 @@ export default function ReleasedMaterials(props) {
                     const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
                     // console.log("row: ", row);
+                    console.log("row.data.transaction.esugam_no: ", row.data.transaction.esugam_no);
                     return (
                       <TableRow hover tabIndex={-1} key={row.slno}>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>

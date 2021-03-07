@@ -28,6 +28,8 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Snackbar from '@material-ui/core/Snackbar';
+import InputBase from '@material-ui/core/InputBase';
+import SearchIcon from '@material-ui/icons/Search';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -135,6 +137,23 @@ export default function SelectItem(props) {
             zIndex: theme.zIndex.drawer + 1,
             color: '#fff',
         },
+        search: {
+            position: 'relative',
+        },
+        searchIcon: {
+            height: '100%',
+            position: 'absolute',
+            display: 'flex',
+            alignItems: 'center',
+        },
+        inputInput: {
+            // width: '90%',
+            paddingLeft: '30px',
+            paddingRight: '30px',
+            borderBottom: '1px solid #CACACA'
+
+        },
+
     }));
 
     const classes = useStyles();
@@ -147,6 +166,33 @@ export default function SelectItem(props) {
     const [contactingServer, setContactingServer] = React.useState(false);
 
     const [showBackdrop, setShowBackdrop] = React.useState(false);
+    const [typingTimeout, setTypingTimeout] = React.useState(0);
+
+    let searchStr = '';
+    const [allItems, set_allItems] = React.useState([]);
+
+    async function getAllItemList(numberOfRows, search = "") {
+        try {
+            setShowBackdrop(true);
+            let url = config["baseurl"] + "/api/material/list?count=" + numberOfRows + "&offset=" + 0 + "&search=" + search;
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+            const { data } = await axios.get(url);
+            console.log(data);
+
+            set_allItems(data.list.docs);
+            setShowBackdrop(false);
+        }
+        catch (e) {
+            setShowBackdrop(false);
+            console.log("Error in getting all items");
+            setErrorMessage("Error in getting all items");
+            setShowError(true);
+        }
+    }
+
+    useEffect(() => {
+        getAllItemList(10000, "");
+    }, []);
 
     const handleSave = async () => {
         props.onSelect(props.items[current]);
@@ -199,16 +245,44 @@ export default function SelectItem(props) {
         setCurrent(index);
     };
 
+    const onSearchChange = (event) => {
+        searchStr = event.target.value;
+        if (typingTimeout) {
+            clearTimeout(typingTimeout);
+        }
+
+        const tt = setTimeout(() => {
+            getAllItemList(10000, searchStr);
+        }, 1000);
+
+        setTypingTimeout(tt);
+    };
+
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={true}>
                 <DialogTitle id="alert-dialog-title">{"Select " + props.type}</DialogTitle>
                 <DialogContent>
                     <Paper className={classes.paper}>
+                        <div className={classes.search}>
+                            <div className={classes.searchIcon}>
+                                <SearchIcon />
+                            </div>
+                            <InputBase
+                                placeholder="Search"
+                                classes={{
+                                    root: classes.inputRoot,
+                                    input: classes.inputInput,
+                                }}
+                                inputProps={{ 'aria-label': 'search' }}
+                                onChange={onSearchChange}
+                            />
+                        </div>
+
                         <TableContainer className={classes.container}>
                             <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
                                 <TableBody>
-                                    {props.items.map((row, index) => {
+                                    {allItems.map((row, index) => {
                                         return (
                                             <TableRow hover tabIndex={-1} key={"" + index} selected={index === current} onClick={(event) => handleClick(event, index)} >
                                                 <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>

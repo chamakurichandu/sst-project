@@ -260,11 +260,11 @@ export default function EditWarehouse(props) {
   };
 
   const handleBreadCrumClick = () => {
-    props.history.push("/warehouseHome");
+    props.history.push("/warehouses");
   };
 
   const handleCancel = () => {
-    props.history.push("/warehouseHome");
+    props.history.push("/warehouses");
   };
 
   const validateData = () => {
@@ -361,7 +361,7 @@ export default function EditWarehouse(props) {
 
         console.log("successfully Saved");
         setContactingServer(false);
-        props.history.push("/warehouseHome");
+        props.history.push("/warehouses");
       }
       catch (e) {
         if (e.response) {

@@ -78,12 +78,12 @@ export default function AddDocument(props) {
         },
         papernew: {
             backgroundColor: theme.palette.background.paper,
-            boxShadow: theme.shadows[2],
+            // boxShadow: theme.shadows[2],
             display: 'flex',
             flexDirection: 'column',
             position: 'relative',
             outline: 'none',
-            padding: '10px 10px',
+            // padding: '10px 10px',
             width: '100%',
             borderRadius: '5px',
             overflow: 'auto',
@@ -95,10 +95,10 @@ export default function AddDocument(props) {
             padding: theme.spacing(2),
             textAlign: 'center',
             color: theme.palette.text.secondary,
-            marginBottom: '10px',
+            // marginBottom: '10px',
         },
         inputFields: {
-            marginTop: 10,
+            marginTop: 5,
         },
         submit: {
             display: 'flex',

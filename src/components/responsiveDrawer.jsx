@@ -143,7 +143,7 @@ export default function ResponsiveDrawer(props) {
     const [accountsModes, setAccountsModes] = React.useState(["DC [eSugam Waiting]", "DC [All]"]);
     const [hrpayrollModes, setHrpayrollModes] = React.useState([]);
     const [analyticsModes, setAnalyticsModes] = React.useState([]);
-    const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Help", "Materials", "UOM", "Product Category", "Add Project", "Project Utils", "Supply Vendors", "Service Vendors", "Vendor Rate Contracts & Agreement"]);
+    const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Help", "Materials", "UOM", "Product Category", "Add Project", "Project Utils", "Supply Vendors", "Service Vendors", "Customers", "Warehouses", "Vendor Rate Contracts & Agreement"]);
     const [menu, setMenu] = React.useState([]);
 
     //React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Accounts", "HR & Payroll", "Analytics", "Admin Settings"]);
@@ -290,6 +290,12 @@ export default function ResponsiveDrawer(props) {
                     history.push("/servicevendors");
                     break;
                 case 9:
+                    history.push("/customers");
+                    break;
+                case 10:
+                    history.push("/warehouses");
+                    break;
+                case 11:
                     history.push("/vendorratecontractsagreements");
                     break;
             }
