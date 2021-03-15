@@ -74,13 +74,11 @@ function EnhancedTableHead(props) {
 
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
-    { id: 'itemcode', numeric: false, disablePadding: false, label: 'Item Code' },
-    { id: 'itemname', numeric: false, disablePadding: false, label: 'Item Name' },
-    { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
-    { id: 'productcategory', numeric: false, disablePadding: false, label: 'Product Category' },
-    { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
-    { id: 'qty', numeric: false, disablePadding: false, label: 'Stored Qty' },
-    { id: 'action', numeric: false, disablePadding: false, label: 'Actions' }
+    { id: 'code', numeric: false, disablePadding: false, label: 'From' },
+    { id: 'type', numeric: false, disablePadding: false, label: 'To' },
+    { id: 'po_code', numeric: false, disablePadding: false, label: 'Status' },
+    { id: 'createddate', numeric: false, disablePadding: false, label: 'Created Date' },
+    { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
   ];
 
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -126,7 +124,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function WarehouseInventory(props) {
+export default function OutwardStockTransfer(props) {
 
   // console.log("props: " + props);
 
@@ -281,11 +279,11 @@ export default function WarehouseInventory(props) {
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
-  async function getWarehouseInventory(numberOfRows, search = "") {
+  async function getStockTransfers(numberOfRows, search = "") {
     try {
       setShowBackDrop(true);
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/storedmaterial/list?count=" + numberOfRows + "&warehouse=" + props.warehouse._id + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/stocktransfer/list?count=" + numberOfRows + "&fromwarehouse=" + props.warehouse._id + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
@@ -293,18 +291,18 @@ export default function WarehouseInventory(props) {
       setTotalCount(data.totalDocs);
       const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.length; ++i) {
-        // data.list[i].createddate_conv = dateFns.date(data.list[i].createdDate);
+        data.list[i].createddate_conv = dateFns.date(data.list[i].transaction.createdDate);
+
         newRows.push(createData((offset + i + 1),
           data.list[i]
         ));
       }
 
       setRows(newRows);
-
       setShowBackDrop(false);
     }
     catch (e) {
-      setShowBackDrop(false);
+
       if (e.response) {
         setErrorMessage(e.response.data.message);
       }
@@ -312,12 +310,13 @@ export default function WarehouseInventory(props) {
         setErrorMessage("Error in getting list");
       }
       setShowError(true);
+      setShowBackDrop(false);
     }
   }
 
   useEffect(() => {
     if (props.warehouse)
-      getWarehouseInventory(rowsPerPage);
+      getStockTransfers(rowsPerPage);
 
   }, [props.warehouse]);
 
@@ -367,7 +366,7 @@ export default function WarehouseInventory(props) {
   const handleChangePage = (event, newPage) => {
     offset = newPage * rowsPerPage;
     setPage(newPage);
-    getWarehouseInventory(rowsPerPage);
+    getStockTransfers(rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -375,65 +374,17 @@ export default function WarehouseInventory(props) {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
     offset = 0;
-    getWarehouseInventory(newRowsPerPage);
+    getStockTransfers(newRowsPerPage);
   };
-
-  const handleAdd = () => {
-    console.log("calling goto");
-    props.goto("receivematerial");
-  };
-
-  const isSelected = (name) => selected.indexOf(name) !== -1;
-
-  const BorderLinearProgress = withStyles((theme) => ({
-    root: {
-      height: 10,
-      borderRadius: 5,
-    },
-    colorPrimary: {
-      backgroundColor: theme.palette.grey[theme.palette.type === 'light' ? 200 : 700],
-    },
-    bar: {
-      borderRadius: 5,
-      backgroundColor: '#1a90ff',
-    },
-
-  }))(LinearProgress);
-
-  const getStringForArray = (data) => {
-    let val = "";
-    for (let i = 0; i < data.length; ++i) {
-      if (i > 0)
-        val += ", ";
-      val += data[i];
-    }
-    return val;
-  }
 
   const onSearchChange = (event) => {
     console.log(event.target.value);
 
-    getWarehouseInventory(rowsPerPage, event.target.value);
+    getStockTransfers(rowsPerPage, event.target.value);
   };
 
   const handleCloseBackDrop = () => {
 
-  };
-
-  const getSupplyVendorName = (id) => {
-    for (let i = 0; i < supplyVendors.length; ++i) {
-      if (supplyVendors[i]._id === id)
-        return supplyVendors[i].name;
-    }
-    return id;
-  };
-
-  const getSupplyVendor = (id) => {
-    for (let i = 0; i < supplyVendors.length; ++i) {
-      if (supplyVendors[i]._id === id)
-        return supplyVendors[i];
-    }
-    return null;
   };
 
   const editAction = (data) => {
@@ -448,26 +399,6 @@ export default function WarehouseInventory(props) {
         return allItems[i];
     }
     return null;
-  };
-
-  const getBase64ImageFromURL = (url) => {
-    return new Promise((resolve, reject) => {
-      var img = new Image();
-      img.setAttribute("crossOrigin", "anonymous");
-      img.onload = () => {
-        var canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-        var dataURL = canvas.toDataURL("image/png");
-        resolve(dataURL);
-      };
-      img.onerror = error => {
-        reject(error);
-      };
-      img.src = url;
-    });
   };
 
   const getUOMName = (id) => {
@@ -502,87 +433,117 @@ export default function WarehouseInventory(props) {
   };
 
   const detailAction = (data) => {
+    console.log(data);
+    props.setStockTransferType(0);
+    props.setSelectedStockTransfer(data);
+    props.history.push("/stocktransferdetails");
+  };
 
+  const getTypeString = (type) => {
+    switch (type) {
+      case "po":
+        return "Purchase Order";
+        break;
+      case "warehouse":
+        return "Warehouse 2 Warehouse";
+        break;
+      case "local_purchase":
+        return "Local Purchase";
+        break;
+      case "return_indent":
+        return "Return Indent";
+        break;
+    }
+
+    return "";
+  };
+
+  const handleAdd = () => {
+    props.history.push("/createstocktransfer");
   };
 
   return (
     <div className={clsx(classes.root)}>
-      <div className={classes.paper}>
-        <Paper className={classes.grid}>
-          <Grid container spacing={2}>
-            <Grid item className={classes.totalAttendes}>
-              <img src={ProcurementImage} width='25' alt="" />
-              <h1 className={classes.h1}>{totalCount}</h1>
-              <span>{"Materials"}</span>
+      {
+        props.warehouse &&
+        <div className={classes.paper}>
+          <EnhancedTableToolbar title={"Outward Stock Transfers"} />
+
+          <Paper className={classes.grid}>
+            <Grid container spacing={2}>
+              <Grid item className={classes.totalAttendes}>
+                <img src={ProcurementImage} width='25' alt="" />
+                <h1 className={classes.h1}>{totalCount}</h1>
+                <span>{"Outward Stock Transfers"}</span>
+              </Grid>
+              <Grid item className={classes.addButton}>
+                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Create Stock Transfer"}</Button>
+              </Grid>
             </Grid>
-          </Grid>
-        </Paper>
-        <Paper className={classes.grid}>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
-            </div>
-            <InputBase
-              placeholder="Search"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-              onChange={onSearchChange}
-            />
-          </div>
-          <TableContainer>
-            <Table
-              className={classes.table}
-              aria-labelledby="tableTitle"
-              size={dense ? 'small' : 'medium'}
-              aria-label="enhanced table"
-            >
-              <EnhancedTableHead
-                classes={classes}
-                numSelected={selected.length}
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={rows.length}
+          </Paper>
+          <Paper className={classes.grid}>
+            <div className={classes.search}>
+              <div className={classes.searchIcon}>
+                <SearchIcon />
+              </div>
+              <InputBase
+                placeholder="Search"
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+                inputProps={{ 'aria-label': 'search' }}
+                onChange={onSearchChange}
               />
-              <TableBody>
-                {rows.map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-                  return (
-                    <TableRow hover tabIndex={-1} key={row.slno}>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.material.code}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.material.name}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.material.description}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.productCategory}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.uom}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.stored ? row.data.stored.qty : 0}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                        <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
-                          <DetailImage />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={pageLimits}
-            component="div"
-            count={totalCount}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
-          />
-        </Paper>
-      </div>
+            </div>
+            <TableContainer>
+              <Table
+                className={classes.table}
+                aria-labelledby="tableTitle"
+                size={dense ? 'small' : 'medium'}
+                aria-label="enhanced table"
+              >
+                <EnhancedTableHead
+                  classes={classes}
+                  numSelected={selected.length}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={rows.length}
+                />
+                <TableBody>
+                  {rows.map((row, index) => {
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    const deleted = (row.data.transaction.deleted === 1);
+                    return (
+                      <TableRow hover tabIndex={-1} key={row.slno}>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.fromwarehouse.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.towarehouse.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.completed === 0 ? "In Transit" : "Delivered"}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} ><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}><DetailImage /></IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={pageLimits}
+              component="div"
+              count={totalCount}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Paper>
+        </div>
+      }
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}
@@ -592,7 +553,6 @@ export default function WarehouseInventory(props) {
       <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
         <CircularProgress color="inherit" />
       </Backdrop>
-
     </div >
   );
 }

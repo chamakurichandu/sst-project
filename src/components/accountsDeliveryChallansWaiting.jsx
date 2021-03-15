@@ -75,7 +75,7 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'transactioncode', numeric: false, disablePadding: false, label: 'Delivery Challan' },
-    { id: 'indentcode', numeric: false, disablePadding: false, label: 'Indent Code' },
+    { id: 'indentcode', numeric: false, disablePadding: false, label: 'Indent/StockTransfer Code' },
     { id: 'esugam', numeric: false, disablePadding: false, label: 'e-sugam' },
     { id: 'esugam-date', numeric: false, disablePadding: false, label: 'e-sugam date' },
     { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
@@ -564,10 +564,10 @@ export default function ReleasedMaterials(props) {
                       <TableRow hover tabIndex={-1} key={row.slno}>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.code}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.indent.code : row.data.stocktransfer.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_no ? row.data.transaction.esugam_no : "Waiting in Accounts"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_date_conv ? row.data.transaction.esugam_date_conv.toDateString() : "Waiting in Accounts"}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.project.code : "NA"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>

@@ -89,6 +89,12 @@ import AddPO from './components/addPO';
 import EditPO from './components/editPO';
 import AccountsDC from './components/accountsDeliveryChallans';
 import AccountsEditDC from './components/accountsEditDC';
+import InwardStockTransfer from './components/inwardStockTransfers';
+import OutwardStockTransfer from './components/outwardStockTransfers';
+import WarehouseCreateStockTransfer from './components/warehouseCreateStockTransfer';
+import WarehouseStockTransferDetails from './components/warehouseStockTransferDetails';
+import LocalPurchase from './components/localpurchase';
+import CreateLocalPurchase from './components/createLocalPurchase';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -125,7 +131,7 @@ function App(props) {
   const [warehouseRole, setWarehouseRole] = useState(false);
   const [procurementRole, setProcurementRole] = useState(false);
   const [projectManagerRole, setProjectManagerRole] = useState(false);
-  const [engineeringManagerRole, setEngineeringManagerRole] = useState(false);
+  const [deputyManagerRole, setDeputyManagerRole] = useState(false);
   const [supervisorRole, setSupervisorRole] = useState(false);
 
   const [selectedUser, setSelectedUser] = useState(null);
@@ -138,7 +144,6 @@ function App(props) {
   const [selectedProject, setSelectedProject] = React.useState(null);
   const [selectedCustomer, setSelectedCustomer] = React.useState(null);
   const [selectedProjectWork, setSelectedProjectWork] = React.useState(null);
-
 
   const [pingTimer, setPingTimer] = useState(null);
   const [mentorAppliedRequests, setMentorAppliedRequests] = useState([]);
@@ -153,6 +158,7 @@ function App(props) {
   const [salesVideoCallMembersNames, setSalesVideoCallMembersNames] = useState([]);
   const [salesPersonCalling, setSalesPersonCalling] = useState(null);
   const [salesPersonCallingName, setSalesPersonCallingName] = useState(null);
+  const [selectedStockTransfer, setSelectedStockTransfer] = useState(null);
 
   const [productCategories, setProductCategories] = React.useState(null);
   const [UOMs, setUOMs] = React.useState(null);
@@ -165,8 +171,10 @@ function App(props) {
 
   const [loi, setLoi] = React.useState(null);
   const [po, setPO] = React.useState(null);
+  const [localPurchase, setLocalPurchase] = React.useState(null);
   const [createFromLoi, setCreateFromLoi] = React.useState(false);
   const [dc, setDC] = React.useState(null);
+  const [stockTransferType, setStockTransferType] = React.useState(-1);
 
   const [currentMode, setCurrentMode] = React.useState(0);
   const [modes, setModes] = React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Accounts", "HR & Payroll", "Analytics", "Admin Settings"]);
@@ -591,16 +599,47 @@ function App(props) {
     setWarehouseRole(profileData["role"].includes("warehouse"));
     setProcurementRole(profileData["role"].includes("procurement"));
     setProjectManagerRole(profileData["role"].includes("projectmanager"));
-    setEngineeringManagerRole(profileData["role"].includes("engineeringmanager"));
+    setDeputyManagerRole(profileData["role"].includes("deputymanager"));
     setSupervisorRole(profileData["role"].includes("supervisor"));
     console.log("onAuthSuccess 3");
+    let newModes = [];
+    if (profileData["role"].includes("superadmin") || profileData["role"].includes("admin")) {
+      newModes = ["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Accounts", "HR & Payroll", "Analytics", "Admin Settings"];
+    }
+    else {
+      newModes.push("Home");
+      if (profileData["role"].includes("warehouse"))
+        newModes.push("Warehouse");
+      if (profileData["role"].includes("procurement"))
+        newModes.push("Procurement");
+      if (profileData["role"].includes("projectManager") || profileData["role"].includes("deputyManager") || profileData["role"].includes("supervisor"))
+        newModes.push("Projects");
+      if (profileData["role"].includes("subcontract"))
+        newModes.push("Sub-Contract");
+      if (profileData["role"].includes("accounts"))
+        newModes.push("Accounts");
+      if (profileData["role"].includes("hrnpayroll"))
+        newModes.push("HR & Payroll");
+      if (profileData["role"].includes("analytics"))
+        newModes.push("Analytics");
+    }
+
+    newModes.push()
+    setModes(newModes);
+
+    console.log("newModes: ", newModes);
+
     if ((profileData["role"].includes("superadmin")
       || profileData["role"].includes("admin")
       || profileData["role"].includes("warehouse")
       || profileData["role"].includes("procurement")
-      || profileData["role"].includes("projectmanager")
-      || profileData["role"].includes("engineeringmanager")
+      || profileData["role"].includes("projectManager")
+      || profileData["role"].includes("deputyManager")
       || profileData["role"].includes("supervisor")
+      || profileData["role"].includes("subcontract")
+      || profileData["role"].includes("accounts")
+      || profileData["role"].includes("hrnpayroll")
+      || profileData["role"].includes("analytics")
     )
     ) {
       // console.log("Valid User");
@@ -818,6 +857,13 @@ function App(props) {
                   {<Route exact path="/add-po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddPO createFromLoi={createFromLoi} setCreateFromLoi={setCreateFromLoi} loi={loi} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
                   {<Route exact path="/edit-po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditPO projects={projects} po={po} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
 
+                  {<Route exact path="/localpurchase" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}>
+                    <LocalPurchase setLocalPurchase={setLocalPurchase} {...props} /> </div>} />}
+
+                  {<Route exact path="/createlocalpurchase" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}>
+                    <CreateLocalPurchase {...props} /> </div>} />}
+
+
 
                   {/* {loiState === 0 && <LOI goto={gotoFromLOI} setLoi={setLoi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
             {loiState === 1 && <AddLOI goto={gotoFromLOI} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
@@ -849,6 +895,11 @@ function App(props) {
                   {(warehouseRole || adminRole) && <Route exact path="/receivedmaterials" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ReceivedMaterials refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} {...props} /> </div>} />}
                   {(warehouseRole || adminRole) && <Route exact path="/releasedmaterials" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ReleasedMaterials refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} {...props} /> </div>} />}
                   {(warehouseRole || adminRole) && <Route exact path="/generate-dc" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <WarehouseGenerateDC refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} {...props} /> </div>} />}
+                  {(warehouseRole || adminRole) && <Route exact path="/inwardstocktransfer" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <InwardStockTransfer refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} setSelectedStockTransfer={setSelectedStockTransfer} setStockTransferType={setStockTransferType} {...props} /> </div>} />}
+                  {(warehouseRole || adminRole) && <Route exact path="/outwardstocktransfer" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <OutwardStockTransfer refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} setSelectedStockTransfer={setSelectedStockTransfer} setStockTransferType={setStockTransferType} {...props} /> </div>} />}
+                  {(warehouseRole || adminRole) && <Route exact path="/createstocktransfer" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <WarehouseCreateStockTransfer refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} {...props} /> </div>} />}
+                  {(warehouseRole || adminRole) && <Route exact path="/stocktransferdetails" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <WarehouseStockTransferDetails refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} selectedStockTransfer={selectedStockTransfer} stockTransferType={stockTransferType} {...props} /> </div>} />}
+
                   {(warehouseRole || adminRole) && <Route exact path="/warehousereceive" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <WarehouseReceive refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} {...props} /> </div>} />}
                   {(warehouseRole || adminRole) && <Route exact path="/warehousereceivedetails" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <WarehouseReceiveDetails refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} warehouseReceiveTransaction={warehouseReceiveTransaction} {...props} /> </div>} />}
                   {(warehouseRole || adminRole) && <Route exact path="/releaseindents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ReleaseIndents refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} {...props} /> </div>} />}

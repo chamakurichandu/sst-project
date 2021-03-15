@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -92,6 +92,7 @@ export default function NavBar(props) {
     const [showBackDrop, setShowBackDrop] = React.useState(false);
     const [currentProject, setCurrentProject] = React.useState(-1);
     const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
+    const [roles, set_roles] = React.useState([]);
 
     async function getProjectList() {
         try {
@@ -172,9 +173,9 @@ export default function NavBar(props) {
     const handleModeChange = (event) => {
         console.log("event.target.value: ", event.target.value);
         props.setCurrentMode(event.target.value);
-        if (event.target.value === 3)
+        if (props.modes[event.target.value] === "Projects")
             getProjectList();
-        if (event.target.value === 2)
+        if (props.modes[event.target.value] === "Warehouse")
             getWarehouses();
     };
 
@@ -189,6 +190,11 @@ export default function NavBar(props) {
         setCurrentWarehouse(event.target.value)
         props.setSelectedWarehouse(props.warehouses[event.target.value]);
     }
+
+    useEffect(() => {
+        let profile = JSON.parse(window.localStorage.getItem("profile"));
+        set_roles(profile.role);
+    }, []);
 
     return (
         <div className={classes.root}>
@@ -211,15 +217,13 @@ export default function NavBar(props) {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <IconButton className={clsx(classes.menuButton, {
+                    <img src={logo} width='100' alt="" />
+                    {/* <IconButton className={clsx(classes.menuButton, {
                         [classes.hide]: props.drawerOpen,
                     })}>
                         <img src={logo} width='100' alt="" />
-                    </IconButton>
-                </div>
-
-
-                <div className={classes.appBarRight}>
+                    </IconButton> */}
+                    {props.drawerOpen && <img src={logo} width='140' alt="" />}
                     <FormControl size="small" variant="outlined" className={classes.formControl}>
                         <InputLabel size="small" id="mode-select-label">Mode *</InputLabel>
                         <Select
@@ -237,7 +241,7 @@ export default function NavBar(props) {
                             })}
                         </Select>
                     </FormControl>
-                    {props.currentMode === 3 &&
+                    {(props.modes[props.currentMode] === "Projects") &&
                         <FormControl size="small" variant="outlined" className={classes.formControl}>
                             <InputLabel size="small" id="project-select-label">Project *</InputLabel>
                             <Select
@@ -256,7 +260,7 @@ export default function NavBar(props) {
                             </Select>
                         </FormControl>
                     }
-                    {props.currentMode === 2 &&
+                    {(props.modes[props.currentMode] === "Warehouse") &&
                         <FormControl size="small" variant="outlined" className={classes.formControl} >
                             <InputLabel size="small" id="warehouse-select-label">Warehouse *</InputLabel>
                             <Select
@@ -275,6 +279,11 @@ export default function NavBar(props) {
                             </Select>
                         </FormControl>
                     }
+
+                </div>
+
+
+                <div className={classes.appBarRight}>
                     {props.videoCallWaiting && <div >
                         {/* className={classes.info}> */}
                         <IconButton

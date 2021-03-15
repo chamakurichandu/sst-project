@@ -110,7 +110,7 @@ function EnhancedTableHeadSmall2(props) {
   );
 }
 
-export default function WarehouseReceive(props) {
+export default function CreateLocalPurchase(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -204,9 +204,7 @@ export default function WarehouseReceive(props) {
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
-  const [types, setTypes] = React.useState(["From PO", "From Return Indents"]);
-  const [currentType, setCurrentType] = React.useState(-1);
-  const [current_type_error, set_current_type_error] = React.useState(null);
+  const [currentType, setCurrentType] = React.useState(1);
 
   const [pos, setPOs] = React.useState(null);
   const [currentPO, setCurrentPO] = React.useState(-1);
@@ -270,50 +268,6 @@ export default function WarehouseReceive(props) {
   const [receivedTransactions, set_receivedTransactions] = React.useState(null);
 
   const dateFns = new DateFnsUtils();
-
-  async function getPOs() {
-    try {
-      let url = config["baseurl"] + "/api/po/list?count=" + 10000 + "&offset=" + 0 + "&search=" + "&warehouse=" + props.warehouse._id;
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      const { data } = await axios.get(url);
-      console.log(data);
-      setPOs(data.list.docs);
-    }
-    catch (e) {
-      if (e.response) {
-        setErrorMessage(e.response.data.message);
-      }
-      else {
-        setErrorMessage("Error in getting POs");
-      }
-      setShowError(true);
-    }
-  }
-
-  async function getSupplyVendorList() {
-    try {
-      setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/supplyvendor/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      const { data } = await axios.get(url);
-      console.log(data);
-
-      setSupplyVendors(data.list.docs);
-      setShowBackDrop(false);
-
-      getAllItemList(10000);
-    }
-    catch (e) {
-      setShowBackDrop(false);
-      if (e.response) {
-        setErrorMessage(e.response.data.message);
-      }
-      else {
-        setErrorMessage("Error in getting list");
-      }
-      setShowError(true);
-    }
-  }
 
   async function getAllItemList() {
     try {
@@ -453,9 +407,8 @@ export default function WarehouseReceive(props) {
 
 
   useEffect(() => {
-    if (props.warehouse)
-      getSupplyVendorList();
-  }, [props.warehouse]);
+    getAllItemList();
+  }, []);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -470,7 +423,7 @@ export default function WarehouseReceive(props) {
   };
 
   const handleCancel = () => {
-    props.history.push("/warehousehome");
+    props.history.push("/localpurchase");
   };
 
   const validateData = () => {
@@ -502,36 +455,10 @@ export default function WarehouseReceive(props) {
   const handleSave = async (e) => {
     e.preventDefault();
 
-    switch (currentType) {
-      case 0:
-        handleSaveWarehouseReceiveFromPO();
-        break;
-      case 1:
-        break;
-      default:
-        set_current_type_error("Type Required");
-        break;
-    }
+    handleSaveLocalPurchase();
   };
 
-  const getTypeString = (type) => {
-    switch (type) {
-      case 0:
-        return "po";
-        break;
-      case 1:
-        return "local_purchase";
-        break;
-      case 2:
-        return "return_indent";
-        break;
-    }
-
-    return "";
-  };
-
-  const handleSaveWarehouseReceiveFromPO = async () => {
-    set_current_type_error(null)
+  const handleSaveLocalPurchase = async () => {
     set_current_warehouse_error(null);
     set_current_po_error(null);
     set_supplier_name_error(null);
@@ -549,18 +476,14 @@ export default function WarehouseReceive(props) {
     const errors = validateData();
 
     let errorOccured = false;
-    if (currentType === -1) {
-      set_current_type_error("Type Required");
+    if (currentWarehouse === -1) {
+      set_current_warehouse_error("Warehouse Required");
       errorOccured = true;
     }
-    if (currentType == 0 && currentPO === -1) {
-      set_current_po_error("PO Required");
+    if (currentType === 1 && project === null) {
+      set_project_error("Project Required");
       errorOccured = true;
     }
-    // if (currentType === 1 && project === null) {
-    //   set_project_error("Project Required");
-    //   errorOccured = true;
-    // }
 
     if (errors["remark"]) {
       set_remark_error(errors["remark"]);
@@ -623,15 +546,12 @@ export default function WarehouseReceive(props) {
 
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/materialreceivetransaction/add";
+      let url = config["baseurl"] + "/api/localpurchase/add";
 
       let postObj = {};
-      postObj["warehouse"] = props.warehouse._id;
-      postObj["type"] = getTypeString(currentType);
-      if (currentType === 0)
-        postObj["po_id"] = pos[currentPO]._id;
-      // if (currentType === 1)
-      //   postObj["project"] = project._id;
+      postObj["warehouse"] = warehouses[currentWarehouse]._id;
+      postObj["type"] = "local_purchase";
+      postObj["project"] = project._id;
       postObj["gate_entry_info"] = gate_entry_info.trim();
       postObj["bill_no"] = bill_no.trim();
       postObj["bill_date"] = bill_date.toUTCString();
@@ -676,7 +596,7 @@ export default function WarehouseReceive(props) {
       console.log("4");
       console.log("successfully Saved");
       setShowBackDrop(false);
-      props.history.push("/warehousehome");
+      props.history.push("/localpurchase");
     }
     catch (e) {
       console.log(e);
@@ -696,8 +616,8 @@ export default function WarehouseReceive(props) {
   const addItem = () => {
     if (currentType === 0 && currentPO >= 0)
       setShowSelectItem(true);
-    // else if (currentType === 1)
-    //   setShowSelectItemForLP(true);
+    else if (currentType === 1)
+      setShowSelectItemForLP(true);
   };
 
   const closeSelectItemDialogAction = () => {
@@ -767,25 +687,6 @@ export default function WarehouseReceive(props) {
   const handleWarehouseChange = (event) => {
     setCurrentWarehouse(event.target.value);
     set_current_warehouse_error(null);
-  };
-
-  const handleTypeChange = (event) => {
-    setCurrentType(event.target.value);
-    set_current_type_error(null);
-
-    set_items([]);
-
-    switch (event.target.value) {
-      case 0:
-        if (!pos) {
-          getPOs();
-        }
-        break;
-      case 1:
-        break;
-      case 2:
-        break;
-    }
   };
 
   const handlePOChange = (event) => {
@@ -980,188 +881,209 @@ export default function WarehouseReceive(props) {
 
   return (
     <div className={clsx(classes.root)}>
-      {props.warehouse &&
-        <div className={classes.paper}>
+      <div className={classes.paper}>
 
-          <EnhancedTableToolbar title={props.warehouse.name + ": Receive Material"} />
+        <EnhancedTableToolbar title={"Create Local Purchase"} />
 
-          {/* <Breadcrumbs aria-label="breadcrumb">
-            <Link color="inherit" onClick={() => handleBreadCrumClick("/warehouses")}>
-              {"Warehouses"}
-            </Link>
-            <Link color="inherit" onClick={() => handleBreadCrumClick("/warehousehome")}>
-              {props.warehouse.name}
-            </Link>
-            <Typography color="textPrimary">{"Receive Material"}</Typography>
-          </Breadcrumbs> */}
+        <Breadcrumbs aria-label="breadcrumb">
+          <Link color="inherit" onClick={() => handleBreadCrumClick("/localpurchase")}>
+            {"Local Purchases"}
+          </Link>
+          <Typography color="textPrimary">{"Create Local Purchase"}</Typography>
+        </Breadcrumbs>
 
-          <form className={classes.papernew} autoComplete="off" noValidate>
-            <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="type-select-label">Receive Type *</InputLabel>
-              <Select
-                labelId="type-select-label"
-                id="type-select-label"
-                value={currentType === -1 ? "" : currentType}
-                onChange={handleTypeChange}
-                label="Receive Type *"
-              >
-                {types && types.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{"" + row}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-            {current_type_error && <Alert className={classes.alert} severity="error"> {current_type_error} </Alert>}
+        <form className={classes.papernew} autoComplete="off" noValidate>
+          <FormControl size="small" variant="outlined" className={classes.formControl}>
+            <InputLabel id="type-select-label">Warehouse *</InputLabel>
+            <Select
+              labelId="type-select-label"
+              id="type-select-label"
+              value={currentWarehouse === -1 ? "" : currentWarehouse}
+              onChange={handleWarehouseChange}
+              label="Warehouse *"
+            >
+              {warehouses && warehouses.map((row, index) => {
+                return (
+                  <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+          {current_warehouse_error && <Alert className={classes.alert} severity="error"> {current_warehouse_error} </Alert>}
 
-            {currentType === 0 && <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="po-select-label">PO *</InputLabel>
-              <Select
-                labelId="po-select-label"
-                id="po-select-label"
-                value={currentPO === -1 ? "" : currentPO}
-                onChange={handlePOChange}
-                label="PO *"
-              >
-                {pos && pos.map((row, index) => {
-                  let createdDate = dateFns.date(row.createdDate);
-                  return (
-                    <MenuItem key={"" + index} value={index}>{"PO: " + row.code + ", Date: " + createdDate.toDateString() + ", Project: " + getProjectNameForPO(row)}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>}
-            {currentType === 0 && current_po_error && <Alert className={classes.alert} severity="error"> {current_po_error} </Alert>}
+          {currentType === 0 && <FormControl size="small" variant="outlined" className={classes.formControl}>
+            <InputLabel id="po-select-label">PO *</InputLabel>
+            <Select
+              labelId="po-select-label"
+              id="po-select-label"
+              value={currentPO === -1 ? "" : currentPO}
+              onChange={handlePOChange}
+              label="PO *"
+            >
+              {pos && pos.map((row, index) => {
+                let createdDate = dateFns.date(row.createdDate);
+                return (
+                  <MenuItem key={"" + index} value={index}>{"PO: " + row.code + ", Date: " + createdDate.toDateString() + ", Project: " + getProjectNameForPO(row)}</MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>}
+          {currentType === 0 && current_po_error && <Alert className={classes.alert} severity="error"> {current_po_error} </Alert>}
 
-            {currentType === 0 && pos && (currentPO >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_po_date" value={getDateString(pos[currentPO].createdDate)}
-              label="PO Date" variant="outlined" disabled />}
-            {currentType === 0 && po_date_error && <Alert className={classes.alert} severity="error"> {po_date_error} </Alert>}
+          {currentType === 0 && pos && (currentPO >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_po_date" value={getDateString(pos[currentPO].createdDate)}
+            label="PO Date" variant="outlined" disabled />}
+          {currentType === 0 && po_date_error && <Alert className={classes.alert} severity="error"> {po_date_error} </Alert>}
 
-            {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_name" value={supplyVendor.name}
-              label="Supplier Name" variant="outlined" multiline disabled />}
-            {currentType === 0 && supplier_name_error && <Alert className={classes.alert} severity="error"> {supplier_name_error} </Alert>}
+          {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_name" value={supplyVendor.name}
+            label="Supplier Name" variant="outlined" multiline disabled />}
+          {currentType === 0 && supplier_name_error && <Alert className={classes.alert} severity="error"> {supplier_name_error} </Alert>}
 
-            {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_address" value={supplyVendor.address}
-              label="Supplier Address" variant="outlined" multiline disabled />}
-            {currentType === 0 && supplier_address_error && <Alert className={classes.alert} severity="error"> {supplier_address_error} </Alert>}
+          {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_address" value={supplyVendor.address}
+            label="Supplier Address" variant="outlined" multiline disabled />}
+          {currentType === 0 && supplier_address_error && <Alert className={classes.alert} severity="error"> {supplier_address_error} </Alert>}
 
-            {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_gst" value={supplyVendor.gst}
-              label="Supplier GST" variant="outlined" multiline disabled />}
-            {currentType === 0 && supplier_gst_error && <Alert className={classes.alert} severity="error"> {supplier_gst_error} </Alert>}
+          {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_gst" value={supplyVendor.gst}
+            label="Supplier GST" variant="outlined" multiline disabled />}
+          {currentType === 0 && supplier_gst_error && <Alert className={classes.alert} severity="error"> {supplier_gst_error} </Alert>}
 
-            {/* {currentType === 1 && <TextField size="small" className={classes.inputFields} id="formControl_key_project" value={project ? (project.code + " - " + project.name) : ""}
-              label="Project" variant="outlined" disabled />}
-            {currentType === 1 && <Button variant="contained" color="primary" onClick={() => setShowSelectProject(true)} >Select Project</Button>}
-            {currentType === 1 && project_error && <Alert className={classes.alert} severity="error"> {project_error} </Alert>} */}
+          {currentType === 1 && <TextField size="small" className={classes.inputFields} id="formControl_key_project" value={project ? (project.code + " - " + project.name) : ""}
+            label="Project" variant="outlined" disabled />}
+          {currentType === 1 && <Button variant="contained" color="primary" onClick={() => setShowSelectProject(true)} >Select Project</Button>}
+          {currentType === 1 && project_error && <Alert className={classes.alert} severity="error"> {project_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_key_gate_entry_info" defaultValue={gate_entry_info}
-              label="Gate Entry Info" variant="outlined" multiline
-              onChange={(event) => { set_gate_entry_info(event.target.value); set_gate_entry_info_error(null); }} />}
-            {(currentType === 0) && gate_entry_info_error && <Alert className={classes.alert} severity="error"> {gate_entry_info_error} </Alert>}
+          {(currentType === 0 || currentType === 1) && <TextField size="small" className={classes.inputFields} id="formControl_key_gate_entry_info" defaultValue={gate_entry_info}
+            label="Gate Entry Info" variant="outlined" multiline
+            onChange={(event) => { set_gate_entry_info(event.target.value); set_gate_entry_info_error(null); }} />}
+          {(currentType === 0 || currentType === 1) && gate_entry_info_error && <Alert className={classes.alert} severity="error"> {gate_entry_info_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_bill_no" defaultValue={bill_no}
-              label="Bill Num" variant="outlined" multiline
-              onChange={(event) => { set_bill_no(event.target.value); set_bill_no_error(null); }} />}
-            {(currentType === 0) && bill_no_error && <Alert className={classes.alert} severity="error"> {bill_no_error} </Alert>}
+          {(currentType === 0 || currentType === 1) && <TextField size="small" className={classes.inputFields} id="formControl_bill_no" defaultValue={bill_no}
+            label="Bill Num" variant="outlined" multiline
+            onChange={(event) => { set_bill_no(event.target.value); set_bill_no_error(null); }} />}
+          {(currentType === 0 || currentType === 1) && bill_no_error && <Alert className={classes.alert} severity="error"> {bill_no_error} </Alert>}
 
-            {(currentType === 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils} >
-                <DatePicker size="small" label="Bill Date" inputVariant="outlined" format="dd/MM/yyyy" value={bill_date} onChange={set_bill_date} />
-              </MuiPickersUtilsProvider>
-            </FormControl>}
-            {(currentType === 0) && bill_date_error && <Alert className={classes.alert} severity="error"> {bill_date_error} </Alert>}
+          {(currentType === 0 || currentType === 1) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
+            <MuiPickersUtilsProvider utils={DateFnsUtils} >
+              <DatePicker size="small" label="Bill Date" inputVariant="outlined" format="dd/MM/yyyy" value={bill_date} onChange={set_bill_date} />
+            </MuiPickersUtilsProvider>
+          </FormControl>}
+          {(currentType === 0 || currentType === 1) && bill_date_error && <Alert className={classes.alert} severity="error"> {bill_date_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_dc_no" defaultValue={dc_no}
-              label="DC Num" variant="outlined" multiline
-              onChange={(event) => { set_dc_no(event.target.value); set_dc_no_error(null); }} />}
-            {(currentType === 0) && dc_no_error && <Alert className={classes.alert} severity="error"> {dc_no_error} </Alert>}
+          {(currentType === 0 || currentType === 1) && <TextField size="small" className={classes.inputFields} id="formControl_dc_no" defaultValue={dc_no}
+            label="DC Num" variant="outlined" multiline
+            onChange={(event) => { set_dc_no(event.target.value); set_dc_no_error(null); }} />}
+          {(currentType === 0 || currentType === 1) && dc_no_error && <Alert className={classes.alert} severity="error"> {dc_no_error} </Alert>}
 
-            {(currentType === 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils} >
-                <DatePicker size="small" label="DC Date" inputVariant="outlined" format="dd/MM/yyyy" value={dc_date} onChange={set_dc_date} />
-              </MuiPickersUtilsProvider>
-            </FormControl>}
-            {(currentType === 0) && dc_date_error && <Alert className={classes.alert} severity="error"> {dc_date_error} </Alert>}
+          {(currentType === 0 || currentType === 1) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
+            <MuiPickersUtilsProvider utils={DateFnsUtils} >
+              <DatePicker size="small" label="DC Date" inputVariant="outlined" format="dd/MM/yyyy" value={dc_date} onChange={set_dc_date} />
+            </MuiPickersUtilsProvider>
+          </FormControl>}
+          {(currentType === 0 || currentType === 1) && dc_date_error && <Alert className={classes.alert} severity="error"> {dc_date_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_lr_no" defaultValue={lr_no}
-              label="LR Num" variant="outlined" multiline
-              onChange={(event) => { set_lr_no(event.target.value); set_lr_no_error(null); }} />}
-            {(currentType === 0) && lr_no_error && <Alert className={classes.alert} severity="error"> {lr_no_error} </Alert>}
+          {(currentType === 0 || currentType === 1) && <TextField size="small" className={classes.inputFields} id="formControl_lr_no" defaultValue={lr_no}
+            label="LR Num" variant="outlined" multiline
+            onChange={(event) => { set_lr_no(event.target.value); set_lr_no_error(null); }} />}
+          {(currentType === 0 || currentType === 1) && lr_no_error && <Alert className={classes.alert} severity="error"> {lr_no_error} </Alert>}
 
-            {(currentType === 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils} >
-                <DatePicker size="small" label="LR Date" inputVariant="outlined" format="dd/MM/yyyy" value={lr_date} onChange={set_lr_date} />
-              </MuiPickersUtilsProvider>
-            </FormControl>}
-            {(currentType === 0) && lr_date_error && <Alert className={classes.alert} severity="error"> {lr_date_error} </Alert>}
+          {(currentType === 0 || currentType === 1) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
+            <MuiPickersUtilsProvider utils={DateFnsUtils} >
+              <DatePicker size="small" label="LR Date" inputVariant="outlined" format="dd/MM/yyyy" value={lr_date} onChange={set_lr_date} />
+            </MuiPickersUtilsProvider>
+          </FormControl>}
+          {(currentType === 0 || currentType === 1) && lr_date_error && <Alert className={classes.alert} severity="error"> {lr_date_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_transporter" defaultValue={transporter}
-              label="Transporter" variant="outlined" multiline
-              onChange={(event) => { set_transporter(event.target.value); set_transporter_error(null); }} />}
-            {(currentType === 0) && transporter_error && <Alert className={classes.alert} severity="error"> {transporter_error} </Alert>}
+          {(currentType === 0 || currentType === 1) && <TextField size="small" className={classes.inputFields} id="formControl_transporter" defaultValue={transporter}
+            label="Transporter" variant="outlined" multiline
+            onChange={(event) => { set_transporter(event.target.value); set_transporter_error(null); }} />}
+          {(currentType === 0 || currentType === 1) && transporter_error && <Alert className={classes.alert} severity="error"> {transporter_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" defaultValue={vehicle_no}
-              label="Vehicle Num" variant="outlined" multiline
-              onChange={(event) => { set_vehicle_no(event.target.value); set_vehicle_no_error(null); }} />}
-            {(currentType === 0) && vehicle_no_error && <Alert className={classes.alert} severity="error"> {vehicle_no_error} </Alert>}
+          {(currentType === 0 || currentType === 1) && <TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" defaultValue={vehicle_no}
+            label="Vehicle Num" variant="outlined" multiline
+            onChange={(event) => { set_vehicle_no(event.target.value); set_vehicle_no_error(null); }} />}
+          {(currentType === 0 || currentType === 1) && vehicle_no_error && <Alert className={classes.alert} severity="error"> {vehicle_no_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_remark" defaultValue={remark}
-              label="Remark" variant="outlined" multiline
-              onChange={(event) => { set_remark(event.target.value); set_remark_error(null); }} />
-            {remark_error && <Alert className={classes.alert} severity="error"> {remark_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_remark" defaultValue={remark}
+            label="Remark" variant="outlined" multiline
+            onChange={(event) => { set_remark(event.target.value); set_remark_error(null); }} />
+          {remark_error && <Alert className={classes.alert} severity="error"> {remark_error} </Alert>}
 
-            <div style={{ marginTop: 10 }}>
-              <div>
-                {files.map((file, index) => {
-                  return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
-                })}
-              </div>
-              <div style={{ marginTop: 5 }}>
-                <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
-                  Upload Document
+          <div style={{ marginTop: 10 }}>
+            <div>
+              {files.map((file, index) => {
+                return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
+              })}
+            </div>
+            <div style={{ marginTop: 5 }}>
+              <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
+                Upload Document
                   <input type="file" hidden />
-                </Button>
-              </div>
+              </Button>
             </div>
+          </div>
 
-            <Paper className={classes.paper} style={{ marginTop: 10 }}>
-              {(currentType === 0) &&
-                <TableContainer className={classes.container}>
-                  <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                    <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
-                    <TableBody>
-                      {receivedTransactions && items.map((row, index) => {
-                        return (
-                          <TableRow hover tabIndex={-1} key={"" + index} >
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.description}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.rate}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.canreceiveqty}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getReceivedQty(row)}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                              <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
-                                variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              }
-            </Paper>
-            {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
+          <Paper className={classes.paper} style={{ marginTop: 10 }}>
+            {(currentType === 0) &&
+              <TableContainer className={classes.container}>
+                <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
+                  <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
+                  <TableBody>
+                    {receivedTransactions && items.map((row, index) => {
+                      return (
+                        <TableRow hover tabIndex={-1} key={"" + index} >
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.description}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.rate}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.canreceiveqty}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getReceivedQty(row)}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                            <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
+                              variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            }
+            {(currentType === 1) &&
+              <TableContainer className={classes.container}>
+                <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
+                  <EnhancedTableHeadSmall2 title="Purchase Items" onClick={addItem} />
+                  <TableBody>
+                    {items.map((row, index) => {
+                      return (
+                        <TableRow hover tabIndex={-1} key={"" + index} >
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.description}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                            <TextField size="small" id={"formControl_rate_" + index} type="number" defaultValue={row.rate}
+                              variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
+                          </TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                            <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
+                              variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            }
+          </Paper>
+          {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
 
-            <div className={classes.submit}>
-              {/* <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button> */}
-              <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button>
-            </div>
+          <div className={classes.submit}>
+            <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button>
+            <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button>
+          </div>
 
-          </form>
-          {/* </Paper> */}
-        </div>
-      }
+        </form>
+        {/* </Paper> */}
+      </div>
 
       { showSelectItem && <SelectItem2 closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={(currentType === 0) ? poItems : allItems} selectedItems={items} type={"Receivable Items"} />}
 

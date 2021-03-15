@@ -33,6 +33,7 @@ import Chip from '@material-ui/core/Chip';
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import { date } from 'joi';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 function Alert(props) {
@@ -76,7 +77,7 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'transactioncode', numeric: false, disablePadding: false, label: 'Delivery Challan' },
-    { id: 'indentcode', numeric: false, disablePadding: false, label: 'Indent Code' },
+    { id: 'indentcode', numeric: false, disablePadding: false, label: 'Indent/StockTransfer Code' },
     { id: 'esugam', numeric: false, disablePadding: false, label: 'e-sugam' },
     { id: 'esugam-date', numeric: false, disablePadding: false, label: 'e-sugam date' },
     { id: 'esugam-docs', numeric: false, disablePadding: false, label: 'e-sugam docs' },
@@ -570,72 +571,149 @@ export default function ReleasedMaterials(props) {
     enqItems.push([{}, {}, {}, {}, {}, {}, { text: "Total:", bold: true }, { text: "" + numberFormatter.format(totalAmount), bold: true, alignment: 'right' }]);
     const profileInfo = JSON.parse(window.localStorage.getItem("profile"));
 
-    var docDefinition = {
-      pageMargins: [40, 50, 40, 60],
-      // header: { image: await getBase64ImageFromURL("https://demossga.s3.ap-south-1.amazonaws.com/temp/RajashreeElectricalsHeader.png"), width: 594, height: 130, alignment: "center" },
-      content: [
-        {
-          style: 'tableExample',
-          color: '#444',
-          table: {
-            widths: ["*", "*", "*", "*"],
-            headerRows: 1,
-            // keepWithHeaderRows: 1,
-            body: [
-              [{ text: 'DELIVERY CHALLAN (' + title + ')', style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
-              [{ text: 'M/s. Rajashree Electrical\nNo.154, Nijalingappa Layout, Davanagere - 577004\nGSTIN/UIN : 29AKTPR1041D1Z1 | Karnataka Code: 29 | projects@rajashreeelectricals.com', bold: false, fontSize: 11, style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
-              [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
-              [{ text: 'DC Number:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.code, bold: false, fontSize: 10, alignment: 'center' }, { text: 'DC Date:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.createddate_conv.toDateString(), bold: false, fontSize: 10, alignment: 'center' }],
-              [{ text: 'Vendor Name & Address:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.servicevendor.name + "\n" + data.servicevendor.address, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Delivery Type:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.type, bold: false, fontSize: 10, alignment: 'center' }],
-              [{ text: 'Vendor Contact Details:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.servicevendor.contactPhone + "\n" + data.servicevendor.contactEmail, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Reference No', bold: true, fontSize: 10, alignment: 'center' }, { text: data.indent.code, bold: false, fontSize: 10, alignment: 'center' }],
-              [{ text: 'Vendor GST No:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.servicevendor.gst, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Verified By', bold: true, fontSize: 10, alignment: 'center' }, { text: profileInfo.name, bold: false, fontSize: 10, alignment: 'center' }],
-              [{ text: 'E-Sugam No', bold: true, fontSize: 10, alignment: 'center' }, { text: "" + data.transaction.esugam_no, bold: false, fontSize: 10, alignment: 'center' }, { text: 'E-Sugam Date', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.esugam_date_conv.toDateString(), bold: false, fontSize: 10, alignment: 'center' }],
-              [{ text: 'Transporter:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.transporter, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Vehicle No:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.vehicle_no, bold: false, fontSize: 10, alignment: 'center' }],
-              [{ text: 'Project Code:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.project.code, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Project Name:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.project.name, bold: false, fontSize: 10, alignment: 'center' }],
+    if (data.transaction.type === "projects") {
+      console.log("data: ", data);
+      var docDefinition = {
+        pageMargins: [40, 140, 40, 60],
+        header: { image: await getBase64ImageFromURL("https://demossga.s3.ap-south-1.amazonaws.com/temp/RajashreeElectricalsHeader.png"), width: 594, height: 130, alignment: "center" },
+        content: [
+          {
+            style: 'tableExample',
+            color: '#444',
+            table: {
+              widths: ["*", "*", "*", "*"],
+              headerRows: 1,
+              // keepWithHeaderRows: 1,
+              body: [
+                [{ text: 'DELIVERY CHALLAN (' + title + ')', style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                // [{ text: 'M/s. Rajashree Electrical\nNo.154, Nijalingappa Layout, Davanagere - 577004\nGSTIN/UIN : 29AKTPR1041D1Z1 | Karnataka Code: 29 | projects@rajashreeelectricals.com', bold: false, fontSize: 11, style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                // [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                [{ text: 'From:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.warehouse.name + "\n" + data.warehouse.address, bold: false, fontSize: 10, alignment: 'center' }, { text: 'To:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.toaddress, bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: 'E-Sugam No', bold: true, fontSize: 10, alignment: 'center' }, { text: "" + data.transaction.esugam_no, bold: false, fontSize: 10, alignment: 'center' }, { text: 'E-Sugam Date', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.esugam_date_conv.toDateString(), bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: 'Delivering stock to our working spots and these goods are not for sale', bold: false, fontSize: 10, style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                [{ text: 'DC Number:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.code, bold: false, fontSize: 10, alignment: 'center' }, { text: 'DC Date:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.createddate_conv.toDateString(), bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: 'Vendor Name & Address:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.servicevendor.name + "\n" + data.servicevendor.address, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Delivery Type:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.type, bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: 'Vendor Contact Details:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.servicevendor.contactPhone + "\n" + data.servicevendor.contactEmail, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Reference No', bold: true, fontSize: 10, alignment: 'center' }, { text: data.indent.code, bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: 'Vendor GST No:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.servicevendor.gst, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Verified By', bold: true, fontSize: 10, alignment: 'center' }, { text: profileInfo.name, bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: 'Transporter:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.transporter, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Vehicle No:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.vehicle_no, bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: 'Project Code:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.project.code, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Project Name:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.project.name, bold: false, fontSize: 10, alignment: 'center' }],
 
-              [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
-              [
-                {
-                  table: {
-                    widths: [25, 30, "*", 30, 45, 30, 60, 70],
-                    headerRows: 1,
-                    body: enqItems
+                [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                [
+                  {
+                    table: {
+                      widths: [25, 30, "*", 30, 45, 30, 60, 70],
+                      headerRows: 1,
+                      body: enqItems
+                    },
+                    colSpan: 4
                   },
-                  colSpan: 4
-                },
-                {}, {}, {}
-              ],
-              [{ text: "Inpected By: \n\n", colSpan: 4, alignment: 'left' }, {}, {}, {}],
-            ]
+                  {}, {}, {}
+                ],
+                [{ text: "Inpected By: \n\n", colSpan: 4, alignment: 'left' }, {}, {}, {}],
+              ]
+            }
           }
+        ],
+        styles: {
+          header: {
+            fontSize: 18,
+            bold: true,
+            margin: [0, 0, 0, 10]
+          },
+          subheader: {
+            fontSize: 16,
+            bold: true,
+            margin: [0, 10, 0, 5]
+          },
+          tableExample: {
+            margin: [0, 5, 0, 15]
+          },
+          tableHeader: {
+            bold: true,
+            fontSize: 13,
+            color: 'black'
+          }
+        },
+        defaultStyle: {
+          fontSize: 10
+          // alignment: 'justify'
         }
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-          margin: [0, 0, 0, 10]
+      };
+      pdfMake.createPdf(docDefinition).download(data.transaction.code + "_" + title + ".pdf");
+    }
+    else if (data.transaction.type === "stocktransfer") {
+      var docDefinition = {
+        pageMargins: [40, 140, 40, 60],
+        header: { image: await getBase64ImageFromURL("https://demossga.s3.ap-south-1.amazonaws.com/temp/RajashreeElectricalsHeader.png"), width: 594, height: 130, alignment: "center" },
+        content: [
+          {
+            style: 'tableExample',
+            color: '#444',
+            table: {
+              widths: ["*", "*", "*", "*"],
+              headerRows: 1,
+              // keepWithHeaderRows: 1,
+              body: [
+                [{ text: 'DELIVERY CHALLAN (' + title + ')', style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                // [{ text: 'M/s. Rajashree Electrical\nNo.154, Nijalingappa Layout, Davanagere - 577004\nGSTIN/UIN : 29AKTPR1041D1Z1 | Karnataka Code: 29 | projects@rajashreeelectricals.com', bold: false, fontSize: 11, style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                // [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                [{ text: 'From:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.fromwarehouse.name + "\n" + data.fromwarehouse.address, bold: false, fontSize: 10, alignment: 'center' }, { text: 'To:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.towarehouse.name + "\n" + data.towarehouse.address, bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: 'E-Sugam No', bold: true, fontSize: 10, alignment: 'center' }, { text: "" + data.transaction.esugam_no, bold: false, fontSize: 10, alignment: 'center' }, { text: 'E-Sugam Date', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.esugam_date_conv.toDateString(), bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                [{ text: 'DC Number:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.code, bold: false, fontSize: 10, alignment: 'center' }, { text: 'DC Date:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.createddate_conv.toDateString(), bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: '', bold: true, fontSize: 10, alignment: 'center' }, { text: "", bold: false, fontSize: 10, alignment: 'center' }, { text: 'Delivery Type:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.type, bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: '', bold: true, fontSize: 10, alignment: 'center' }, { text: "", bold: false, fontSize: 10, alignment: 'center' }, { text: 'Reference No', bold: true, fontSize: 10, alignment: 'center' }, { text: data.stocktransfer.code, bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: ':', bold: true, fontSize: 10, alignment: 'center' }, { text: "", bold: false, fontSize: 10, alignment: 'center' }, { text: 'Verified By', bold: true, fontSize: 10, alignment: 'center' }, { text: profileInfo.name, bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: 'Transporter:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.transporter, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Vehicle No:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.transaction.vehicle_no, bold: false, fontSize: 10, alignment: 'center' }],
+                [{ text: '', bold: true, fontSize: 10, alignment: 'center' }, { text: "", bold: false, fontSize: 10, alignment: 'center' }, { text: '', bold: true, fontSize: 10, alignment: 'center' }, { text: "", bold: false, fontSize: 10, alignment: 'center' }],
+
+                [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+                [
+                  {
+                    table: {
+                      widths: [25, 30, "*", 30, 45, 30, 60, 70],
+                      headerRows: 1,
+                      body: enqItems
+                    },
+                    colSpan: 4
+                  },
+                  {}, {}, {}
+                ],
+                [{ text: "Inpected By: \n\n", colSpan: 4, alignment: 'left' }, {}, {}, {}],
+              ]
+            }
+          }
+        ],
+        styles: {
+          header: {
+            fontSize: 18,
+            bold: true,
+            margin: [0, 0, 0, 10]
+          },
+          subheader: {
+            fontSize: 16,
+            bold: true,
+            margin: [0, 10, 0, 5]
+          },
+          tableExample: {
+            margin: [0, 5, 0, 15]
+          },
+          tableHeader: {
+            bold: true,
+            fontSize: 13,
+            color: 'black'
+          }
         },
-        subheader: {
-          fontSize: 16,
-          bold: true,
-          margin: [0, 10, 0, 5]
-        },
-        tableExample: {
-          margin: [0, 5, 0, 15]
-        },
-        tableHeader: {
-          bold: true,
-          fontSize: 13,
-          color: 'black'
+        defaultStyle: {
+          fontSize: 10
+          // alignment: 'justify'
         }
-      },
-      defaultStyle: {
-        fontSize: 10
-        // alignment: 'justify'
-      }
-    };
-    pdfMake.createPdf(docDefinition).download(data.transaction.code + "_" + title + ".pdf");
+      };
+      pdfMake.createPdf(docDefinition).download(data.transaction.code + "_" + title + ".pdf");
+    }
+
   };
 
   const handleOpenDoc = (index, docIndex) => {
@@ -697,12 +775,11 @@ export default function ReleasedMaterials(props) {
                   {rows.map((row, index) => {
                     const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
-                    // console.log("row: ", row);
                     return (
                       <TableRow hover tabIndex={-1} key={row.slno}>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.code}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.indent.code : row.data.stocktransfer.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_no ? row.data.transaction.esugam_no : "Waiting in Accounts"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_date_conv ? row.data.transaction.esugam_date_conv.toDateString() : "Waiting in Accounts"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
@@ -714,15 +791,17 @@ export default function ReleasedMaterials(props) {
                           }
                         </TableCell>
 
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.project.code : "NA"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
                             <DetailImage />
                           </IconButton>
-                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => downloadAction(row.data)}>
-                            <GetAppImage />
-                          </IconButton>
+                          {row.data.transaction.esugam_no && row.data.transaction.esugam_no.length > 0 &&
+                            <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => downloadAction(row.data)}>
+                              <GetAppImage />
+                            </IconButton>
+                          }
                         </TableCell>
                       </TableRow>
                     );

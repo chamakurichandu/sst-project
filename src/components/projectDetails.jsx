@@ -1465,7 +1465,7 @@ export default function ProjectDetails(props) {
                   <Paper className={classes.paper}>
                     <TableContainer className={classes.container}>
                       <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                        <EnhancedTableHeadSmall title="Feeders" onAddClick={addFeeder} onRemoveClick={removeFeeder} />
+                        <EnhancedTableHeadSmall title="Feeders/Locations" onAddClick={addFeeder} onRemoveClick={removeFeeder} />
                         <TableBody>
                           {projectFeeders.map((row, index) => {
                             return (

@@ -46,8 +46,6 @@ import {
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
 import { getPositionOfLineAndCharacter } from 'typescript';
-import ReleaseIndents from './releaseIndents';
-import MaterialIndents from './materialIndents';
 
 const Joi = require('joi');
 
@@ -61,6 +59,7 @@ function EnhancedTableHeadSmall(props) {
 
   const headCells = [
     { id: 'name', numeric: false, disablePadding: false, label: props.title },
+    { id: 'description', numeric: false, disablePadding: false, label: "description" },
     { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
     { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
   ];
@@ -81,7 +80,34 @@ function EnhancedTableHeadSmall(props) {
   );
 }
 
-export default function WarehouseReceive(props) {
+function EnhancedTableHeadSmall2(props) {
+  const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
+  const setDir = (dir === 'rtl' ? true : false);
+
+  const headCells = [
+    { id: 'name', numeric: false, disablePadding: false, label: props.title },
+    { id: 'description', numeric: false, disablePadding: false, label: "description" },
+    { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
+    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
+  ];
+
+  return (
+    <TableHead>
+      <TableRow>
+        {headCells.map((headCell, index) => (
+          <TableCell key={headCell.id} align={!setDir ? 'left' : 'right'} padding='none' sortDirection={false} >
+            {headCell.label}
+            {index === 0 && <IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onClick}>
+              <AddImage />
+            </IconButton>}
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+}
+
+export default function WarehouseCreateStockTransfer(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -161,8 +187,11 @@ export default function WarehouseReceive(props) {
   const [prouctCategories, set_prouctCategories] = React.useState([]);
   const [uoms, set_uoms] = React.useState([]);
 
+  const [supplyVendors, setSupplyVendors] = React.useState([]);
+  const [currentSupplyVendor, setCurrentSupplyVendor] = React.useState(-1);
+  const [currentSupplyVendor_error, setCurrentSupplyVendor_error] = React.useState(null);
+
   const [currentProject, setCurrentProject] = React.useState(-1);
-  const [current_project_error, set_current_project_error] = React.useState(null);
 
   const [projects, setProjects] = React.useState([]);
 
@@ -172,7 +201,7 @@ export default function WarehouseReceive(props) {
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
-  const [types, setTypes] = React.useState(["Projects", "Stock Transfer"]);
+  const [types, setTypes] = React.useState(["From PO", "From Other Warehouse", "From Local Purchase", "From Return Indents"]);
   const [currentType, setCurrentType] = React.useState(-1);
   const [current_type_error, set_current_type_error] = React.useState(null);
 
@@ -184,43 +213,64 @@ export default function WarehouseReceive(props) {
   const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
   const [current_warehouse_error, set_current_warehouse_error] = React.useState(null);
 
-  const [releasedTransactions, setReleasedTransactions] = React.useState([]);
-  const [currentReleasedTransaction, setCurrentReleasedTransaction] = React.useState(-1);
-  const [current_released_indent_error, set_current_released_indent_error] = React.useState(null);
+  const [poItems, setPOItems] = React.useState([]);
+
+  const [supplyVendor, setSupplyVendor] = React.useState(null);
+
+  const [po_date, set_po_date] = React.useState('');
+  const [po_date_error, set_po_date_error] = React.useState(null);
+
+  const [supplier_name, set_supplier_name] = React.useState('');
+  const [supplier_name_error, set_supplier_name_error] = React.useState(null);
+
+  const [supplier_address, set_supplier_address] = React.useState('');
+  const [supplier_address_error, set_supplier_address_error] = React.useState(null);
+
+  const [supplier_gst, set_supplier_gst] = React.useState('');
+  const [supplier_gst_error, set_supplier_gst_error] = React.useState(null);
 
   const [project, set_project] = React.useState(null);
   const [project_error, set_project_error] = React.useState(null);
 
-  const [esugam, set_esugam] = React.useState(props.dc.transaction.esugam_no ? props.dc.transaction.esugam_no : "");
-  const [esugam_error, set_esugam_error] = React.useState(null);
+  const [gate_entry_info, set_gate_entry_info] = React.useState('');
+  const [gate_entry_info_error, set_gate_entry_info_error] = React.useState(null);
 
-  const [esugam_date, set_esugam_date] = React.useState(new Date());
-  const [esugam_date_error, set_esugam_date_error] = React.useState(null);
+  const [bill_no, set_bill_no] = React.useState('');
+  const [bill_no_error, set_bill_no_error] = React.useState(null);
 
-  const [files, set_files] = React.useState(props.dc.transaction.esugam_docs ? props.dc.transaction.esugam_docs : []);
+  const [bill_date, set_bill_date] = React.useState(new Date());
+  const [bill_date_error, set_bill_date_error] = React.useState(null);
+
+  const [dc_no, set_dc_no] = React.useState('');
+  const [dc_no_error, set_dc_no_error] = React.useState(null);
+
+  const [dc_date, set_dc_date] = React.useState(new Date());
+  const [dc_date_error, set_dc_date_error] = React.useState(null);
+
+  const [lr_no, set_lr_no] = React.useState('');
+  const [lr_no_error, set_lr_no_error] = React.useState(null);
+
+  const [lr_date, set_lr_date] = React.useState(new Date());
+  const [lr_date_error, set_lr_date_error] = React.useState(null);
+
+  const [transporter, set_transporter] = React.useState('');
+  const [transporter_error, set_transporter_error] = React.useState(null);
+
+  const [vehicle_no, set_vehicle_no] = React.useState('');
+  const [vehicle_no_error, set_vehicle_no_error] = React.useState(null);
+
+  const [remark, set_remark] = React.useState('');
+  const [remark_error, set_remark_error] = React.useState(null);
+
+  const [files, set_files] = React.useState([]);
+  const [newItemId, set_newItemId] = React.useState(null);
+
+  const [receivedTransactions, set_receivedTransactions] = React.useState(null);
 
   const dateFns = new DateFnsUtils();
 
-  async function getPOs() {
-    try {
-      let url = config["baseurl"] + "/api/po/list?count=" + 10000 + "&offset=" + 0 + "&search=";
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      const { data } = await axios.get(url);
-      console.log(data);
-      setPOs(data.list.docs);
-    }
-    catch (e) {
-      if (e.response) {
-        setErrorMessage(e.response.data.message);
-      }
-      else {
-        setErrorMessage("Error in getting POs");
-      }
-      setShowError(true);
-    }
-  }
-
   async function getAllItemList() {
+    console.log("getAllItemList 1");
     try {
       setShowBackDrop(true);
       let url = config["baseurl"] + "/api/material/list?count=" + 10000 + "&offset=" + 0 + "&search=";
@@ -232,6 +282,41 @@ export default function WarehouseReceive(props) {
       setShowBackDrop(false);
 
       getPCList();
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("Error in getting all items");
+      setErrorMessage("Error in getting all items");
+      setShowError(true);
+    }
+  }
+
+  async function getStoredItemDetail(itemId) {
+    console.log("getStoredItemDetail 1");
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/storedmaterial/details?warehouse=" + props.warehouse._id + "&item=" + itemId;
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      console.log("getStoredItemDetail 2");
+      const { data } = await axios.get(url);
+      console.log("getStoredItemDetail 3");
+
+      let newItems = [...props.selectedStockTransfer.items];
+      console.log("newItems 1: ", newItems);
+      for (let i = 0; i < newItems.length; ++i) {
+        if (newItems[i]._id === data.stored.material) {
+          newItems[i].stockqty = data.stored.qty;
+          break;
+        }
+      }
+
+      console.log("newItems 2: ", newItems);
+
+      set_items(newItems);
+
+      console.log("getStoredItemDetail:", data);
+
+      setShowBackDrop(false);
     }
     catch (e) {
       setShowBackDrop(false);
@@ -270,6 +355,7 @@ export default function WarehouseReceive(props) {
 
       setShowBackDrop(false);
 
+      getWarehouseList();
     }
     catch (e) {
       console.log("Error in getting UOMs list");
@@ -279,27 +365,20 @@ export default function WarehouseReceive(props) {
     }
   }
 
-  async function getReleaseIndents(proj) {
+  async function getWarehouseList() {
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/releasetransaction/list?count=" + 1000 + "&warehouse=" + props.warehouse._id + "&project=" + proj._id + "&itemdetails=1" + "&offset=" + 0 + "&search=" + "";
-      console.log(url);
+      let url = config["baseurl"] + "/api/warehouse/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
-      let newRows = [];
-      const dateFns = new DateFnsUtils();
-      for (let i = 0; i < data.list.length; ++i) {
-        data.list[i].indent.createddate_conv = dateFns.date(data.list[i].indent.createdDate);
-        newRows.push(data.list[i]);
-      }
 
-      setReleasedTransactions(newRows);
-
+      setWarehouses(data.list);
       setShowBackDrop(false);
     }
     catch (e) {
       setShowBackDrop(false);
+      console.log("getWarehouseList: e: ", e);
       if (e.response) {
         setErrorMessage(e.response.data.message);
       }
@@ -310,28 +389,37 @@ export default function WarehouseReceive(props) {
     }
   }
 
-  useEffect(() => {
-    getAllItemList(10000);
-
-    console.log(props.dc);
-
-  }, []);
-
-  useEffect(() => {
-    if (uoms && uoms.length > 0) {
-      populateDCDetails();
+  const setupNow = () => {
+    for (let i = 0; i < warehouses.length; ++i) {
+      // console.log("warehouses[i]._id: ", warehouses[i]._id);
+      // console.log("props.selectedStockTransfer.towarehouse: ", props.selectedStockTransfer.towarehouse);
+      if (warehouses[i]._id === props.selectedStockTransfer.towarehouse._id) {
+        console.log("its found");
+        setCurrentWarehouse(i);
+        break;
+      }
     }
-
-  }, [uoms]);
-
-  const populateDCDetails = () => {
-    if (props.dc.transaction.type === "projects") {
-      setCurrentType(0);
-    }
-    else if (props.dc.transaction.type === "stocktransfer") {
-      setCurrentType(1);
-    }
+    set_remark(props.selectedStockTransfer.remark);
+    // for (let i = 0; i < props.selectedStockTransfer.items.length; ++i) {
+    //   getStoredItemDetail(props.selectedStockTransfer.items[i].item);
+    // }
+    set_items(props.selectedStockTransfer.items);
   };
+
+  useEffect(() => {
+    if (props.warehouse)
+      getAllItemList();
+  }, [props.warehouse]);
+
+  useEffect(() => {
+    if (warehouses)
+      setupNow();
+  }, [warehouses]);
+
+  useEffect(() => {
+    if (newItemId)
+      getStoredItemDetail(newItemId);
+  }, [newItemId]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -341,8 +429,8 @@ export default function WarehouseReceive(props) {
     setShowError(false);
   };
 
-  const handleBreadCrumClick = (target) => {
-    props.history.push(target);
+  const handleBreadCrumClick = () => {
+    (props.stockTransferType === 0) ? props.history.push("/outwardstocktransfer") : props.history.push("/inwardstocktransfer");
   };
 
   const handleCancel = () => {
@@ -351,10 +439,20 @@ export default function WarehouseReceive(props) {
 
   const validateData = () => {
     const schema = Joi.object({
-      esugam: Joi.string().min(1).max(1024).required(),
+      bill_no: Joi.string().min(1).max(1024).required(),
+      dc_no: Joi.string().min(1).max(8192).required(),
+      lr_no: Joi.string().min(1).max(8192).required(),
+      transporter: Joi.string().min(1).max(8192).required(),
+      vehicle_no: Joi.string().min(1).max(8192).required(),
+      gate_entry_info: Joi.string().min(1).max(8192).required(),
     });
     const { error } = schema.validate({
-      esugam: esugam.trim()
+      bill_no: bill_no.trim(),
+      dc_no: dc_no.trim(),
+      lr_no: lr_no.trim(),
+      transporter: transporter.trim(),
+      vehicle_no: vehicle_no.trim(),
+      gate_entry_info: gate_entry_info.trim()
     }, { abortEarly: false });
     const allerrors = {};
     if (error) {
@@ -365,84 +463,52 @@ export default function WarehouseReceive(props) {
     return allerrors;
   }
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-
-    generateDCForProjects();
-  };
-
   const getTypeString = (type) => {
     switch (type) {
       case 0:
-        return "projects";
+        return "po";
         break;
       case 1:
-        return "stocktransfer";
+        return "warehouse";
+        break;
+      case 2:
+        return "local_purchase";
+        break;
+      case 3:
+        return "return_indent";
         break;
     }
 
     return "";
   };
 
-  const generateDCForProjects = async () => {
-    set_esugam_error(null);
-
-    const errors = validateData();
-
-    let errorOccured = false;
-    if (currentType === -1) {
-      set_current_type_error("Type Required");
-      errorOccured = true;
-    }
-    if (errors["esugam"]) {
-      set_esugam_error(errors["esugam"]);
-      errorOccured = true;
-    }
-
-    if (props.dc.items.length === 0) {
-      set_items_error("Items required");
-      errorOccured = true;
-    }
-
-    if (errorOccured)
-      return;
-
+  const handleSave = async () => {
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/deliverychallan/update";
+      let url = config["baseurl"] + "/api/stocktransfer/complete";
 
-      let postObj = {};
-      postObj["esugam_no"] = esugam.trim();
-      postObj["esugam_date"] = esugam_date.toUTCString();
-      console.log("1");
-      console.log("files: ", files);
-      postObj["esugam_docs"] = [];
-      for (let i = 0; i < files.length; ++i) {
-        postObj["esugam_docs"].push({ name: files[i].name, path: files[i].path });
-      }
+      console.log("currentWarehouse: ", currentWarehouse);
+      console.log("warehouses[currentWarehouse]: ", warehouses[currentWarehouse]);
 
-      console.log("postObj: ", postObj);
-
-      let updateObj = { _id: props.dc.transaction._id, updateParams: postObj };
+      let updateObj = { _id: props.selectedStockTransfer.transaction._id };
 
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
       const updated = await axios.patch(url, updateObj);
 
-      console.log("4");
-      console.log("successfully Saved");
       setShowBackDrop(false);
-      props.history.push("/accounts-dc");
+
+      props.history.push("/inwardstocktransfer");
     }
     catch (e) {
-      console.log("5");
+      console.log(e);
       if (e.response) {
         console.log("Error in creating");
         setErrorMessage(e.response.data["message"]);
       }
       else {
         console.log("Error in creating");
-        setErrorMessage("Error in creating: ", e.message);
+        setErrorMessage("Error in creating: " + e);
       }
       setShowError(true);
       setShowBackDrop(false);
@@ -450,10 +516,7 @@ export default function WarehouseReceive(props) {
   };
 
   const addItem = () => {
-    if (currentType === 0 && currentPO >= 0)
-      setShowSelectItem(true);
-    else if (currentType === 2)
-      setShowSelectItemForLP(true);
+    setShowSelectItemForLP(true);
   };
 
   const closeSelectItemDialogAction = () => {
@@ -465,7 +528,7 @@ export default function WarehouseReceive(props) {
     setShowSelectItem(false);
 
     for (let i = 0; i < items.length; ++i) {
-      if (items[i]._id == newitem._id && items[i].scheduled_date == newitem.scheduled_date)
+      if (items[i]._id === newitem._id)
         return;
     }
 
@@ -473,6 +536,13 @@ export default function WarehouseReceive(props) {
 
     let newCopy = cloneDeep(newitem);
     newCopy.qty = 0;
+
+    for (let i = 0; i < allItems.length; ++i) {
+      if (allItems[i]._id === newitem._id) {
+        newCopy.stockqty = allItems[i].qty;
+        break;
+      }
+    }
 
     let newItems = [...items, newCopy];
     set_items(newItems);
@@ -492,18 +562,23 @@ export default function WarehouseReceive(props) {
   };
 
   const onSelectItemForLP = (newitem) => {
+    console.log("onSelectItemForLP: ", newitem);
     setShowSelectItemForLP(false);
 
     for (let i = 0; i < items.length; ++i) {
-      if (items[i]._id == newitem._id && items[i].scheduled_date == newitem.scheduled_date)
+      if (items[i]._id === newitem._id)
         return;
     }
 
     console.log(newitem);
 
     let newCopy = cloneDeep(newitem);
+    newCopy.stockqty = 0;
     newCopy.qty = 0;
-    newCopy.rate = 0;
+
+    set_newItemId(newCopy._id);
+
+    console.log("newCopy: ", newCopy);
 
     let newItems = [...items, newCopy];
     set_items(newItems);
@@ -524,45 +599,73 @@ export default function WarehouseReceive(props) {
     set_current_warehouse_error(null);
   };
 
-  const handleTypeChange = (event) => {
-    setCurrentType(event.target.value);
-    set_current_type_error(null);
+  // const handleTypeChange = (event) => {
+  //   setCurrentType(event.target.value);
+  //   set_current_type_error(null);
 
-    set_items([]);
+  //   set_items([]);
 
-    switch (event.target.value) {
-      case 0:
-        if (!pos) {
-          getPOs();
-        }
-        break;
-      case 1:
-        // if (!pos) {
-        //   getWarehouseList();
-        // }
-        break;
-      case 2:
-        break;
-      case 3:
-        break;
-    }
+  //   switch (event.target.value) {
+  //     case 0:
+  //       if (!pos) {
+  //         getPOs();
+  //       }
+  //       break;
+  //     case 1:
+  //       if (!pos) {
+  //         getWarehouseList();
+  //       }
+  //       break;
+  //     case 2:
+  //       break;
+  //     case 3:
+  //       break;
+  //   }
+  // };
+
+  // const handlePOChange = (event) => {
+  //   setCurrentPO(event.target.value);
+  //   set_receivedTransactions(null);
+  //   set_current_po_error(null);
+  //   setSupplyVendor(null);
+  //   const vendor = getSupplyVendor(pos[event.target.value].supply_vendor);
+  //   console.log("vendor: ", vendor);
+  //   setSupplyVendor(vendor);
+  //   if (vendor) {
+  //     set_supplier_name_error(null);
+  //     set_supplier_address_error(null);
+  //     set_supplier_gst_error(null);
+  //   }
+
+  //   console.log(pos[event.target.value]);
+
+  //   getReceivedMaterials(pos[event.target.value]._id);
+
+  //   set_items([]);
+
+  //   let newItems = [];
+  //   for (let k = 0; k < pos[event.target.value].items.length; ++k) {
+  //     for (let i = 0; i < allItems.length; ++i) {
+  //       if (pos[event.target.value].items[k].item === allItems[i]._id) {
+  //         let item = cloneDeep(allItems[i]);
+  //         item.rate = pos[event.target.value].items[k].rate;
+  //         item.qty = pos[event.target.value].items[k].qty;
+  //         item.scheduled_date = pos[event.target.value].items[k].scheduled_date;
+  //         item.scheduled_date_conv = dateFns.date(pos[event.target.value].items[k].scheduled_date);
+
+  //         newItems.push(item);
+  //         break;
+  //       }
+  //     }
+  //   }
+  //   setPOItems(newItems);
+  // }
+
+  const handleSupplyVendorChange = (event) => {
+    setCurrentSupplyVendor(event.target.value);
+    setCurrentSupplyVendor_error(null);
+    set_supply_vendor_error(null);
   };
-
-  const handleReleasedIndentChange = (event) => {
-    setCurrentReleasedTransaction(event.target.value);
-
-    const releaseIndent = releasedTransactions[event.target.value];
-    console.log(releaseIndent);
-    set_items(releaseIndent.items ? releaseIndent.items : []);
-  };
-
-  const handleProjectChange = (event) => {
-    setCurrentProject(event.target.value);
-    setCurrentReleasedTransaction(-1);
-    set_current_project_error(null);
-
-    getReleaseIndents(projects[event.target.value]);
-  }
 
   const getItemName = (id) => {
     for (let i = 0; i < props.allItems.length; ++i) {
@@ -632,7 +735,7 @@ export default function WarehouseReceive(props) {
       const response = await axios.post(url, {
         fileName: myfile.name,
         fileType: myfile.file.fileType,
-        folder: "warehouse_esugam_docs"
+        folder: "warehouse_received_docs"
       });
 
       if (response) {
@@ -673,88 +776,97 @@ export default function WarehouseReceive(props) {
     return dateFns.date(val).toDateString();
   };
 
+  const getSupplyVendor = (val) => {
+    console.log("------------");
+    console.log("val: ", val);
+    console.log("supplyVendors: ", supplyVendors);
+    for (let i = 0; i < supplyVendors.length; ++i) {
+      if (supplyVendors[i]._id === val) {
+        return supplyVendors[i];
+      }
+    }
+
+    return null;
+  };
+
+  const getReceivedQty = (receivableItem) => {
+    console.log("receivableItem: ", receivableItem);
+
+    let total = 0;
+    for (let i = 0; i < receivedTransactions.length; ++i) {
+      for (let k = 0; k < receivedTransactions[i].transaction.items.length; ++k) {
+        if (receivedTransactions[i].transaction.items[k].item === receivableItem._id) {
+          total += receivedTransactions[i].transaction.items[k].qty;
+        }
+      }
+    }
+
+    return total;
+  };
+
   return (
     <div className={clsx(classes.root)}>
-      <div className={classes.paper}>
+      {props.warehouse &&
+        <div className={classes.paper}>
 
-        <EnhancedTableToolbar title={"Edit DC"} />
+          <EnhancedTableToolbar title={props.warehouse.name + ": " + props.selectedStockTransfer.transaction.code} />
 
-        <form className={classes.papernew} autoComplete="off" noValidate>
-          <FormControl size="small" variant="outlined" className={classes.formControl}>
-            <InputLabel id="type-select-label">Delivery Type *</InputLabel>
-            <Select
-              labelId="type-select-label"
-              id="type-select-label"
-              value={currentType === -1 ? "" : currentType}
-              onChange={handleTypeChange}
-              label="Delivery Type *"
-              disabled
-            >
-              {types && types.map((row, index) => {
-                return (
-                  <MenuItem key={"" + index} value={index}>{"" + row}</MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-          {current_type_error && <Alert className={classes.alert} severity="error"> {current_type_error} </Alert>}
+          <Breadcrumbs aria-label="breadcrumb">
+            <Link color="inherit" onClick={() => handleBreadCrumClick()}>
+              {props.stockTransferType === 0 ? "Outward Stock Transfer" : "Inward Stock Transfer"}
+            </Link>
+            <Typography color="textPrimary">{"Stock Transfer Details"}</Typography>
+          </Breadcrumbs>
 
-          {currentType === 1 &&
-            <TextField size="small" className={classes.inputFields} id="formControl_stocktransfer" value={props.dc.stocktransfer.code}
-              label="Stock Transfer" variant="outlined" disabled />}
+          <form className={classes.papernew} autoComplete="off" noValidate>
+            <FormControl size="small" variant="outlined" className={classes.formControl}>
+              <InputLabel id="warehouse-select-label">Destination Warehouse *</InputLabel>
+              <Select
+                labelId="warehouse-select-label"
+                id="warehouse-select-label"
+                value={currentWarehouse === -1 ? "" : currentWarehouse}
+                onChange={handleWarehouseChange}
+                label="Warehouse *"
+                disabled
+              >
+                {warehouses && warehouses.map((row, index) => {
+                  return (
+                    <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+            {current_warehouse_error && <Alert className={classes.alert} severity="error"> {current_warehouse_error} </Alert>}
 
-          {currentType === 0 &&
-            <TextField size="small" className={classes.inputFields} id="formControl_indent" value={props.dc.indent.code}
-              label="Material Indent" variant="outlined" disabled />}
+            <TextField size="small" className={classes.inputFields} id="formControl_remark" defaultValue={remark}
+              label="Remark" variant="outlined" multiline disabled
+              onChange={(event) => { set_remark(event.target.value); set_remark_error(null); }} />
+            {remark_error && <Alert className={classes.alert} severity="error"> {remark_error} </Alert>}
 
-          {currentType === 0 &&
-            <TextField size="small" className={classes.inputFields} id="formControl_indent" value={props.dc.indent.code}
-              label="Material Indent" variant="outlined" disabled />}
-
-          {currentType === 0
-            && <TextField size="small" className={classes.inputFields} id="formControl_servicevendor_name"
-              value={("" + props.dc.servicevendor.code + props.dc.servicevendor.name)}
-              label="ServiceVendor Name" variant="outlined" disabled />}
-
-          {<TextField size="small" className={classes.inputFields} id="formControl_lr_no" value={props.dc.transaction.lr_no}
-            label="LR Num" variant="outlined" disabled />}
-
-          {<TextField size="small" className={classes.inputFields} id="formControl_lr_date" value={props.dc.transaction.lr_date}
-            label="LR Date" variant="outlined" disabled />}
-
-          {<TextField size="small" className={classes.inputFields} id="formControl_transporter" value={props.dc.transaction.transporter}
-            label="Transporter" variant="outlined" disabled />}
-
-          {<TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" value={props.dc.transaction.vehicle_no}
-            label="Vehicle no" variant="outlined" disabled />}
-
-          {<TextField size="small" className={classes.inputFields} id="formControl_remark" value={props.dc.transaction.remark}
-            label="Remark" variant="outlined" disabled />}
-
-          {/* <div style={{ marginTop: 10 }}>
-            <div>
-              {files.map((file, index) => {
-                return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
-              })}
-            </div>
-            <div style={{ marginTop: 5 }}>
-              <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
-                Upload Document
+            <div style={{ marginTop: 10 }}>
+              <div>
+                {files.map((file, index) => {
+                  return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
+                })}
+              </div>
+              {/* <div style={{ marginTop: 5 }}>
+                <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
+                  Upload Document
                   <input type="file" hidden />
-              </Button>
+                </Button>
+              </div> */}
             </div>
-          </div> */}
 
-          {currentType === 0 &&
             <Paper className={classes.paper} style={{ marginTop: 10 }}>
               <TableContainer className={classes.container}>
                 <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                  <EnhancedTableHeadSmall title="Releasing Items" onClick={addItem} />
+                  <EnhancedTableHeadSmall title="Transfer Items" onClick={addItem} />
                   <TableBody>
-                    {props.dc.items.map((row, index) => {
+                    {items.map((row, index) => {
                       return (
                         <TableRow hover tabIndex={-1} key={"" + index} >
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.details.description}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.details.name}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.details.description}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.details.uomId)}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.qty}</TableCell>
                         </TableRow>
@@ -764,48 +876,24 @@ export default function WarehouseReceive(props) {
                 </Table>
               </TableContainer>
             </Paper>
-          }
+            {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
 
-          <TextField size="small" className={classes.inputFields} id="formControl_esugam" value={esugam}
-            label="E-Sugam Num" variant="outlined"
-            onChange={(event) => { set_esugam(event.target.value); set_esugam_error(null); }} />
-          {esugam_error && <Alert className={classes.alert} severity="error"> {esugam_error} </Alert>}
-
-          {<FormControl variant="outlined" size="small" className={classes.formControl}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils} >
-              <DatePicker size="small" label="E-Sugam Date" inputVariant="outlined" format="dd/MM/yyyy" value={esugam_date} onChange={set_esugam_date} />
-            </MuiPickersUtilsProvider>
-          </FormControl>}
-          {esugam_date_error && <Alert className={classes.alert} severity="error"> {esugam_date_error} </Alert>}
-
-          <div style={{ marginTop: 10 }}>
-            <div>
-              {files.map((file, index) => {
-                return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
-              })}
+            <div className={classes.submit}>
+              {/* <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button> */}
+              {(props.stockTransferType === 1) && <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Received Stock</Button>}
+              {/* <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button> */}
             </div>
-            <div style={{ marginTop: 5 }}>
-              <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
-                Upload E-Sugam Document
-                                    <input type="file" hidden />
-              </Button>
-            </div>
-          </div>
 
-          <div className={classes.submit}>
-            {/* <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button> */}
-            <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button>
-          </div>
+          </form>
+          {/* </Paper> */}
+        </div>
+      }
 
-        </form>
-        {/* </Paper> */}
-      </div>
-
-      {/* { showSelectItem && <SelectItem2 closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={(currentType === 0) ? poItems : allItems} selectedItems={items} type={"Receivable Items"} />}
+      { showSelectItem && <SelectItem2 closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={(currentType === 0) ? poItems : allItems} selectedItems={items} type={"Receivable Items"} />}
 
       { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />}
 
-      { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects} />} */}
+      { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects} />}
 
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">

@@ -136,14 +136,14 @@ export default function ResponsiveDrawer(props) {
     const classes = useStyles();
     const theme = useTheme();
     const [homeModes, setHomeModes] = React.useState(["Profile", "Office Administration", "Company Policies"]);
-    const [procurementModes, setProcurementModes] = React.useState(["Dashboard", "Letter of Intents", "Purchase Orders"]);
-    const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "Receive Materials", "Release Materials", "Stock Transfer", "Generate DC"]);
+    const [procurementModes, setProcurementModes] = React.useState(["Dashboard", "Letter of Intents", "Purchase Orders", "Local Purchase"]);
+    const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "Receive Materials", "Release Materials", "Inward Stock Transfer", "Outward Stock Transfer", "Generate DC"]);
     const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
     const [outsourcingModes, setOutsourcingModes] = React.useState(["Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report"]);
     const [accountsModes, setAccountsModes] = React.useState(["DC [eSugam Waiting]", "DC [All]"]);
     const [hrpayrollModes, setHrpayrollModes] = React.useState([]);
     const [analyticsModes, setAnalyticsModes] = React.useState([]);
-    const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Help", "Materials", "UOM", "Product Category", "Add Project", "Project Utils", "Supply Vendors", "Service Vendors", "Customers", "Warehouses", "Vendor Rate Contracts & Agreement"]);
+    const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Product Category", "UOM", "Materials", "Customers", "Project Utils", "Add Project", "Supply Vendors", "Service Vendors", "Vendor Rate Contracts & Agreement", "Warehouses", "Help"]);
     const [menu, setMenu] = React.useState([]);
 
     //React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Accounts", "HR & Payroll", "Analytics", "Admin Settings"]);
@@ -182,6 +182,20 @@ export default function ResponsiveDrawer(props) {
     };
 
     useEffect(() => {
+        let profileData = JSON.parse(window.localStorage.getItem("profile"));
+        console.log("profileData.role: ", profileData.role);
+        if (profileData.role.includes("projectManager") || profileData.role.includes("admin")) {
+            setProjectModes(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
+        }
+        else if (profileData.role.includes("deputyManager")) {
+            setProjectModes(["Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker"]);
+        }
+        else if (profileData.role.includes("supervisor")) {
+            setProjectModes(["Execution", "Material Indents", "Return Indent"]);
+        }
+        else {
+            setProjectModes([]);
+        }
 
         getMenuForMode(props.modes[props.currentMode]);
         gotoMenu(props.modes[props.currentMode], 0);
@@ -201,6 +215,7 @@ export default function ResponsiveDrawer(props) {
                 setMenu(warehouseModes);
                 break;
             case "Projects":
+                console.log("projectModes: ", projectModes);
                 setMenu(projectModes);
                 break;
             case "Sub-Contract":
@@ -223,40 +238,40 @@ export default function ResponsiveDrawer(props) {
 
     const gotoMenu = (row, index) => {
         if (props.modes[props.currentMode] === "Projects") {
-            switch (index) {
-                case 0:
+            switch (row) {
+                case "Dashboard":
                     history.push("/projectsdashboard");
                     break;
-                case 1:
+                case "Approvals":
                     history.push("/project-approvals");
                     break;
-                case 2:
+                case "Letter Corr":
                     history.push("/project-lettercorr");
                     break;
-                case 3:
+                case "DWA BOQ":
                     history.push("/project-dwaboq");
                     break;
-                case 4:
+                case "Project Estimates":
                     history.push("/project-projectestimates");
                     break;
-                case 5:
+                case "Work Orders":
                     history.push("/project-workorders");
                     break;
-                case 6:
+                case "Execution":
                     history.push("/projectdetails");
                     break;
-                case 7:
+                case "Material Indents":
                     history.push("/materialindents");
                     break;
-                case 8:
+                case "Return Indent":
                     history.push("/returnindents");
                     break;
-                case 9:
+                case "Project Documents":
                     history.push("/project-documents");
                     break;
-                case 10:
+                case "Issue Tracker":
                     break;
-                case 11:
+                case "Billing":
                     break;
             }
         }
@@ -266,22 +281,22 @@ export default function ResponsiveDrawer(props) {
                     history.push("/users");
                     break;
                 case 1:
-                    history.push("/help");
-                    break;
-                case 2:
-                    history.push("/materials");
-                    break;
-                case 3:
-                    history.push("/uoms");
-                    break;
-                case 4:
                     history.push("/product-category");
                     break;
+                case 2:
+                    history.push("/uoms");
+                    break;
+                case 3:
+                    history.push("/materials");
+                    break;
+                case 4:
+                    history.push("/customers");
+                    break;
                 case 5:
-                    history.push("/addproject");
+                    history.push("/projects-utils");
                     break;
                 case 6:
-                    history.push("/projects-utils");
+                    history.push("/addproject");
                     break;
                 case 7:
                     history.push("/supplyvendors");
@@ -290,13 +305,13 @@ export default function ResponsiveDrawer(props) {
                     history.push("/servicevendors");
                     break;
                 case 9:
-                    history.push("/customers");
+                    history.push("/vendorratecontractsagreements");
                     break;
                 case 10:
                     history.push("/warehouses");
                     break;
                 case 11:
-                    history.push("/vendorratecontractsagreements");
+                    history.push("/help");
                     break;
             }
         }
@@ -310,6 +325,9 @@ export default function ResponsiveDrawer(props) {
                     break;
                 case 2:
                     history.push("/po");
+                    break;
+                case 3:
+                    history.push("/localpurchase");
                     break;
             }
         }
@@ -328,8 +346,12 @@ export default function ResponsiveDrawer(props) {
                     history.push("/releaseindents");
                     break;
                 case 4:
+                    history.push("/inwardstocktransfer");
                     break;
                 case 5:
+                    history.push("/outwardstocktransfer");
+                    break;
+                case 6:
                     history.push("/generate-dc");
                     break;
             }

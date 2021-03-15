@@ -73,9 +73,9 @@ function EnhancedTableHead(props) {
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'itemcode', numeric: false, disablePadding: false, label: 'Item Code' },
     { id: 'hsncode', numeric: false, disablePadding: false, label: 'HSN Code' },
+    { id: 'productcategory', numeric: false, disablePadding: false, label: 'Product Category' },
     { id: 'itemname', numeric: false, disablePadding: false, label: 'Item Name' },
     { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
-    { id: 'productcategory', numeric: false, disablePadding: false, label: 'Product Category' },
     { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
   ];
@@ -502,9 +502,9 @@ export default function Materials(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.hsncode}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProductCategory(row.data.productCategoryId)}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProductCategory(row.data.productCategoryId)}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.data.uomId)}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                             <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>

@@ -80,9 +80,13 @@ export default function EditUser(props) {
     procurement: props.selectedUser.role.includes("procurement"),
     warehouse: props.selectedUser.role.includes("warehouse"),
     projectManager: props.selectedUser.role.includes("projectManager"),
-    engineeringManager: props.selectedUser.role.includes("engineeringManager"),
+    deputyManager: props.selectedUser.role.includes("deputyManager"),
     supervisor: props.selectedUser.role.includes("supervisor"),
-    usermanagement: props.selectedUser.role.includes("usermanagement")
+    usermanagement: props.selectedUser.role.includes("usermanagement"),
+    subcontract: props.selectedUser.role.includes("subcontract"),
+    accounts: props.selectedUser.role.includes("accounts"),
+    hrnpayroll: props.selectedUser.role.includes("hrnpayroll"),
+    analytics: props.selectedUser.role.includes("analytics")
   });
   const [rolestate_error, set_rolestate_error] = React.useState(null);
 
@@ -169,8 +173,13 @@ export default function EditUser(props) {
       && roleState.procurement === false
       && roleState.warehouse === false
       && roleState.projectManager === false
-      && roleState.engineeringManager === false
+      && roleState.deputyManager === false
       && roleState.supervisor === false
+      && roleState.subcontract === false
+      && roleState.accounts === false
+      && roleState.hrnpayroll === false
+      && roleState.analytics === false
+
     ) {
       set_rolestate_error("Atleast one role is required");
     }
@@ -225,9 +234,13 @@ export default function EditUser(props) {
         if (roleState.procurement) postObj["role"].push("procurement");
         if (roleState.warehouse) postObj["role"].push("warehouse");
         if (roleState.projectManager) postObj["role"].push("projectManager");
-        if (roleState.engineeringManager) postObj["role"].push("engineeringManager");
+        if (roleState.deputyManager) postObj["role"].push("deputyManager");
         if (roleState.supervisor) postObj["role"].push("supervisor");
         if (roleState.usermanagement) postObj["role"].push("usermanagement");
+        if (roleState.subcontract) postObj["role"].push("subcontract");
+        if (roleState.accounts) postObj["role"].push("accounts");
+        if (roleState.hrnpayroll) postObj["role"].push("hrnpayroll");
+        if (roleState.analytics) postObj["role"].push("analytics");
 
         if (phone !== props.selectedUser.phone)
           postObj["phone"] = phone.trim();
@@ -351,12 +364,21 @@ export default function EditUser(props) {
                     label="Warehouse" />
                   <FormControlLabel control={<Checkbox checked={roleState.projectManager} onChange={handleChange} name="projectManager" color="primary" />}
                     label="Project Manager" />
-                  <FormControlLabel control={<Checkbox checked={roleState.engineeringManager} onChange={handleChange} name="engineeringManager" color="primary" />}
-                    label="Engineering Manager" />
+                  <FormControlLabel control={<Checkbox checked={roleState.deputyManager} onChange={handleChange} name="deputyManager" color="primary" />}
+                    label="Deputy Manager" />
                   <FormControlLabel control={<Checkbox checked={roleState.supervisor} onChange={handleChange} name="supervisor" color="primary" />}
                     label="Supervisor" />
                   <FormControlLabel control={<Checkbox checked={roleState.usermanagement} onChange={handleChange} name="usermanagement" color="primary" />}
                     label="User Management" />
+                  <FormControlLabel control={<Checkbox checked={roleState.subcontract} onChange={handleChange} name="subcontract" color="primary" />}
+                    label="SubContract" />
+                  <FormControlLabel control={<Checkbox checked={roleState.accounts} onChange={handleChange} name="accounts" color="primary" />}
+                    label="Accounts" />
+                  <FormControlLabel control={<Checkbox checked={roleState.hrnpayroll} onChange={handleChange} name="hrnpayroll" color="primary" />}
+                    label="HR & Payroll" />
+                  <FormControlLabel control={<Checkbox checked={roleState.analytics} onChange={handleChange} name="analytics" color="primary" />}
+                    label="Analytics" />
+
                 </FormGroup>
               </Paper>
               {rolestate_error && <Alert className={classes.alert} severity="error"> {rolestate_error} </Alert>}

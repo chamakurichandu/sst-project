@@ -28,7 +28,6 @@ import ProcurementImage from '../assets/svg/ss/commercial-2.svg';
 import IconButton from '@material-ui/core/IconButton';
 import EditImage from '@material-ui/icons/Edit';
 import GetAppImage from '@material-ui/icons/GetApp';
-import DetailImage from '@material-ui/icons/ArrowForward';
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -74,13 +73,14 @@ function EnhancedTableHead(props) {
 
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
-    { id: 'itemcode', numeric: false, disablePadding: false, label: 'Item Code' },
-    { id: 'itemname', numeric: false, disablePadding: false, label: 'Item Name' },
-    { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
-    { id: 'productcategory', numeric: false, disablePadding: false, label: 'Product Category' },
-    { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
-    { id: 'qty', numeric: false, disablePadding: false, label: 'Stored Qty' },
-    { id: 'action', numeric: false, disablePadding: false, label: 'Actions' }
+    { id: 'code', numeric: false, disablePadding: false, label: 'LocalPurchase Code' },
+    { id: 'project', numeric: false, disablePadding: false, label: 'Project Name' },
+    { id: 'warehouse', numeric: false, disablePadding: false, label: 'Warehouse Name' },
+    { id: 'bill no', numeric: false, disablePadding: false, label: 'Bill No' },
+    { id: 'billdate', numeric: false, disablePadding: false, label: 'Bill Date' },
+    { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
+    { id: 'createddate', numeric: false, disablePadding: false, label: 'Created Date' },
+    { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
   ];
 
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -126,7 +126,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-export default function WarehouseInventory(props) {
+export default function LocalPurchase(props) {
 
   // console.log("props: " + props);
 
@@ -281,19 +281,18 @@ export default function WarehouseInventory(props) {
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
-  async function getWarehouseInventory(numberOfRows, search = "") {
+  async function getList(numberOfRows, search = "") {
     try {
-      setShowBackDrop(true);
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/storedmaterial/list?count=" + numberOfRows + "&warehouse=" + props.warehouse._id + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/localpurchase/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
       let newRows = [];
-      setTotalCount(data.totalDocs);
+      setTotalCount(data.count);
       const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.length; ++i) {
-        // data.list[i].createddate_conv = dateFns.date(data.list[i].createdDate);
+        data.list[i].createddate_conv = dateFns.date(data.list[i].transaction.createdDate);
         newRows.push(createData((offset + i + 1),
           data.list[i]
         ));
@@ -301,7 +300,32 @@ export default function WarehouseInventory(props) {
 
       setRows(newRows);
 
+      getAllItemList();
+    }
+    catch (e) {
+
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
+
+  async function getSupplyVendorList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/supplyvendor/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      // console.log(data);
+
+      setSupplyVendors(data.list.docs);
       setShowBackDrop(false);
+
+      getList(rowsPerPage);
     }
     catch (e) {
       setShowBackDrop(false);
@@ -315,11 +339,102 @@ export default function WarehouseInventory(props) {
     }
   }
 
-  useEffect(() => {
-    if (props.warehouse)
-      getWarehouseInventory(rowsPerPage);
+  async function getAllItemList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/material/list?count=" + 10000 + "&offset=" + 0 + "&search=";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      // console.log(data);
 
-  }, [props.warehouse]);
+      set_allItems(data.list.docs);
+      setShowBackDrop(false);
+
+      getUOMList();
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("Error in getting all items");
+      setErrorMessage("Error in getting all items");
+      setShowError(true);
+    }
+  }
+
+  async function getUOMList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/uom/list?count=" + 10000 + "&offset=" + 0 + "&search=";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log("uoms: ", data);
+
+      set_uoms(data.list);
+      setShowBackDrop(false);
+
+      getProjectList();
+      // getWarehouseList();
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("Error in getting all items");
+      setErrorMessage("Error in getting all items");
+      setShowError(true);
+    }
+  }
+
+  async function getProjectList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/project/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      // console.log(data);
+      setProjects(data.list.docs);
+      setShowBackDrop(false);
+
+      getWarehouseList();
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("getProjectList e: ", e);
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
+
+  async function getWarehouseList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/warehouse/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+
+      setWarehouses(data.list);
+      setShowBackDrop(false);
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      console.log("getWarehouseList: e: ", e);
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
+
+  useEffect(() => {
+    getSupplyVendorList();
+
+  }, []);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -367,7 +482,7 @@ export default function WarehouseInventory(props) {
   const handleChangePage = (event, newPage) => {
     offset = newPage * rowsPerPage;
     setPage(newPage);
-    getWarehouseInventory(rowsPerPage);
+    getList(rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -375,12 +490,11 @@ export default function WarehouseInventory(props) {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
     offset = 0;
-    getWarehouseInventory(newRowsPerPage);
+    getList(newRowsPerPage);
   };
 
   const handleAdd = () => {
-    console.log("calling goto");
-    props.goto("receivematerial");
+    props.history.push("/createlocalpurchase");
   };
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -413,7 +527,7 @@ export default function WarehouseInventory(props) {
   const onSearchChange = (event) => {
     console.log(event.target.value);
 
-    getWarehouseInventory(rowsPerPage, event.target.value);
+    getList(rowsPerPage, event.target.value);
   };
 
   const handleCloseBackDrop = () => {
@@ -438,8 +552,8 @@ export default function WarehouseInventory(props) {
 
   const editAction = (data) => {
     console.log(data);
-    props.setPO(data);
-    props.goto("editPO", data);
+    props.setLoi(data);
+    props.history.push("/edit-loi");
   };
 
   const getItem = (id) => {
@@ -501,19 +615,154 @@ export default function WarehouseInventory(props) {
     }
   };
 
-  const detailAction = (data) => {
+  const downloadAction = async (data) => {
+    let supplyVendor = getSupplyVendor(data.supply_vendor);
+    let enqItems = [];
+    enqItems.push([{ text: 'S.No.', style: 'tableHeader', fontSize: 10 }, { text: 'HSN Code', style: 'tableHeader', fontSize: 10 }, { text: 'Material Description', style: 'tableHeader', fontSize: 10 }, { text: 'UOM', style: 'tableHeader', fontSize: 10 }, { text: 'Scheduled Date', style: 'tableHeader', fontSize: 10 }, { text: 'Qty', style: 'tableHeader', fontSize: 10 }, { text: 'Rate', style: 'tableHeader', fontSize: 10 }, { text: 'Amount(Rs)', style: 'tableHeader', fontSize: 10 }]);
+    let numberFormatter = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 });
+    let totalAmount = 0;
+    data.items.forEach(function (item, index) {
+      let completeItem = getItem(item.item);
+      const dateFns = new DateFnsUtils();
+      if (!completeItem.hsncode)
+        completeItem.hsncode = " ";
+      completeItem.scheduled_date_conv = dateFns.date(item.scheduled_date);
+      completeItem.total = item.qty * item.rate;
+      totalAmount += completeItem.total;
+      enqItems.push(["" + (index + 1), completeItem.hsncode, completeItem.description, getUOMName(completeItem.uomId), completeItem.scheduled_date_conv.toDateString(), { text: numberFormatter.format(item.qty), fontSize: 10, alignment: 'right' }, { text: "" + numberFormatter.format(item.rate), fontSize: 10, alignment: 'right' }, { text: numberFormatter.format(completeItem.total), fontSize: 10, alignment: 'right' }]);
+    });
+    enqItems.push([{}, {}, {}, {}, {}, {}, {}, {}]);
+    enqItems.push([{}, {}, {}, {}, {}, {}, { text: "Total:", bold: true }, { text: "" + numberFormatter.format(totalAmount), bold: true, alignment: 'right' }]);
 
+    var docDefinition = {
+      pageMargins: [40, 140, 40, 60],
+      header: { image: await getBase64ImageFromURL("https://demossga.s3.ap-south-1.amazonaws.com/temp/RajashreeElectricalsHeader.png"), width: 594, height: 130, alignment: "center" },
+      content: [
+        {
+          style: 'tableExample',
+          color: '#444',
+          table: {
+            widths: ["*", "*", "*", "*"],
+            headerRows: 1,
+            // keepWithHeaderRows: 1,
+            body: [
+              [{ text: 'LETTER OF INTENT', style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: 'M/s. Rajashree Electrical\nNo.154, Nijalingappa Layout, Davanagere - 577004\nGSTIN/UIN : 29AKTPR1041D1Z1 | Karnataka Code: 29 | projects@rajashreeelectricals.com', bold: false, fontSize: 11, style: 'tableHeader', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: 'LOI Number:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.code, bold: false, fontSize: 10, alignment: 'center' }, { text: 'Reference Number:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.reference_number, bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: 'Date:', bold: true, fontSize: 10, alignment: 'center' }, { text: data.createddate_conv.toDateString(), bold: false, fontSize: 10, alignment: 'center' }, { text: 'Delivery Location:', bold: true, fontSize: 10, alignment: 'center' }, { text: getWarehouseName(data.warehouse), bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: 'Project:', bold: true, fontSize: 10, alignment: 'center' }, { text: getProjectName(data.project), bold: false, fontSize: 10, alignment: 'center' }, { text: "Delivery Date:", bold: true, fontSize: 10, alignment: 'center' }, { text: 'As Scheduled', bold: false, fontSize: 10, alignment: 'center' }],
+              [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [{ text: "SUPPLIER:\nName: " + supplyVendor.name + "\nAddress: " + supplyVendor.address + "\nEmail: " + supplyVendor.contactEmail + "\n\nKind Attention: " + supplyVendor.contactName + "\nContact Number: " + supplyVendor.contactPhone + "\nGSTIN: " + supplyVendor.gst, colSpan: 2, fontSize: 10, alignment: 'left' },
+              {}, { text: "BILL TO:\nName: M/s Rajashree Electricals,\nAddress: No.154, Nijalingappa Layout, Davanagere-577004\nEmail: projects@rajashreeelectricals.com\nGSTIN: 29AKTPR1041D1Z1\n\nSHIP TO:\nName: " + getWarehouseName(data.warehouse) + "\nAddress:" + getWarehouseAddress(data.warehouse), colSpan: 2, fontSize: 10, alignment: 'left' }, {}],
+              [{ text: '', colSpan: 4, alignment: 'center' }, {}, {}, {}],
+              [
+                {
+                  table: {
+                    widths: [25, 30, "*", 30, 45, 30, 60, 70],
+                    headerRows: 1,
+                    body: enqItems
+                  },
+                  colSpan: 4
+                },
+                {}, {}, {}
+              ],
+              [{ text: "" + data.key_remark, colSpan: 4, alignment: 'left' }, {}, {}, {}],
+            ]
+          }
+        },
+        { text: '\n' },
+        { text: 'TERMS & CONDITIONS', bold: true, fontSize: 11 },
+        { text: '\n' },
+        { text: '1. Scope of supply', bold: true },
+        { text: data.scope_of_supply, bold: false },
+        { text: '\n' },
+        { text: '2. Price Escalation', bold: true },
+        { text: data.price_escalation, bold: false },
+        { text: '\n' },
+        { text: '3. Warranty Period', bold: true },
+        { text: data.warranty_period, bold: false },
+        { text: '\n' },
+        { text: '4. Commencement Date', bold: true },
+        { text: data.commencement_date, bold: false },
+        { text: '\n' },
+        { text: '5. Delivery Timelines', bold: true },
+        { text: data.delivery_timelines, bold: false },
+        { text: '\n' },
+        { text: '6. Liquidated Damages', bold: true },
+        { text: data.liquidated_damages, bold: false },
+        { text: '\n' },
+        { text: '7. Performance Bank Guarantee', bold: true },
+        { text: data.performance_bank_guarantee, bold: false },
+        { text: '\n' },
+        { text: '8. Arbitration', bold: true },
+        { text: data.arbitration, bold: false },
+        { text: '\n' },
+        { text: '9. Inspection and Testing', bold: true },
+        { text: data.inspection_and_testing, bold: false },
+        { text: '\n' },
+        { text: '10. Test Certificates/Instruction Manuals', bold: true },
+        { text: data.test_certificates_instruction_manuals, bold: false },
+        { text: '\n' },
+        { text: '11. Taxes & Duties', bold: true },
+        { text: data.taxes_and_duties, bold: false },
+        { text: '\n' },
+        { text: '12. Acceptance', bold: true },
+        { text: data.acceptance, bold: false },
+        { text: '\n' },
+        { text: '13. Freight & lnsurance', bold: true },
+        { text: data.frieght_and_insurance, bold: false },
+        { text: '\n' },
+        { text: '14. Payment Terms', bold: true },
+        { text: data.payment_terms, bold: false },
+        { text: '\n' },
+        { text: data.extra1 ? data.extra1 : "", bold: false },
+        { text: '\n' },
+        { text: data.extra2 ? data.extra2 : "", bold: false },
+        { text: '\n' },
+        { text: data.extra3 ? data.extra3 : "", bold: false },
+      ],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          margin: [0, 0, 0, 10]
+        },
+        subheader: {
+          fontSize: 16,
+          bold: true,
+          margin: [0, 10, 0, 5]
+        },
+        tableExample: {
+          margin: [0, 5, 0, 15]
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 13,
+          color: 'black'
+        }
+      },
+      defaultStyle: {
+        fontSize: 10
+        // alignment: 'justify'
+      }
+    };
+    pdfMake.createPdf(docDefinition).download(data.code + ".pdf");
   };
 
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
+        <EnhancedTableToolbar title={"Local Purchases"} />
         <Paper className={classes.grid}>
           <Grid container spacing={2}>
             <Grid item className={classes.totalAttendes}>
               <img src={ProcurementImage} width='25' alt="" />
               <h1 className={classes.h1}>{totalCount}</h1>
-              <span>{"Materials"}</span>
+              <span>{"Local Purchases"}</span>
+            </Grid>
+            <Grid item className={classes.addButton}>
+              <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add"}</Button>
             </Grid>
           </Grid>
         </Paper>
@@ -555,16 +804,20 @@ export default function WarehouseInventory(props) {
                   return (
                     <TableRow hover tabIndex={-1} key={row.slno}>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.material.code}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.material.name}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.material.description}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.productCategory}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.uom}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.stored ? row.data.stored.qty : 0}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.code}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.project.name}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.warehouse.name}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.transaction.bill_no}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.transaction.bill_date}</span></TableCell>
+                      {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.transaction.completed ? "Received in Warehouse" : "Not Received yet"}</span></TableCell> */}
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                        <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
-                          <DetailImage />
+                        <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => editAction(row.data)}>
+                          <EditImage />
                         </IconButton>
+                        {/* <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => downloadAction(row.data)}>
+                          <GetAppImage />
+                        </IconButton> */}
                       </TableCell>
                     </TableRow>
                   );

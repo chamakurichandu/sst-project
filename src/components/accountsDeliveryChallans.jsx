@@ -573,13 +573,11 @@ export default function ReleasedMaterials(props) {
                   {rows.map((row, index) => {
                     const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
-                    // console.log("row: ", row);
-                    console.log("row.data.transaction.esugam_no: ", row.data.transaction.esugam_no);
                     return (
                       <TableRow hover tabIndex={-1} key={row.slno}>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.code}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.indent.code : row.data.stocktransfer.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_no ? row.data.transaction.esugam_no : "Waiting in Accounts"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.esugam_date_conv ? row.data.transaction.esugam_date_conv.toDateString() : "Waiting in Accounts"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
@@ -590,8 +588,8 @@ export default function ReleasedMaterials(props) {
                           </div>
                           }
                         </TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.code}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.warehouse.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.project.code : "NA"}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.warehouse.name : row.data.fromwarehouse.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => editAction(row.data)}>
