@@ -78,7 +78,7 @@ function EnhancedTableHead(props) {
     { id: 'warehouse', numeric: false, disablePadding: false, label: 'Warehouse Name' },
     { id: 'bill no', numeric: false, disablePadding: false, label: 'Bill No' },
     { id: 'billdate', numeric: false, disablePadding: false, label: 'Bill Date' },
-    { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
+    // { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
     { id: 'createddate', numeric: false, disablePadding: false, label: 'Created Date' },
     { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
   ];
