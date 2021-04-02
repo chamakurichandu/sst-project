@@ -348,7 +348,7 @@ export default function WorkAcceptance(props) {
       let url = config["baseurl"] + "/api/work/completestep";
 
       let postObj = {};
-      postObj["step"] = "installation";
+      postObj["step"] = "acceptance";
 
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
 

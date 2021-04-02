@@ -348,7 +348,7 @@ export default function WorkHandOver(props) {
       let url = config["baseurl"] + "/api/work/completestep";
 
       let postObj = {};
-      postObj["step"] = "installation";
+      postObj["step"] = "handover";
 
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
 
