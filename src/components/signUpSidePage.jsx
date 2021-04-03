@@ -15,7 +15,6 @@ import CoverPage from './coverPage';
 import LanguageSelect from './languageSelect';
 import { Auth } from 'aws-amplify';
 import lstrings from '../lstrings.js';
-import Titles3D from './titles3D';
 
 import lockImage from '../assets/svg/ss/unlock.svg';
 import "./auth.js";

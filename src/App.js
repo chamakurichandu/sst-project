@@ -27,8 +27,6 @@ import { AlertTitle } from '@material-ui/lab';
 import Button from '@material-ui/core/Button';
 import { useSnackbar } from 'notistack';
 import BusinessCard from './components/businessCard';
-// import VideoApp from './twilioproj/videoApp';
-import AppStateProvider from './twilioproj/state';
 // import NetworkingRooms from './components/networkingRooms';
 // import SSWebSocket from './components/ssWebSocket';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
@@ -694,17 +692,6 @@ function App(props) {
 
   };
 
-  async function checkIsAuthenticated() {
-    try {
-      let user = await Auth.currentAuthenticatedUser();
-      setAuthSuccess(true);
-    }
-    catch (error) {
-      console.log("error in auth checking");
-      setAuthSuccess(false);
-    }
-  };
-
   const [authSuccess, setAuthSuccess] = useState(false);
 
   useEffect(() => {
@@ -745,61 +732,6 @@ function App(props) {
 
   const showNotificationForNewChatMessage = (message) => {
     enqueueSnackbar(message, { anchorOrigin: { vertical: "bottom", horizontal: "right" }, variant: "info" });
-  };
-
-  const takeMentorCall = () => {
-    console.log("takeMentorCall");
-    // history.push("/mentoringrooms");
-
-    window.localStorage.setItem("twilioRoomName", "12345678");
-    setShowNotification(false);
-    setShowMentorVideo(true);
-  };
-
-  const takeExhibitorVideoCall = () => {
-    console.log("takeExhibitorVideoCall");
-    setShowSalesVideoCallNotification(false);
-    setShowSalesVideoCall(true);
-  }
-
-  const closeVideoApp = () => {
-    console.log("closeVideoApp func called");
-    setShowMentorVideo(false);
-    setShowNetworkingVideo(false);
-    setShowSalesVideoCall(false);
-    setShowSalesVideoCallNotification(false);
-  };
-
-  const joinNetworkingRoom = (inRoomName) => {
-    setRoomName(inRoomName);
-    setShowNetworkingVideo(true);
-  };
-
-  const sendAcceptForMentoring = (user_id) => {
-    console.log("sendAcceptForMentoring");
-    acceptAttendeeForMentoring(user_id, "accept");
-
-    window.localStorage.setItem("twilioRoomName", "12345678");
-
-    setShowMentorVideo(true);
-  };
-
-  const sendRejectForMentoring = (user_id) => {
-    console.log("sendRejectForMentoring");
-    acceptAttendeeForMentoring(user_id, "reject");
-  };
-
-  const sendAcceptForSalesCall = (user_id) => {
-    console.log("sendAcceptForMentoring");
-    acceptAttendeeForSalesCall(user_id, "accept");
-
-    window.localStorage.setItem("twilioRoomName", "12345678");
-    setShowSalesVideoCall(true);
-  };
-
-  const sendRejectForSalesCall = (user_id) => {
-    console.log("sendRejectForMentoring");
-    acceptAttendeeForSalesCall(user_id, "reject");
   };
 
   console.log("authSuccess: ", authSuccess);
@@ -936,21 +868,6 @@ function App(props) {
             }
 
           </div>
-          <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={showNotification} autoHideDuration={60000} >
-            <Alert onClose={handleNotificationClose} severity="info">
-              <AlertTitle>Mentor calling</AlertTitle>
-              {/* <strong>check it out!</strong> {notificationMessage} */}
-              <Button onClick={takeMentorCall}>Attend video call with Mentor</Button>
-            </Alert>
-          </Snackbar>
-          <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'right' }} open={showSalesVideoCallNotification} autoHideDuration={60000} >
-            <Alert onClose={handleNotificationClose} severity="info">
-              <AlertTitle>Exhibitor Video call!!</AlertTitle>
-              {/* <strong>check it out!</strong> {notificationMessage} */}
-              <Button onClick={takeExhibitorVideoCall}>Join video call with {salesPersonCallingName}</Button>
-            </Alert>
-          </Snackbar>
-
         </main>
       </FullScreen>
       {/* <Fab style={{ position: 'absolute', top: '50%', right: 10 }} color="primary" aria-label="add">

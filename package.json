@@ -52,9 +52,6 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "react-shimmer": "^3.1.1",
-    "three": "^0.120.1",
-    "twilio": "^3.50.0",
-    "twilio-video": "2.8.0-beta.1",
     "typescript": "^3.8.3",
     "uuid": "^8.3.1",
     "websocket": "^1.0.32"
