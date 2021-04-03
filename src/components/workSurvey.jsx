@@ -280,7 +280,7 @@ export default function WorkSurvey(props) {
 
       const { data } = await axios.get(url);
       set_work(data);
-
+      console.log('get survey materials: ', data.work.survey_materials);
       let newItems = [];
       if (data.work.survey_materials) {
         for (let i = 0; i < data.work.survey_materials.length; ++i) {
