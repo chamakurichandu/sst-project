@@ -781,13 +781,13 @@ export default function UpdateProjectWork(props) {
                 {<WorkInstallation goto={gotoFromWorkInstallation} workData={workData} allItems={allItems} {...props} />}
               </TabPanel>
               <TabPanel value={value} index={2}>
-                {<WorkCommissioning goto={gotoFromWorkCommissioning} workData={workData} {...props} />}
+                {<WorkCommissioning goto={gotoFromWorkCommissioning} workData={workData}  allItems={allItems} {...props} />}
               </TabPanel>
               <TabPanel value={value} index={3}>
-                {<WorkAcceptance goto={gotoFromWorkAcceptance} workData={workData} {...props} />}
+                {<WorkAcceptance goto={gotoFromWorkAcceptance} workData={workData} allItems={allItems}  {...props} />}
               </TabPanel>
               <TabPanel value={value} index={4}>
-                {<WorkHandOver goto={gotoFromWorkHandOver} workData={workData} {...props} />}
+                {<WorkHandOver goto={gotoFromWorkHandOver} workData={workData} allItems={allItems} {...props} />}
               </TabPanel>
             </Paper>
           }
