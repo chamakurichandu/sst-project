@@ -458,7 +458,6 @@ export default function WorkCommissioning(props) {
 
       console.log("postObj: ", postObj);
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
-
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
       const response = await axios.patch(url, updateObj);
@@ -535,7 +534,7 @@ export default function WorkCommissioning(props) {
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.description}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{getuomFor(row.uomId)}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
-                        <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.install_qty} variant="outlined" disabled />
+                        <TextField size="small" id={"formControl_install_qty_" + index} type="number" value={row.install_qty} variant="outlined" disabled />
                       </TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
                         <TextField size="small" id={"formControl_testing_qty_" + index} type="number" value={row.testing_qty}

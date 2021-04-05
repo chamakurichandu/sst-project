@@ -525,7 +525,7 @@ export default function WorkAcceptance(props) {
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.description}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{getuomFor(row.uomId)}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
-                        <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.testing_qty} variant="outlined" disabled />
+                        <TextField size="small" id={"formControl_testing_qty_" + index} type="number" value={row.testing_qty} variant="outlined" disabled />
                       </TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
                         <TextField size="small" id={"formControl_acceptance_qty_" + index} type="number" value={row.acceptance_qty}
