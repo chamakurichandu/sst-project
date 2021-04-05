@@ -269,13 +269,13 @@ export default function WorkCommissioning(props) {
 
       const { data } = await axios.get(url);
       set_work(data);
-
+      console.log('commission get materials: ', data.work.survey_materials);
       let newItems = [];
       if (data.work.survey_materials) {
         for (let i = 0; i < data.work.survey_materials.length; ++i) {
           let item = getItem(data.work.survey_materials[i].item);
-          item.qty = data.work.survey_materials[i].qty ? parseInt(data.work.survey_materials[i].qty) : 0;
           item.install_qty = data.work.survey_materials[i].install_qty ? parseInt(data.work.survey_materials[i].install_qty) : 0;
+          item.testing_qty = data.work.survey_materials[i].testing_qty ? parseInt(data.work.survey_materials[i].testing_qty) : 0;
           newItems.push(item);
         }
       }
@@ -318,7 +318,7 @@ export default function WorkCommissioning(props) {
 
   const set_item_qty_for = (value, index) => {
     let newItems = [...items];
-    newItems[index].install_qty = value;
+    newItems[index].testing_qty = value;
     set_items(newItems);
   };
 
@@ -442,27 +442,26 @@ export default function WorkCommissioning(props) {
 
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/work/setinstallationmaterials";
+      let url = config["baseurl"] + "/api/work/settestingmaterials";
 
       let postObj = {};
       postObj["items"] = [];
       for (let i = 0; i < items.length; ++i) {
-        if (parseInt(items[i].install_qty > parseInt(items[i].qty))) {
-          setErrorMessage("installation qty cannot be greater than survey qty");
+        if (parseInt(items[i].testing_qty > parseInt(items[i].install_qty))) {
+          setErrorMessage("testing qty cannot be greater than installation qty");
           setShowError(true);
           return;
         }
 
-        postObj["items"].push({ item: items[i]._id, install_qty: parseInt(items[i].install_qty) });
+        postObj["items"].push({ item: items[i]._id, testing_qty: parseInt(items[i].testing_qty) });
       }
 
       console.log("postObj: ", postObj);
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
-
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
       const response = await axios.patch(url, updateObj);
-      console.log("successfully Saved");
+      console.log("successfully Saved", response);
       setShowBackDrop(false);
       setShowSaved(true);
 
@@ -535,10 +534,10 @@ export default function WorkCommissioning(props) {
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.description}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{getuomFor(row.uomId)}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
-                        <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.qty} variant="outlined" disabled />
+                        <TextField size="small" id={"formControl_install_qty_" + index} type="number" value={row.install_qty} variant="outlined" disabled />
                       </TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
-                        <TextField size="small" id={"formControl_installation_qty_" + index} type="number" value={row.install_qty}
+                        <TextField size="small" id={"formControl_testing_qty_" + index} type="number" value={row.testing_qty}
                           variant="outlined" disabled={!editMode} onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                       </TableCell>
                     </TableRow>

@@ -272,10 +272,9 @@ export default function WorkInstallation(props) {
       setShowBackDrop(true);
       let url = config["baseurl"] + "/api/work/details?id=" + props.projectWork.work._id;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-
       const { data } = await axios.get(url);
       set_work(data);
-
+      console.log('get installation materials: ', data.work.survey_materials);
       let newItems = [];
       if (data.work.survey_materials) {
         for (let i = 0; i < data.work.survey_materials.length; ++i) {
@@ -514,16 +513,12 @@ export default function WorkInstallation(props) {
 
       console.log("postObj: ", postObj);
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
-
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-
       const response = await axios.patch(url, updateObj);
       console.log("successfully Saved");
       setShowBackDrop(false);
       setShowSaved(true);
-
       setEditMode(false);
-
       getWorkDetails();
     }
     catch (e) {

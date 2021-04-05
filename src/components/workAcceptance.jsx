@@ -269,13 +269,13 @@ export default function WorkAcceptance(props) {
 
       const { data } = await axios.get(url);
       set_work(data);
-
+      console.log('get acceptance materials: ', data.work.survey_materials);
       let newItems = [];
       if (data.work.survey_materials) {
         for (let i = 0; i < data.work.survey_materials.length; ++i) {
           let item = getItem(data.work.survey_materials[i].item);
-          item.qty = data.work.survey_materials[i].qty ? parseInt(data.work.survey_materials[i].qty) : 0;
-          item.install_qty = data.work.survey_materials[i].install_qty ? parseInt(data.work.survey_materials[i].install_qty) : 0;
+          item.testing_qty = data.work.survey_materials[i].testing_qty ? parseInt(data.work.survey_materials[i].testing_qty) : 0;
+          item.acceptance_qty = data.work.survey_materials[i].acceptance_qty ? parseInt(data.work.survey_materials[i].acceptance_qty) : 0;
           newItems.push(item);
         }
       }
@@ -318,7 +318,7 @@ export default function WorkAcceptance(props) {
 
   const set_item_qty_for = (value, index) => {
     let newItems = [...items];
-    newItems[index].install_qty = value;
+    newItems[index].acceptance_qty = value;
     set_items(newItems);
   };
 
@@ -349,16 +349,12 @@ export default function WorkAcceptance(props) {
 
       let postObj = {};
       postObj["step"] = "acceptance";
-
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
-
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-
       const response = await axios.patch(url, updateObj);
       console.log("successfully Saved");
       setShowBackDrop(false);
       setShowSaved(true);
-
       props.goto(1);
     }
     catch (e) {
@@ -442,32 +438,27 @@ export default function WorkAcceptance(props) {
 
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/work/setinstallationmaterials";
+      let url = config["baseurl"] + "/api/work/setacceptancematerials";
 
       let postObj = {};
       postObj["items"] = [];
       for (let i = 0; i < items.length; ++i) {
-        if (parseInt(items[i].install_qty > parseInt(items[i].qty))) {
-          setErrorMessage("installation qty cannot be greater than survey qty");
+        if (parseInt(items[i].acceptance_qty > parseInt(items[i].testing_qty))) {
+          setErrorMessage("acceptance qty cannot be greater than testing qty");
           setShowError(true);
           return;
         }
 
-        postObj["items"].push({ item: items[i]._id, install_qty: parseInt(items[i].install_qty) });
+        postObj["items"].push({ item: items[i]._id, acceptance_qty: parseInt(items[i].acceptance_qty) });
       }
-
       console.log("postObj: ", postObj);
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
-
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-
       const response = await axios.patch(url, updateObj);
       console.log("successfully Saved");
       setShowBackDrop(false);
       setShowSaved(true);
-
       setEditMode(false);
-
       getWorkDetails();
     }
     catch (e) {
@@ -506,7 +497,6 @@ export default function WorkAcceptance(props) {
             </Grid>
           </Grid>
         </Paper>
-
         <Paper className={classes.grid}>
           <TableContainer>
             <Table
@@ -535,10 +525,10 @@ export default function WorkAcceptance(props) {
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.description}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{getuomFor(row.uomId)}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
-                        <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.qty} variant="outlined" disabled />
+                        <TextField size="small" id={"formControl_testing_qty_" + index} type="number" value={row.testing_qty} variant="outlined" disabled />
                       </TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >
-                        <TextField size="small" id={"formControl_installation_qty_" + index} type="number" value={row.install_qty}
+                        <TextField size="small" id={"formControl_acceptance_qty_" + index} type="number" value={row.acceptance_qty}
                           variant="outlined" disabled={!editMode} onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                       </TableCell>
                     </TableRow>
@@ -555,15 +545,12 @@ export default function WorkAcceptance(props) {
           {errorMessage}
         </Alert>
       </Snackbar>
-
       <Snackbar open={showSaved} autoHideDuration={6000} onClose={handleSavedClose}>
         <Alert onClose={handleSavedClose} severity="success">Successfully saved!</Alert>
       </Snackbar>
-
       <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
         <CircularProgress color="inherit" />
       </Backdrop>
-
     </div >
   );
 }
