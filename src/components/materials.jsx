@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
+import * as XLSX from 'xlsx';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
@@ -234,11 +237,17 @@ export default function Materials(props) {
       marginRight: '7px',
       marginLeft: '7px',
     },
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
+      textAlign: 'center'
+    },
     addButton: {
       display: 'flex',
       alignItems: 'baseline',
       justifyContent: 'flex-end',
       width: '70%',
+
       // marginRight: '80px'
       // borderRight: "1px solid #CACACA",
       '@media (max-width: 600px)': {
@@ -258,8 +267,10 @@ export default function Materials(props) {
   const [errorMessage, setErrorMessage] = React.useState(null);
   const [rows, setRows] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
+  const [showBackDrop, setShowBackDrop] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
+  const [open, setOpen] = React.useState(false);
+  const importMaterial =React.useRef();
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
@@ -387,6 +398,133 @@ export default function Materials(props) {
     props.history.push("/editmaterial");
   };
 
+  const handleSave = async (data) => {
+
+    // set_hsncode_error(null);
+    // set_itemname_error(null);
+    // set_description_error(null);
+    // set_productcategory_error(null);
+    // set_uom_error(null);
+
+    // const errors = validateData();
+
+    // let errorOccured = false;
+    // if (errors["hsncode"]) {
+    //   set_hsncode_error(errors["hsncode"]);
+    //   errorOccured = true;
+    // }
+    // if (errors["itemname"]) {
+    //   set_itemname_error(errors["itemname"]);
+    //   errorOccured = true;
+    // }
+    // if (errors["description"]) {
+    //   set_description_error(errors["description"]);
+    //   errorOccured = true;
+    // }
+    // if (errors["productcategory"]) {
+    //   set_productcategory_error(errors["productcategory"]);
+    //   errorOccured = true;
+    // }
+    // if (errors["uom"]) {
+    //   set_uom_error(errors["uom"]);
+    //   errorOccured = true;
+    // }
+
+    // if (errorOccured)
+    //   return;
+
+    try {
+      // setContactingServer(true);
+      let url = config["baseurl"] + "/api/material/add";
+      data.forEach(dataItem => {
+        let postObj = {};
+        postObj["hsncode"] = dataItem.hsncode.trim();
+        postObj["name"] = dataItem.itemname.trim();
+        postObj["description"] = dataItem.description.trim();
+        postObj["productCategoryId"] = props.productCategories[dataItem.productcategory]._id;
+        postObj["uomId"] = props.UOMs[dataItem.uom]._id;
+  
+        console.log("postObj: ", postObj);
+  
+        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+  
+        axios.post(url, postObj);
+  
+      })
+      console.log("successfully Saved");
+      // setContactingServer(false);
+    }
+    catch (e) {
+      if (e.response) {
+        console.log("Error in creating material");
+        setErrorMessage(e.response.data["message"]);
+      }
+      else {
+        console.log("Error in creating");
+        setErrorMessage("Error in creating: ", e.message);
+      }
+      setShowError(true);
+      // setContactingServer(false);
+    }
+  };
+
+  const processData = dataString => {
+    const dataStringLines = dataString.split(/\r\n|\n/);
+    const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
+ 
+    const list = [];
+    for (let i = 1; i < dataStringLines.length; i++) {
+      const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
+      if (headers && row.length == headers.length) {
+        const obj = {};
+        for (let j = 0; j < headers.length; j++) {
+          let d = row[j];
+          if (d.length > 0) {
+            if (d[0] == '"')
+              d = d.substring(1, d.length - 1);
+            if (d[d.length - 1] == '"')
+              d = d.substring(d.length - 2, 1);
+          }
+          if (headers[j]) {
+            obj[headers[j]] = d;
+          }
+        }
+ 
+        // remove the blank rows
+        if (Object.values(obj).filter(x => x).length > 0) {
+          list.push(obj);
+        }
+      }
+    }
+ 
+    // prepare columns list from headers
+    const columns = headers.map(c => ({
+      name: c,
+      selector: c,
+    }));
+    console.log(list);
+    handleSave(list);
+  }
+
+    const handleImport=(e)=>{
+        console.log('import file....')
+        const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      /* Binary Data */
+      const bstr = evt.target.result;
+      const wb = XLSX.read(bstr, { type: 'binary' });
+      /* Get first worksheet */
+      const wsname = wb.SheetNames[0];
+      const ws = wb.Sheets[wsname];
+      /* Convert array of arrays */
+      const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
+      processData(data);
+    };
+    reader.readAsBinaryString(file);
+    setShowBackDrop(true);
+  }
+
   const handleAdd = () => {
     props.history.push("/addmaterial");
   };
@@ -448,14 +586,16 @@ export default function Materials(props) {
         <div className={classes.paper}>
           <EnhancedTableToolbar title={lstrings.Materials} />
           <Paper className={classes.grid}>
-            <Grid container spacing={2}>
+            <Grid container spacing={3}>
               <Grid item className={classes.totalAttendes}>
                 <img src={MaterialsImage} width='25' alt="" />
                 <h1 className={classes.h1}>{totalCount}</h1>
                 <span>{lstrings.Materials}</span>
               </Grid>
               <Grid item className={classes.addButton}>
-                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddMaterial}</Button>
+                <input type="file" accept=".csv,.xlsx,.xls" ref={importMaterial} style={{display: 'none'}} onChange={handleImport}></input>
+              <Button  onClick={() => importMaterial.current.click()} style={{ background: "#314293", color: "#FFFFFF", marginRight: '1em' }} variant="contained" className={classes.button} >{lstrings.ImportMaterial}</Button>
+              <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddMaterial}</Button>
               </Grid>
             </Grid>
           </Paper>
@@ -527,6 +667,14 @@ export default function Materials(props) {
         </div>
 
       }
+
+      <Backdrop className={classes.backdrop} open={showBackDrop}>
+        <div>
+        <CircularProgress color="inherit" />
+        <h1>Uploading material....</h1>
+        </div>
+      </Backdrop>
+
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}
