@@ -168,36 +168,50 @@ export default function SetPassword(props) {
             const response = await axios.post(url, postObj);
 
             console.log("ResetPassword 3");
-            console.log(response);
-
-            // const user = await Auth.completeNewPassword(props.inProcessUser, password.current.value);
-            // console.log("user: ", user);
-            // // await Auth.forgotPasswordSubmit(window.localStorage.getItem("username"), code.current.value, password.current.value);
             console.log("Reset success");
+            if (!response.data['needPasswordReset']) {
+                try {
+                    url = config["baseurl"] + "/api/user/profile";
+                    axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+                    const response = await axios.get(url);
+                    const profileResp = response.data;
+                    console.log(profileResp);
+                    window.localStorage.setItem("profile", JSON.stringify(profileResp));
+                    setContactingServer(false);
+                    props.onAuthSuccess();
+                }
+                catch (e) {
+                    console.log("error in profile API");
+                    throw e;
+                    return;
+                }
+            }
+        }
+        // const user = await Auth.completeNewPassword(props.inProcessUser, password.current.value);
+        // console.log("user: ", user);
+        // // await Auth.forgotPasswordSubmit(window.localStorage.getItem("username"), code.current.value, password.current.value);
 
-            // try {
-            //     let url = config["baseurl"] + "/org/" + config["org"] + "/event/" + config["event"] + "/profile";
-            //     const profileData = await axios.get(url, {
-            //         headers: {
-            //             'Authorization': user["signInUserSession"]["idToken"]["jwtToken"]
-            //         }
-            //     });
-            //     const profileResp = profileData["data"]["response"];
-            //     window.localStorage.setItem("profile", JSON.stringify(profileResp));
-            //     window.localStorage.setItem("session", user["signInUserSession"]["idToken"]["jwtToken"]);
-            //     console.log("profileResp: parsed: ", JSON.parse(window.localStorage.getItem("profile")));
-            //     setContactingServer(false);
-            //     props.onAuthSuccess();
-            // }
-            // catch (e) {
-            //     console.log("error in profile API");
-            //     throw e;
-            //     return;
-            // }
-            setContactingServer(false);
-            props.onAuthSuccess();
-            // props.history.replace('./signin');
-        } catch (error) {
+        // try {
+        // let url = config["baseurl"] + "/org/" + config["org"] + "/event/" + config["event"] + "/profile";
+        // const profileData = await axios.get(url, {
+        // headers: {
+        // 'Authorization': user["signInUserSession"]["idToken"]["jwtToken"]
+        // }
+        // });
+        // const profileResp = profileData["data"]["response"];
+        // window.localStorage.setItem("profile", JSON.stringify(profileResp));
+        // window.localStorage.setItem("session", user["signInUserSession"]["idToken"]["jwtToken"]);
+        // console.log("profileResp: parsed: ", JSON.parse(window.localStorage.getItem("profile")));
+        // setContactingServer(false);
+        // props.onAuthSuccess();
+        // }
+        // catch (e) {
+        // console.log("error in profile API");
+        // throw e;
+        // return;
+        // }
+        // props.history.replace('./signin');
+        catch (error) {
             console.log("ResetPassword 4");
             console.log('error: ', error);
             setContactingServer(false);
@@ -241,20 +255,20 @@ export default function SetPassword(props) {
                     <img src={lockImage} width='30px' height='30px' alt=""></img>
                     <Typography component="h1" variant="h5">
                         Reset Password
-                    </Typography>
+</Typography>
                     <form className={classes.form} noValidate onSubmit={handleSubmit}>
                         {/* <TextField
-                            inputRef={code}
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="code"
-                            label="Enter Code"
-                            name="code"
-                            autoComplete="code"
-                            autoFocus
-                        /> */}
+inputRef={code}
+variant="outlined"
+margin="normal"
+required
+fullWidth
+id="code"
+label="Enter Code"
+name="code"
+autoComplete="code"
+autoFocus
+/> */}
                         {/* {codeError && <Alert className={classes.alert} severity="error"> {codeError} </Alert>} */}
                         <TextField
                             inputRef={password}
@@ -293,7 +307,7 @@ export default function SetPassword(props) {
                             disabled={contactingServer}
                         >
                             Next
-                        </Button>
+</Button>
 
                         <Box mt={5}>
                             <Copyright />

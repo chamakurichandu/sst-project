@@ -1391,9 +1391,9 @@ export default function ProjectDetails(props) {
                           })}
                         </TableCell>
 
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                        {props.adminRole && <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <div><Button onClick={() => handleProjectEdit()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
-                        </TableCell>
+                        </TableCell>}
 
                       </TableRow>
                     </TableBody>
