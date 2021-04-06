@@ -278,8 +278,8 @@ export default function WarehouseInventory(props) {
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
-  // const pageLimits = [10, 25, 50];
-  const pageLimits = [2, 4, 10];
+  const pageLimits = [10, 25, 50];
+  // const pageLimits = [2, 4, 10];
   let offset = 0;
 
   async function getWarehouseInventory(numberOfRows, search = "") {
