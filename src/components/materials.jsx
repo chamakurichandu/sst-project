@@ -268,6 +268,7 @@ export default function Materials(props) {
   const [rows, setRows] = React.useState([]);
   const [totalCount, setTotalCount] = React.useState(0);
   const [showBackDrop, setShowBackDrop] = React.useState(false);
+  const [uploadedDocs, set_uploaded_docs] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [open, setOpen] = React.useState(false);
   const importMaterial =React.useRef();
@@ -435,31 +436,37 @@ export default function Materials(props) {
 
     try {
       // setContactingServer(true);
-      let url = config["baseurl"] + "/api/material/add";
-      data.forEach(dataItem => {
-        let postObj = {};
-        postObj["hsncode"] = dataItem.hsncode.trim();
-        postObj["name"] = dataItem.itemname.trim();
-        postObj["description"] = dataItem.description.trim();
-        postObj["productCategoryId"] = props.productCategories[dataItem.productcategory]._id;
-        postObj["uomId"] = props.UOMs[dataItem.uom]._id;
-  
-        console.log("postObj: ", postObj);
-  
-        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-  
-        axios.post(url, postObj);
-  
-      })
-      console.log("successfully Saved");
+        let url = config["baseurl"] + "/api/material/add";
+        let successfulUploads = 0;
+        for(let i=0; i<data.length; ++i) {
+          let postObj = {};
+          postObj["hsncode"] = data[i].hsncode.trim();
+          postObj["name"] = data[i].itemname.trim();
+          postObj["description"] = data[i].description.trim();
+          postObj["productCategoryId"] = props.productCategories.filter(cat => cat.name === data[i].productcategory)[0]._id;
+          postObj["uomId"] = props.UOMs.filter(uom => uom.name === data[i].uom)[0]._id;
+          
+          console.log("postObj: ", postObj);
+          
+          axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+          
+          const response = await axios.post(url, postObj);
+          successfulUploads++;
+          set_uploaded_docs(successfulUploads);
+          console.log(uploadedDocs);
+        }
+        console.log("successfully Saved");
+        setShowBackDrop(false);  
       // setContactingServer(false);
     }
     catch (e) {
       if (e.response) {
+        console.log(e);
         console.log("Error in creating material");
         setErrorMessage(e.response.data["message"]);
       }
       else {
+        console.log(e);
         console.log("Error in creating");
         setErrorMessage("Error in creating: ", e.message);
       }
@@ -489,7 +496,6 @@ export default function Materials(props) {
             obj[headers[j]] = d;
           }
         }
- 
         // remove the blank rows
         if (Object.values(obj).filter(x => x).length > 0) {
           list.push(obj);
@@ -498,10 +504,10 @@ export default function Materials(props) {
     }
  
     // prepare columns list from headers
-    const columns = headers.map(c => ({
-      name: c,
-      selector: c,
-    }));
+    // const columns = headers.map(c => ({
+    //   name: c,
+    //   selector: c,
+    // }));
     console.log(list);
     handleSave(list);
   }
@@ -630,7 +636,7 @@ export default function Materials(props) {
                   onRequestSort={handleRequestSort}
                   rowCount={rows.length}
                 />
-
+                  
                 <TableBody>
                   {stableSort(rows, getComparator(order, orderBy))
                     .map((row, index) => {
