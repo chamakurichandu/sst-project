@@ -126,7 +126,7 @@ export default function NavBar(props) {
 
     async function getWarehouses() {
         try {
-            let url = config["baseurl"] + "/api/warehouse/list";
+            let url = config["baseurl"] + "/api/warehouse/list?boundary=1";
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
             const { data } = await axios.get(url);
             console.log(data);
