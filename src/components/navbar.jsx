@@ -106,7 +106,7 @@ export default function NavBar(props) {
                 const dateFns = new DateFnsUtils();
                 proj.startdate_conv = dateFns.date(proj.startdate);
                 proj.exp_enddate_conv = dateFns.date(proj.exp_enddate);
-
+                
                 projs.push(proj);
             }
 

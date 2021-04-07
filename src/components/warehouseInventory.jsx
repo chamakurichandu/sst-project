@@ -80,7 +80,7 @@ function EnhancedTableHead(props) {
     { id: 'productcategory', numeric: false, disablePadding: false, label: 'Product Category' },
     { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
     { id: 'qty', numeric: false, disablePadding: false, label: 'Stored Qty' },
-    { id: 'action', numeric: false, disablePadding: false, label: 'Actions' }
+    // { id: 'action', numeric: false, disablePadding: false, label: 'Actions' }
   ];
 
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -502,9 +502,9 @@ export default function WarehouseInventory(props) {
     }
   };
 
-  const detailAction = (data) => {
+  // const detailAction = (data) => {
 
-  };
+  // };
 
   return (
     <div className={clsx(classes.root)}>
@@ -562,11 +562,11 @@ export default function WarehouseInventory(props) {
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.productCategory}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.uom}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.stored ? row.data.stored.qty : 0}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                      {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                         <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
                           <DetailImage />
                         </IconButton>
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   );
                 })}

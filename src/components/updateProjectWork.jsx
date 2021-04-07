@@ -575,7 +575,6 @@ export default function UpdateProjectWork(props) {
 
       const { data } = await axios.get(url);
       setWorkData(data);
-
       let newItems = [];
       if (data.work.survey_materials) {
         for (let i = 0; i < data.work.survey_materials.length; ++i) {
@@ -778,7 +777,7 @@ export default function UpdateProjectWork(props) {
                 {<WorkSurvey goto={gotoFromWorkSurvey} items={surveyItems} workData={workData} allItems={allItems} set_allItems={set_allItems}  {...props} />}
               </TabPanel>
               <TabPanel value={value} index={1}>
-                {<WorkInstallation goto={gotoFromWorkInstallation} workData={workData} allItems={allItems} {...props} />}
+                {<WorkInstallation goto={gotoFromWorkInstallation} project={props.project} workData={workData} allItems={allItems} {...props} />}
               </TabPanel>
               <TabPanel value={value} index={2}>
                 {<WorkCommissioning goto={gotoFromWorkCommissioning} workData={workData}  allItems={allItems} {...props} />}

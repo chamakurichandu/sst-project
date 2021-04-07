@@ -536,6 +536,7 @@ export default function ReleasedMaterials(props) {
 
   const detailAction = (data) => {
 
+    // props.history.push("/delivary_challan_accounts");
   };
 
   const downloadAction = async (data) => {
