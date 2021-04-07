@@ -104,6 +104,8 @@ export default function EditProject(props) {
   const [name, set_name] = React.useState(props.project.name);
   const [name_error, set_name_error] = React.useState(null);
 
+  const [warehouse, set_warehouse] = React.useState(null);
+
   const [customers, setCustomers] = React.useState(props.customers);
   const [customer_error, set_customer_error] = React.useState(null);
   const [currentCustomer, setCurrentCustomer] = React.useState(-1);
@@ -143,8 +145,24 @@ export default function EditProject(props) {
     }
   }
 
+  async function getWarehouseList() {
+    try {
+        let url = config["baseurl"] + "/api/warehouse/list";
+        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+        const { data } = await axios.get(url);
+        let currentWarehouse = data.list.filter(listItem => listItem._id === props.project.warehouse)[0];
+        set_warehouse(currentWarehouse);
+    }
+    catch (e) {
+        console.log("Error in getting users list");
+        setErrorMessage("Error in getting users list");
+        setShowError(true);
+    }
+}
+
   useEffect(() => {
     getCustomerList();
+    getWarehouseList();
     setCurrentCustomer(getCustomerIndex(props.project.customer));
   }, []);
 
@@ -399,11 +417,11 @@ export default function EditProject(props) {
               onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />
             {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
 
-            <TextField  size="small" className={classes.inputFields} 
+            <TextField  size="small" className={classes.inputFields}
           disabled
           id="outlined-disabled"
           label="Warehouse"
-          defaultValue="Channapatnam"
+          value={warehouse?warehouse.name:''}
           variant="outlined"
         />
             {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}

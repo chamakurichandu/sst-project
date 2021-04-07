@@ -501,7 +501,9 @@ export default function ReleasedMaterials(props) {
   };
 
   const detailAction = (data) => {
-
+      console.log(data);
+      // props.setWarehouseReleaseTransaction(data);
+      props.history.push("/warehousereleasedetails");
   };
 
   return (

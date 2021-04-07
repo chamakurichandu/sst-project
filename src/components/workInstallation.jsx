@@ -654,7 +654,7 @@ export default function WorkInstallation(props) {
         </Paper> */}
       </div>
 
-      {showAddMaterialIndent && <AddMaterialIndent workData={props.workData} indents={indents} closeAction={closeAddMaterialIndentDialog} materialIndents={materialIndents} warehouses={warehouses} {...props} />}
+      {showAddMaterialIndent && <AddMaterialIndent workData={props.workData} indents={indents} closeAction={closeAddMaterialIndentDialog} materialIndents={materialIndents} project={props.project} warehouses={warehouses} {...props} />}
 
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
