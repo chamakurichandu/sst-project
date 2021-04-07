@@ -288,7 +288,7 @@ export default function Warehouses(props) {
 
   useEffect(() => {
     getList(rowsPerPage);
-  }, []);
+  },[]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {

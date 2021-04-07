@@ -25,399 +25,446 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import DateFnsUtils from '@date-io/date-fns';
 import {
-  DatePicker,
-  TimePicker,
-  DateTimePicker,
-  MuiPickersUtilsProvider,
+DatePicker,
+TimePicker,
+DateTimePicker,
+MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
 
 const Joi = require('joi');
 
 function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
+return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 export default function AddProject(props) {
 
-  const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
+const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
-  const useStyles = makeStyles((theme) => ({
-    root: {
-      width: 'calc(100%)',
-    },
-    paper: {
-      width: '100%',
-      marginBottom: theme.spacing(2),
-      paddingLeft: 20,
-      paddingRight: 20,
-    },
-    papernew: {
-      backgroundColor: theme.palette.background.paper,
-      boxShadow: theme.shadows[2],
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
-      outline: 'none',
-      padding: '10px 20px',
-      width: '100%',
-      borderRadius: '5px',
-      overflow: 'auto',
-      depth: 1,
-      marginTop: '10px',
-      marginBottom: '10px',
-    },
-    grid: {
-      padding: theme.spacing(2),
-      textAlign: 'center',
-      color: theme.palette.text.secondary,
-      marginBottom: '10px',
-    },
-    inputFields: {
-      marginTop: 10,
-    },
-    submit: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      marginTop: '15px',
-      margin: '5px',
-    },
-    formControl: {
-      marginTop: theme.spacing(1),
-      minWidth: 120,
-    },
-    selectEmpty: {
-      marginTop: theme.spacing(2),
-    },
-    backdrop: {
-      zIndex: theme.zIndex.drawer + 1,
-      color: '#fff',
-    },
-    selectEmpty: {
-      marginTop: theme.spacing(2),
-    },
-  }));
+const useStyles = makeStyles((theme) => ({
+root: {
+width: 'calc(100%)',
+},
+paper: {
+width: '100%',
+marginBottom: theme.spacing(2),
+paddingLeft: 20,
+paddingRight: 20,
+},
+papernew: {
+backgroundColor: theme.palette.background.paper,
+boxShadow: theme.shadows[2],
+display: 'flex',
+flexDirection: 'column',
+position: 'relative',
+outline: 'none',
+padding: '10px 20px',
+width: '100%',
+borderRadius: '5px',
+overflow: 'auto',
+depth: 1,
+marginTop: '10px',
+marginBottom: '10px',
+},
+grid: {
+padding: theme.spacing(2),
+textAlign: 'center',
+color: theme.palette.text.secondary,
+marginBottom: '10px',
+},
+inputFields: {
+marginTop: 10,
+},
+submit: {
+display: 'flex',
+justifyContent: 'flex-end',
+marginTop: '15px',
+margin: '5px',
+},
+formControl: {
+marginTop: theme.spacing(1),
+minWidth: 120,
+},
+selectEmpty: {
+marginTop: theme.spacing(2),
+},
+backdrop: {
+zIndex: theme.zIndex.drawer + 1,
+color: '#fff',
+},
+selectEmpty: {
+marginTop: theme.spacing(2),
+},
+}));
 
-  const classes = useStyles();
-  const [showError, setShowError] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState(null);
+const classes = useStyles();
+const [showError, setShowError] = React.useState(false);
+const [errorMessage, setErrorMessage] = React.useState(null);
 
-  const [name, set_name] = React.useState('');
-  const [name_error, set_name_error] = React.useState(null);
+const [name, set_name] = React.useState('');
+const [name_error, set_name_error] = React.useState(null);
 
-  const [customers, setCustomers] = React.useState([]);
-  const [customer_error, set_customer_error] = React.useState(null);
-  const [currentCustomer, setCurrentCustomer] = React.useState(-1);
+const [warehouses, setWarehouses] = React.useState([]);
+const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
+const [warehouse_error, set_warehouse_error] = React.useState(null);
 
-  const [remarks, set_remarks] = React.useState('');
-  const [remarks_error, set_remarks_error] = React.useState(null);
+const [customers, setCustomers] = React.useState([]);
+const [customer_error, set_customer_error] = React.useState(null);
+const [currentCustomer, setCurrentCustomer] = React.useState(-1);
 
-  const [startDate, handleStartDateChange] = useState(new Date());
-  const [expEndDate, handleExpEndDateChange] = useState(new Date());
+const [remarks, set_remarks] = React.useState('');
+const [remarks_error, set_remarks_error] = React.useState(null);
 
-  const [files, set_files] = React.useState([]);
+const [startDate, handleStartDateChange] = useState(new Date());
+const [expEndDate, handleExpEndDateChange] = useState(new Date());
 
-  const [contactingServer, setContactingServer] = React.useState(false);
+const [files, set_files] = React.useState([]);
 
-  const [showBackDrop, setShowBackDrop] = React.useState(false);
+const [contactingServer, setContactingServer] = React.useState(false);
 
-  async function getCustomerList() {
-    try {
-      setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/customer/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      const { data } = await axios.get(url);
-      console.log(data);
+const [showBackDrop, setShowBackDrop] = React.useState(false);
 
-      setCustomers(data.list.docs);
-      setShowBackDrop(false);
-    }
-    catch (e) {
-      setShowBackDrop(false);
-      if (e.response) {
-        setErrorMessage(e.response.data.message);
-      }
-      else {
-        setErrorMessage("Error in getting list");
-      }
-      setShowError(true);
-    }
-  }
+async function getCustomerList() {
+try {
+setShowBackDrop(true);
+let url = config["baseurl"] + "/api/customer/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+const { data } = await axios.get(url);
+console.log(data);
 
-  useEffect(() => {
-    getCustomerList();
-  }, []);
+setCustomers(data.list.docs);
+setShowBackDrop(false);
+}
+catch (e) {
+setShowBackDrop(false);
+if (e.response) {
+setErrorMessage(e.response.data.message);
+}
+else {
+setErrorMessage("Error in getting list");
+}
+setShowError(true);
+}
+}
 
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+async function getList() {
+try {
+let url = config["baseurl"] + "/api/warehouse/list";
+axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+const { data } = await axios.get(url);
+setWarehouses(data.list);
+}
+catch (e) {
+console.log("Error in getting users list");
+setErrorMessage("Error in getting users list");
+setShowError(true);
+}
+}
 
-    setShowError(false);
-  };
+useEffect(() => {
+getCustomerList();
+getList();
+}, []);
 
-  const handleBreadCrumClick = () => {
-    props.history.push("/projects");
-  };
+const handleClose = (event, reason) => {
+if (reason === 'clickaway') {
+return;
+}
 
-  const handleCancel = () => {
-    props.history.push("/projects");
-  };
+setShowError(false);
+};
 
-  const validateData = () => {
-    const schema = Joi.object({
-      name: Joi.string().min(2).max(400).required(),
-      remarks: Joi.string().min(0).max(4096).required()
-    });
-    const { error } = schema.validate({
-      name: name.trim(),
-      remarks: remarks.trim()
-    }, { abortEarly: false });
-    const allerrors = {};
-    if (error) {
-      for (let item of error.details)
-        allerrors[item.path[0]] = item.message;
-    }
+const handleBreadCrumClick = () => {
+props.history.push("/projects");
+};
 
-    return allerrors;
-  }
+const handleCancel = () => {
+props.history.push("/projects");
+};
 
-  const handleSave = async (e) => {
-    e.preventDefault();
+const validateData = () => {
+const schema = Joi.object({
+name: Joi.string().min(2).max(400).required(),
+remarks: Joi.string().min(0).max(4096).required()
+});
+const { error } = schema.validate({
+name: name.trim(),
+remarks: remarks.trim()
+}, { abortEarly: false });
+const allerrors = {};
+if (error) {
+for (let item of error.details)
+allerrors[item.path[0]] = item.message;
+}
 
-    set_name_error(null);
-    set_remarks_error(null);
+return allerrors;
+}
 
-    const errors = validateData();
+const handleSave = async (e) => {
+e.preventDefault();
 
-    let errorOccured = false;
-    if (errors["name"]) {
-      set_name_error(errors["name"]);
-      errorOccured = true;
-    }
-    if (errors["remarks"]) {
-      set_remarks_error(errors["remarks"]);
-      errorOccured = true;
-    }
+set_name_error(null);
+set_remarks_error(null);
 
-    if (currentCustomer === -1) {
-      set_customer_error("Customer is required");
-    }
+const errors = validateData();
 
-    console.log("1");
-    if (errorOccured)
-      return;
-    console.log("2");
-    try {
-      setContactingServer(true);
-      let url = config["baseurl"] + "/api/project/add";
+let errorOccured = false;
+if (errors["name"]) {
+set_name_error(errors["name"]);
+errorOccured = true;
+}
+if (errors["remarks"]) {
+set_remarks_error(errors["remarks"]);
+errorOccured = true;
+}
 
-      let postObj = {};
-      postObj["name"] = name.trim();
-      postObj["customer"] = customers[currentCustomer]._id;
-      postObj["remark"] = remarks.trim();
-      postObj["startdate"] = startDate.toUTCString();
-      postObj["exp_enddate"] = expEndDate.toUTCString();
-      postObj["docs"] = [];
-      for (let i = 0; i < files.length; ++i) {
-        postObj["docs"].push({ name: files[i].name, path: files[i].path });
-      }
+if (currentWarehouse === -1) {
+set_warehouse_error("Warehouse is required");
+}
 
-      console.log("postObj: ", postObj);
+if (currentCustomer === -1) {
+set_customer_error("Customer is required");
+}
 
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      console.log("3");
-      const response = await axios.post(url, postObj);
-      console.log("4");
-      console.log("successfully Saved");
-      setContactingServer(false);
-      props.history.push("/projects");
-    }
-    catch (e) {
-      console.log("5");
-      if (e.response) {
-        console.log("Error in creating");
-        setErrorMessage(e.response.data["message"]);
-      }
-      else {
-        console.log("Error in creating");
-        setErrorMessage("Error in creating: ", e.message);
-      }
-      setShowError(true);
-      setContactingServer(false);
-    }
-  };
+console.log("1");
+if (errorOccured)
+return;
+console.log("2");
+try {
+setContactingServer(true);
+let url = config["baseurl"] + "/api/project/add";
 
-  const handleDelete = (index) => {
-    console.log("handleDelete: index: ", index);
-    let newFiles = [...files];
-    newFiles.splice(index, 1);
-    set_files(newFiles);
-  };
+let postObj = {};
+postObj["name"] = name.trim();
+postObj["warehouse"] = warehouses[currentWarehouse]._id;
+postObj["customer"] = customers[currentCustomer]._id;
+postObj["remark"] = remarks.trim();
+postObj["startdate"] = startDate.toUTCString();
+postObj["exp_enddate"] = expEndDate.toUTCString();
+postObj["docs"] = [];
+for (let i = 0; i < files.length; ++i) {
+postObj["docs"].push({ name: files[i].name, path: files[i].path });
+}
 
-  const handleOpenDoc = (index) => {
-    const file = files[index];
-    console.log(file);
-    window.open(file.path, '_blank');
-  };
+console.log("postObj: ", postObj);
 
-  const onFileSelected = (event) => {
-    console.log(event.target.files[0]);
+axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+console.log("3");
+const response = await axios.post(url, postObj);
+console.log("4");
+console.log("successfully Saved");
+setContactingServer(false);
+props.history.push("/projects");
+}
+catch (e) {
+console.log("5");
+if (e.response) {
+console.log("Error in creating");
+setErrorMessage(e.response.data["message"]);
+}
+else {
+console.log("Error in creating");
+setErrorMessage("Error in creating: ", e.message);
+}
+setShowError(true);
+setContactingServer(false);
+}
+};
 
-    let fileParts = event.target.files[0].name.split('.');
-    console.log(fileParts);
-    let file = { file: event.target.files[0], name: uuidv4() + "." + fileParts[1] };
+const handleDelete = (index) => {
+console.log("handleDelete: index: ", index);
+let newFiles = [...files];
+newFiles.splice(index, 1);
+set_files(newFiles);
+};
 
-    uploadFile(file)
-  };
+const handleOpenDoc = (index) => {
+const file = files[index];
+console.log(file);
+window.open(file.path, '_blank');
+};
 
-  const uploadFile = async (myfile) => {
-    setShowBackDrop(true);
+const onFileSelected = (event) => {
+console.log(event.target.files[0]);
 
-    console.log("Preparing the upload");
-    let url = config["baseurl"] + "/api/cloud/sign_s3";
-    axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-    const profileInfo = JSON.parse(window.localStorage.getItem("profile"));
-    try {
-      const response = await axios.post(url, {
-        fileName: myfile.name,
-        fileType: myfile.file.fileType,
-        folder: "project_docs"
-      });
+let fileParts = event.target.files[0].name.split('.');
+console.log(fileParts);
+let file = { file: event.target.files[0], name: uuidv4() + "." + fileParts[1] };
 
-      if (response) {
-        var returnData = response.data.data.returnData;
-        var signedRequest = returnData.signedRequest;
+uploadFile(file)
+};
 
-        // Put the fileType in the headers for the upload
-        var options = { headers: { 'x-amz-acl': 'public-read', 'Content-Type': myfile.file.type } };
-        try {
-          const result = await axios.put(signedRequest, myfile.file, options);
+const uploadFile = async (myfile) => {
+setShowBackDrop(true);
 
-          let newFiles = [...files];
-          myfile.path = returnData.url;
-          myfile.name = myfile.file.name;
-          console.log("myfile: ", myfile);
-          newFiles.push(myfile);
-          set_files(newFiles);
+console.log("Preparing the upload");
+let url = config["baseurl"] + "/api/cloud/sign_s3";
+axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+const profileInfo = JSON.parse(window.localStorage.getItem("profile"));
+try {
+const response = await axios.post(url, {
+fileName: myfile.name,
+fileType: myfile.file.fileType,
+folder: "project_docs"
+});
 
-          setShowBackDrop(false);
+if (response) {
+var returnData = response.data.data.returnData;
+var signedRequest = returnData.signedRequest;
 
-          console.log("Response from s3 Success: ", returnData.url);
-        }
-        catch (error) {
-          console.log("ERROR: ", JSON.stringify(error));
-          setShowBackDrop(false);
-          alert("ERROR " + JSON.stringify(error));
-        }
-      }
-    }
-    catch (error) {
-      console.log("error: ", error);
-      setShowBackDrop(false);
-      alert(JSON.stringify(error));
-    }
-  };
+// Put the fileType in the headers for the upload
+var options = { headers: { 'x-amz-acl': 'public-read', 'Content-Type': myfile.file.type } };
+try {
+const result = await axios.put(signedRequest, myfile.file, options);
 
-  const handleCloseBackDrop = () => {
+let newFiles = [...files];
+myfile.path = returnData.url;
+myfile.name = myfile.file.name;
+console.log("myfile: ", myfile);
+newFiles.push(myfile);
+set_files(newFiles);
 
-  };
+setShowBackDrop(false);
 
-  const handleCustomerChange = (event) => {
-    setCurrentCustomer(event.target.value);
-    set_customer_error(null);
-  };
+console.log("Response from s3 Success: ", returnData.url);
+}
+catch (error) {
+console.log("ERROR: ", JSON.stringify(error));
+setShowBackDrop(false);
+alert("ERROR " + JSON.stringify(error));
+}
+}
+}
+catch (error) {
+console.log("error: ", error);
+setShowBackDrop(false);
+alert(JSON.stringify(error));
+}
+};
 
-  return (
-    <div className={clsx(classes.root)}>
-      {props.refreshUI &&
+const handleCloseBackDrop = () => {
 
-        <div className={classes.paper}>
+};
 
-          <EnhancedTableToolbar title={"Add Project"} />
+const handleWarehouseChange = event => {
+setCurrentWarehouse(event.target.value);
+set_warehouse_error(null)
+}
 
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link color="inherit" onClick={handleBreadCrumClick}>
-              {"Projects"}
-            </Link>
-            <Typography color="textPrimary">{"Add Project"}</Typography>
-          </Breadcrumbs>
+const handleCustomerChange = (event) => {
+setCurrentCustomer(event.target.value);
+set_customer_error(null);
+};
 
-          {/* <Paper className={classes.grid}> */}
-          <form className={classes.papernew} autoComplete="off" noValidate>
-            {/* name */}
-            <TextField size="small" className={classes.inputFields} id="formControl_name" defaultValue={name}
-              label="Project Name *" variant="outlined"
-              onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />
-            {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
+return (
+<div className={clsx(classes.root)}>
+{props.refreshUI &&
 
-            <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="customer-select-label">Customer *</InputLabel>
-              <Select
-                labelId="customer-select-label"
-                id="customer-select-label"
-                value={currentCustomer === -1 ? "" : currentCustomer}
-                onChange={handleCustomerChange}
-                label="Customer *"
-              >
-                {customers.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-            {customer_error && <Alert className={classes.alert} severity="error"> {customer_error} </Alert>}
+<div className={classes.paper}>
 
-            <TextField size="small" className={classes.inputFields} id="formControl_remarks" defaultValue={remarks}
-              label="Remarks *" variant="outlined" multiline
-              onChange={(event) => { set_remarks(event.target.value); set_remarks_error(null); }} />
-            {remarks_error && <Alert className={classes.alert} severity="error"> {remarks_error} </Alert>}
+<EnhancedTableToolbar title={"Add Project"} />
 
-            <FormControl variant="outlined" size="small" className={classes.formControl}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils} >
-                <DatePicker size="small" label="StartDate" inputVariant="outlined" format="dd/MM/yyyy" value={startDate} onChange={handleStartDateChange} />
-              </MuiPickersUtilsProvider>
-            </FormControl>
+<Breadcrumbs aria-label="breadcrumb">
+<Link color="inherit" onClick={handleBreadCrumClick}>
+{"Projects"}
+</Link>
+<Typography color="textPrimary">{"Add Project"}</Typography>
+</Breadcrumbs>
 
-            <FormControl variant="outlined" size="small" className={classes.formControl}>
-              <MuiPickersUtilsProvider utils={DateFnsUtils} >
-                <DatePicker size="small" label="Exp EndDate" inputVariant="outlined" format="dd/MM/yyyy" value={expEndDate} onChange={handleExpEndDateChange} />
-              </MuiPickersUtilsProvider>
-            </FormControl>
+{/* <Paper className={classes.grid}> */}
+<form className={classes.papernew} autoComplete="off" noValidate>
+{/* name  */}
+<TextField size="small" className={classes.inputFields} id="formControl_name" defaultValue={name}
+label="Project Name *" variant="outlined"
+onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />
+{name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
 
-            <div style={{ marginTop: 10 }}>
-              <div>
-                {files.map((file, index) => {
-                  return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
-                })}
-              </div>
-              <div style={{ marginTop: 5 }}>
-                <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
-                  Upload Document
-                  <input type="file" hidden />
-                </Button>
-              </div>
-            </div>
+<FormControl size="small" variant="outlined" className={classes.formControl}>
+<InputLabel id="customer-select-label">Warehouse *</InputLabel>
+<Select
+labelId="warehouse-select-label"
+id="warehouse-select-label"
+value={currentWarehouse === -1 ? "" : currentWarehouse}
+onChange={handleWarehouseChange}
+label="Warehouse *"
+>
+{warehouses.map((row, index) => {
+return (
+<MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+);
+})}
+</Select>
+</FormControl>
+{customer_error && <Alert className={classes.alert} severity="error"> {customer_error} </Alert>}
 
-            <div className={classes.submit}>
-              <Button variant="contained" color="primary" onClick={handleCancel} disabled={contactingServer}>Cancel</Button>
-              <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
-            </div>
+<FormControl size="small" variant="outlined" className={classes.formControl}>
+<InputLabel id="customer-select-label">Customer *</InputLabel>
+<Select
+labelId="customer-select-label"
+id="customer-select-label"
+value={currentCustomer === -1 ? "" : currentCustomer}
+onChange={handleCustomerChange}
+label="Customer *"
+>
+{customers.map((row, index) => {
+return (
+<MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+);
+})}
+</Select>
+</FormControl>
+{customer_error && <Alert className={classes.alert} severity="error"> {customer_error} </Alert>}
 
-          </form>
-          {/* </Paper> */}
-        </div>
-      }
-      <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error">
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+<TextField size="small" className={classes.inputFields} id="formControl_remarks" defaultValue={remarks}
+label="Remarks *" variant="outlined" multiline
+onChange={(event) => { set_remarks(event.target.value); set_remarks_error(null); }} />
+{remarks_error && <Alert className={classes.alert} severity="error"> {remarks_error} </Alert>}
 
-      <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
+<FormControl variant="outlined" size="small" className={classes.formControl}>
+<MuiPickersUtilsProvider utils={DateFnsUtils} >
+<DatePicker size="small" label="StartDate" inputVariant="outlined" format="dd/MM/yyyy" value={startDate} onChange={handleStartDateChange} />
+</MuiPickersUtilsProvider>
+</FormControl>
 
-    </div >
-  );
+<FormControl variant="outlined" size="small" className={classes.formControl}>
+<MuiPickersUtilsProvider utils={DateFnsUtils} >
+<DatePicker size="small" label="Exp EndDate" inputVariant="outlined" format="dd/MM/yyyy" value={expEndDate} onChange={handleExpEndDateChange} />
+</MuiPickersUtilsProvider>
+</FormControl>
+
+<div style={{ marginTop: 10 }}>
+<div>
+{files.map((file, index) => {
+return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
+})}
+</div>
+<div style={{ marginTop: 5 }}>
+<Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
+Upload Document
+<input type="file" hidden />
+</Button>
+</div>
+</div>
+
+<div className={classes.submit}>
+<Button variant="contained" color="primary" onClick={handleCancel} disabled={contactingServer}>Cancel</Button>
+<Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
+</div>
+
+</form>
+{/* </Paper> */}
+</div>
+}
+<Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
+<Alert onClose={handleClose} severity="error">
+{errorMessage}
+</Alert>
+</Snackbar>
+
+<Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
+<CircularProgress color="inherit" />
+</Backdrop>
+
+</div >
+);
 }

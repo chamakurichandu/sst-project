@@ -172,12 +172,10 @@ export default function ResetPassword(props) {
     return (
         <Grid container component="main" className={classes.root}>
             <CssBaseline />
-
             <Grid item xs={12} sm={6} className={classes.header}>
                 <img src={LogoIcon} width='120' alt="" />
                 <LanguageSelect language={language} themeChanged={themeChanged}></LanguageSelect>
             </Grid>
-
             <Grid item xs={false} sm={6} md={6}>
                 <Hidden xsDown>
                     <CoverPage></CoverPage>

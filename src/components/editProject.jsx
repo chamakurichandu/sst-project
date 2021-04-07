@@ -399,6 +399,15 @@ export default function EditProject(props) {
               onChange={(event) => { set_name(event.target.value); set_name_error(null); }} />
             {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
 
+            <TextField  size="small" className={classes.inputFields} 
+          disabled
+          id="outlined-disabled"
+          label="Warehouse"
+          defaultValue="Channapatnam"
+          variant="outlined"
+        />
+            {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
+
             <FormControl size="small" variant="outlined" className={classes.formControl}>
               <InputLabel id="customer-select-label">Customer *</InputLabel>
               <Select
