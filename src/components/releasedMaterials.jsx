@@ -29,6 +29,7 @@ import IconButton from '@material-ui/core/IconButton';
 import EditImage from '@material-ui/icons/Edit';
 import GetAppImage from '@material-ui/icons/GetApp';
 import DetailImage from '@material-ui/icons/ArrowForward';
+import ReleaseMaterialIndent from './releaseMaterialIndent';
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -274,6 +275,8 @@ export default function ReleasedMaterials(props) {
   const [warehouses, setWarehouses] = React.useState([]);
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
+  const [currentMaterialIndent, setCurrentMaterialIndent] = React.useState(null);
+  const [releaseMaterialIndent, showReleaseMaterialIndent] = React.useState(false);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -500,11 +503,25 @@ export default function ReleasedMaterials(props) {
     }
   };
 
-  const detailAction = (data) => {
-      console.log(data);
-      // props.setWarehouseReleaseTransaction(data);
-      props.history.push("/warehousereleasedetails");
+  // const detailAction = (data) => {
+  //     console.log(data);
+  //     // props.setWarehouseReleaseTransaction(data);
+  //     props.history.push("/warehousereleasedetails");
+  // };
+
+  const handleRelease = (data) => {
+    console.log("handleRelease: ", data);
+
+    setCurrentMaterialIndent(data);
+    showReleaseMaterialIndent(true);
+    // props.setSelectedUser(userdata);
+    // props.history.push("/handlerele");
   };
+
+  const handleReleaseClose = () => {
+    showReleaseMaterialIndent(false);
+  };
+
 
   return (
     <div className={clsx(classes.root)}>
@@ -563,7 +580,7 @@ export default function ReleasedMaterials(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
+                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => handleRelease(row.data)}>
                             <DetailImage />
                           </IconButton>
                         </TableCell>
@@ -585,12 +602,12 @@ export default function ReleasedMaterials(props) {
           </Paper>
         </div>
       }
+{releaseMaterialIndent && <ReleaseMaterialIndent materialReleased={true} currentMaterialIndent={currentMaterialIndent} closeAction={handleReleaseClose} {...props} />}
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}
         </Alert>
       </Snackbar>
-
       <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
         <CircularProgress color="inherit" />
       </Backdrop>

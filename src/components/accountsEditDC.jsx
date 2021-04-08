@@ -677,7 +677,7 @@ export default function WarehouseReceive(props) {
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
 
-        <EnhancedTableToolbar title={"Edit DC"} />
+        <EnhancedTableToolbar title=  {(props.editable?"Edit DC":"DC Details")} />
 
         <form className={classes.papernew} autoComplete="off" noValidate>
           <FormControl size="small" variant="outlined" className={classes.formControl}>
@@ -713,7 +713,7 @@ export default function WarehouseReceive(props) {
 
           {currentType === 0
             && <TextField size="small" className={classes.inputFields} id="formControl_servicevendor_name"
-              value={("" + props.dc.servicevendor.code + props.dc.servicevendor.name)}
+              value={props.dc.servicevendor?"" + props.dc.servicevendor.code + props.dc.servicevendor.name:""}
               label="ServiceVendor Name" variant="outlined" disabled />}
 
           {<TextField size="small" className={classes.inputFields} id="formControl_lr_no" value={props.dc.transaction.lr_no}
@@ -785,16 +785,16 @@ export default function WarehouseReceive(props) {
               })}
             </div>
             <div style={{ marginTop: 5 }}>
-              <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
+            {props.editable?  <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
                 Upload E-Sugam Document
                                     <input type="file" hidden />
-              </Button>
+              </Button>:""}
             </div>
           </div>
 
           <div className={classes.submit}>
-            {/* <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button> */}
-            <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button>
+            {!props.editable && <Button variant="contained" color="primary" onClick={handleCancel} >Cancel</Button>}
+            {props.editable && <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button>}
           </div>
 
         </form>

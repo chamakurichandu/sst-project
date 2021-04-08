@@ -462,7 +462,6 @@ export default function WorkHandOver(props) {
 
       const response = await axios.patch(url, updateObj);
       console.log(response);
-      debugger;
       console.log("successfully Saved");
       setShowBackDrop(false);
       setShowSaved(true);

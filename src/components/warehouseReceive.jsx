@@ -63,7 +63,8 @@ function EnhancedTableHeadSmall(props) {
     { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
     { id: 'qtyordered', numeric: true, disablePadding: false, label: "Qty (PO)" },
     { id: 'qtyreceived', numeric: true, disablePadding: false, label: "Qty Received" },
-    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
+    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" },
+    { id: 'remove_item', numeric: false, disablePadding: false, label: "Remove Item" }
   ];
 
   return (
@@ -91,7 +92,7 @@ function EnhancedTableHeadSmall2(props) {
     { id: 'description', numeric: false, disablePadding: false, label: "description" },
     { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
     { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
-    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
+    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" },
   ];
 
   return (
@@ -610,7 +611,7 @@ export default function WarehouseReceive(props) {
         errorOccured = true;
         break;
       }
-      if (parseInt(items[i].qty) === 0) {
+      if (parseFloat(items[i].qty) === 0) {
         setErrorMessage("qty cannot be zero");
         setShowError(true);
         errorOccured = true;
@@ -650,21 +651,21 @@ export default function WarehouseReceive(props) {
 
       postObj["items"] = [];
       for (let i = 0; i < items.length; ++i) {
-        if (parseInt(items[i].qty) < 0) {
+        if (parseFloat(items[i].qty) < 0) {
           throw "Cannot receive negative qty";
         }
 
         if (currentType === 0) {
           let receivedQty = getReceivedQty(items[i]);
-          if (receivedQty + parseInt(items[i].qty) > parseInt(items[i].canreceiveqty)) {
+          if (receivedQty + parseFloat(items[i].qty) > parseInt(items[i].canreceiveqty)) {
             throw "Cannot receive more than PO ordered qty";
           }
           else {
-            postObj["items"].push({ item: items[i]._id, qty: parseInt(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
+            postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
           }
         }
         else {
-          postObj["items"].push({ item: items[i]._id, qty: parseInt(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
+          postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
         }
       }
 
@@ -978,6 +979,14 @@ export default function WarehouseReceive(props) {
     return "";
   };
 
+
+  const itemRemove = i => {
+    let allItems = [...items];
+    allItems.splice(i, 1);
+    set_items(allItems);
+  }
+
+
   return (
     <div className={clsx(classes.root)}>
       {props.warehouse &&
@@ -1142,6 +1151,9 @@ export default function WarehouseReceive(props) {
                             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                               <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
                                 variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
+                            </TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                              <Button variant="contained" onClick={() => itemRemove(index)}>Remove</Button>
                             </TableCell>
                           </TableRow>
                         );

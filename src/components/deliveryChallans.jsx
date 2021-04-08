@@ -535,8 +535,9 @@ export default function ReleasedMaterials(props) {
   };
 
   const detailAction = (data) => {
-
-    // props.history.push("/delivary_challan_accounts");
+    props.setDC(data);
+    console.log(data);
+    props.history.push("/delivery-challan-details");
   };
 
   const downloadAction = async (data) => {

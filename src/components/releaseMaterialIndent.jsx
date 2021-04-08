@@ -48,6 +48,9 @@ function EnhancedTableHead(props) {
         { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
         { id: 'qtyinstock', numeric: false, disablePadding: false, label: 'Qty In Stock' },
         { id: 'qty', numeric: false, disablePadding: false, label: 'Qty' },
+        { id: 'qty_for_project', numeric: false, disablePadding: false, label: 'Qty For Project' },
+        { id: 'qty_released_for_project', numeric: false, disablePadding: false, label: 'Qty Released For Project' },
+
     ];
     const { classes, order, orderBy, numSelected, rowCount, onRequestSort } = props;
     const createSortHandler = (property) => (event) => {
@@ -215,7 +218,6 @@ export default function ReleaseMaterialIndent(props) {
             setShowBackDrop(true);
             let url = config["baseurl"] + "/api/storedmaterial/specificlist?warehouse=" + props.warehouse._id;
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-
             let postObj = {};
             postObj["materials"] = props.currentMaterialIndent.indent.materials;
 
@@ -322,7 +324,7 @@ export default function ReleaseMaterialIndent(props) {
     return (
         <div>
             <Dialog fullScreen TransitionComponent={Transition} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={true}>
-                <DialogTitle id="alert-dialog-title">{"Release Material Indent : " + props.currentMaterialIndent.indent.code}</DialogTitle>
+                <DialogTitle id="alert-dialog-title"> {(props.materialReleased?"Released Material Indent : ":"Release Material Indent : ") + props.currentMaterialIndent.indent.code}</DialogTitle>
                 <DialogContent>
                     <Paper className={classes.paper}>
                         <TableContainer className={classes.container}>
@@ -346,6 +348,8 @@ export default function ReleaseMaterialIndent(props) {
                                                 <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (item != null ? item.material.description : "")}</TableCell>
                                                 <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (item.stored ? item.stored.qty : 0)}</TableCell>
                                                 <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.qty}</TableCell>
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>3</TableCell>
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>9</TableCell>
                                             </TableRow>
                                         );
                                     })}
@@ -356,8 +360,8 @@ export default function ReleaseMaterialIndent(props) {
                 </DialogContent>
 
                 <DialogActions>
-                    <Button variant="contained" color="primary" onClick={props.closeAction} disabled={contactingServer}>Cancel</Button>
-                    <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleRelease} disabled={contactingServer}>Release</Button>
+                    <Button variant="contained" color="primary" onClick={props.closeAction} disabled={contactingServer}>{(props.materialReleased?"back":"Cancel")}</Button>
+                   {(props.materialReleased?"": <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleRelease} disabled={contactingServer}>Release</Button>)}
                 </DialogActions>
             </Dialog>
 
