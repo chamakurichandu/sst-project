@@ -81,7 +81,9 @@ function EnhancedTableHead(props) {
     { id: 'esugam', numeric: false, disablePadding: false, label: 'e-sugam' },
     { id: 'esugam-date', numeric: false, disablePadding: false, label: 'e-sugam date' },
     { id: 'esugam-docs', numeric: false, disablePadding: false, label: 'e-sugam docs' },
+    { id: 'project_id', numeric: false, disablePadding: false, label: 'Project Id' },
     { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
+    //  { id: 'projectdate', numeric: false, disablePadding: false, label: 'Project Date' },
     { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' }
   ];
@@ -304,7 +306,6 @@ export default function ReleasedMaterials(props) {
       }
 
       console.log("newRows:", newRows);
-
       setRows(newRows);
 
       setShowBackDrop(false);
@@ -317,6 +318,7 @@ export default function ReleasedMaterials(props) {
         setErrorMessage(e.response.data.message);
       }
       else {
+        console.log(e);
         setErrorMessage("Error in getting list");
       }
       setShowError(true);
@@ -792,8 +794,8 @@ export default function ReleasedMaterials(props) {
                           </div>
                           }
                         </TableCell>
-
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.project.code : "NA"}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.project.name : "NA"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>

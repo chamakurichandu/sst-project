@@ -45,9 +45,6 @@ import {
   DateTimePicker,
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
-import { getPositionOfLineAndCharacter } from 'typescript';
-import ReleaseIndents from './releaseIndents';
-import MaterialIndents from './materialIndents';
 
 const Joi = require('joi');
 
@@ -61,8 +58,13 @@ function EnhancedTableHeadSmall(props) {
 
   const headCells = [
     { id: 'name', numeric: false, disablePadding: false, label: props.title },
+    { id: 'description', numeric: false, disablePadding: false, label: "description" },
     { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
-    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
+    { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
+    { id: 'qtyordered', numeric: true, disablePadding: false, label: "Qty (PO)" },
+    { id: 'qtyreceived', numeric: true, disablePadding: false, label: "Qty Received" },
+    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" },
+    { id: 'remove_item', numeric: false, disablePadding: false, label: "Remove Item" }
   ];
 
   return (
@@ -71,9 +73,9 @@ function EnhancedTableHeadSmall(props) {
         {headCells.map((headCell, index) => (
           <TableCell key={headCell.id} align={!setDir ? 'left' : 'right'} padding='none' sortDirection={false} >
             {headCell.label}
-            {/* {index === 0 && <IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onClick}>
+            {index === 0 && <IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onClick}>
               <AddImage />
-            </IconButton>} */}
+            </IconButton>}
           </TableCell>
         ))}
       </TableRow>
@@ -81,7 +83,35 @@ function EnhancedTableHeadSmall(props) {
   );
 }
 
-export default function WarehouseReceive(props) {
+function EnhancedTableHeadSmall2(props) {
+  const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
+  const setDir = (dir === 'rtl' ? true : false);
+
+  const headCells = [
+    { id: 'name', numeric: false, disablePadding: false, label: props.title },
+    { id: 'description', numeric: false, disablePadding: false, label: "description" },
+    { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
+    { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
+    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" },
+  ];
+
+  return (
+    <TableHead>
+      <TableRow>
+        {headCells.map((headCell, index) => (
+          <TableCell key={headCell.id} align={!setDir ? 'left' : 'right'} padding='none' sortDirection={false} >
+            {headCell.label}
+            {index === 0 && <IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onClick}>
+              <AddImage />
+            </IconButton>}
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+}
+
+export default function InternalPurchase(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -161,11 +191,11 @@ export default function WarehouseReceive(props) {
   const [prouctCategories, set_prouctCategories] = React.useState([]);
   const [uoms, set_uoms] = React.useState([]);
 
+  const [supplyVendors, setSupplyVendors] = React.useState([]);
   const [currentSupplyVendor, setCurrentSupplyVendor] = React.useState(-1);
   const [currentSupplyVendor_error, setCurrentSupplyVendor_error] = React.useState(null);
 
   const [currentProject, setCurrentProject] = React.useState(-1);
-  const [current_project_error, set_current_project_error] = React.useState(null);
 
   const [projects, setProjects] = React.useState([]);
 
@@ -175,7 +205,7 @@ export default function WarehouseReceive(props) {
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
-  const [types, setTypes] = React.useState(["Projects", "Stock Transfer"]);
+  const [types, setTypes] = React.useState(["From PO", "From Return Indents"]);
   const [currentType, setCurrentType] = React.useState(-1);
   const [current_type_error, set_current_type_error] = React.useState(null);
 
@@ -187,15 +217,7 @@ export default function WarehouseReceive(props) {
   const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
   const [current_warehouse_error, set_current_warehouse_error] = React.useState(null);
 
-  const [releasedTransactions, setReleasedTransactions] = React.useState([]);
-  const [currentReleasedTransaction, setCurrentReleasedTransaction] = React.useState(-1);
-  const [current_released_indent_error, set_current_released_indent_error] = React.useState(null);
-
   const [poItems, setPOItems] = React.useState([]);
-
-  const [stockTransfers, setStockTransfers] = React.useState(null);
-  const [currentStockTransfer, setCurrentStockTransfer] = React.useState(-1);
-  const [current_stock_transfer_error, set_current_stock_transfer_error] = React.useState(null);
 
   const [supplyVendor, setSupplyVendor] = React.useState(null);
 
@@ -217,12 +239,6 @@ export default function WarehouseReceive(props) {
   const [gate_entry_info, set_gate_entry_info] = React.useState('');
   const [gate_entry_info_error, set_gate_entry_info_error] = React.useState(null);
 
-  // const [esugam, set_esugam] = React.useState('');
-  // const [esugam_error, set_esugam_error] = React.useState(null);
-
-  // const [esugam_date, set_esugam_date] = React.useState(new Date());
-  // const [esugam_date_error, set_esugam_date_error] = React.useState(null);
-
   const [bill_no, set_bill_no] = React.useState('');
   const [bill_no_error, set_bill_no_error] = React.useState(null);
 
@@ -234,9 +250,6 @@ export default function WarehouseReceive(props) {
 
   const [dc_date, set_dc_date] = React.useState(new Date());
   const [dc_date_error, set_dc_date_error] = React.useState(null);
-
-  const [toaddress, set_toaddress] = React.useState('');
-  const [toaddress_error, set_toaddress_error] = React.useState(null);
 
   const [lr_no, set_lr_no] = React.useState('');
   const [lr_no_error, set_lr_no_error] = React.useState(null);
@@ -255,11 +268,13 @@ export default function WarehouseReceive(props) {
 
   const [files, set_files] = React.useState([]);
 
+  const [receivedTransactions, set_receivedTransactions] = React.useState(null);
+
   const dateFns = new DateFnsUtils();
 
   async function getPOs() {
     try {
-      let url = config["baseurl"] + "/api/po/list?count=" + 10000 + "&offset=" + 0 + "&search=";
+      let url = config["baseurl"] + "/api/po/list?count=" + 10000 + "&offset=" + 0 + "&search=" + "&warehouse=" + props.warehouse._id;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
@@ -271,6 +286,31 @@ export default function WarehouseReceive(props) {
       }
       else {
         setErrorMessage("Error in getting POs");
+      }
+      setShowError(true);
+    }
+  }
+
+  async function getSupplyVendorList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/supplyvendor/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+
+      setSupplyVendors(data.list.docs);
+      setShowBackDrop(false);
+
+      getAllItemList(10000);
+    }
+    catch (e) {
+      setShowBackDrop(false);
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
       }
       setShowError(true);
     }
@@ -387,27 +427,20 @@ export default function WarehouseReceive(props) {
     }
   }
 
-  async function getReleaseIndents(proj) {
+  async function getReceivedMaterials(po_id) {
+    console.log("getReceivedMaterials 1: ", po_id)
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/releasetransaction/list?count=" + 1000 + "&warehouse=" + props.warehouse._id + "&project=" + proj._id + "&itemdetails=1" + "&offset=" + 0 + "&search=" + "";
-      console.log(url);
+      let url = config["baseurl"] + "/api/materialreceivetransaction/list?count=10000&warehouse=" + props.warehouse._id + "&offset=0&search=&po_id=" + po_id;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
-      console.log(data);
-      let newRows = [];
-      const dateFns = new DateFnsUtils();
-      for (let i = 0; i < data.list.length; ++i) {
-        data.list[i].indent.createddate_conv = dateFns.date(data.list[i].indent.createdDate);
-        newRows.push(data.list[i]);
-      }
-
-      setReleasedTransactions(newRows);
-
+      console.log("getReceivedMaterials 2: ", data);
+      console.log("getReceivedMaterials 3: ", data.list);
+      set_receivedTransactions(data.list);
       setShowBackDrop(false);
     }
     catch (e) {
-      setShowBackDrop(false);
+
       if (e.response) {
         setErrorMessage(e.response.data.message);
       }
@@ -415,42 +448,14 @@ export default function WarehouseReceive(props) {
         setErrorMessage("Error in getting list");
       }
       setShowError(true);
+      setShowBackDrop(false);
     }
   }
 
-  const getStockTransfers = async () => {
-    try {
-      setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/stocktransfer/list?count=" + 10000 + "&fromwarehouse=" + props.warehouse._id + "&offset=" + 0 + "&search=" + "";
-      console.log(url);
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      const { data } = await axios.get(url);
-      console.log(data);
-      const dateFns = new DateFnsUtils();
-      for (let i = 0; i < data.list.length; ++i) {
-        data.list[i].transaction.createddate_conv = dateFns.date(data.list[i].transaction.createdDate);
-      }
-
-      setStockTransfers(data.list);
-      setCurrentStockTransfer(-1);
-
-      setShowBackDrop(false);
-    }
-    catch (e) {
-      setShowBackDrop(false);
-      if (e.response) {
-        setErrorMessage(e.response.data.message);
-      }
-      else {
-        setErrorMessage("Error in getting list");
-      }
-      setShowError(true);
-    }
-  };
 
   useEffect(() => {
     if (props.warehouse)
-      getAllItemList(10000);
+      getSupplyVendorList();
   }, [props.warehouse]);
 
   const handleClose = (event, reason) => {
@@ -471,16 +476,20 @@ export default function WarehouseReceive(props) {
 
   const validateData = () => {
     const schema = Joi.object({
-      // esugam: Joi.string().min(1).max(1024).required(),
+      bill_no: Joi.string().min(1).max(1024).required(),
+      dc_no: Joi.string().min(1).max(8192).required(),
       lr_no: Joi.string().min(1).max(8192).required(),
       transporter: Joi.string().min(1).max(8192).required(),
       vehicle_no: Joi.string().min(1).max(8192).required(),
+      gate_entry_info: Joi.string().min(1).max(8192).required(),
     });
     const { error } = schema.validate({
-      // esugam: esugam.trim(),
+      bill_no: bill_no.trim(),
+      dc_no: dc_no.trim(),
       lr_no: lr_no.trim(),
       transporter: transporter.trim(),
       vehicle_no: vehicle_no.trim(),
+      gate_entry_info: gate_entry_info.trim()
     }, { abortEarly: false });
     const allerrors = {};
     if (error) {
@@ -494,33 +503,49 @@ export default function WarehouseReceive(props) {
   const handleSave = async (e) => {
     e.preventDefault();
 
-    generateDCForProjects();
+    switch (currentType) {
+      case 0:
+        handleSaveWarehouseReceiveFromPO();
+        break;
+      case 1:
+        break;
+      default:
+        set_current_type_error("Type Required");
+        break;
+    }
   };
 
   const getTypeString = (type) => {
     switch (type) {
       case 0:
-        return "projects";
+        return "po";
         break;
       case 1:
-        return "stocktransfer";
+        return "local_purchase";
+        break;
+      case 2:
+        return "return_indent";
         break;
     }
 
     return "";
   };
 
-  const generateDCForProjects = async () => {
+  const handleSaveWarehouseReceiveFromPO = async () => {
     set_current_type_error(null)
-    set_current_project_error(null);
-    set_current_released_indent_error(null);
-    set_current_stock_transfer_error(null);
-    // set_esugam_error(null);
+    set_current_warehouse_error(null);
+    set_current_po_error(null);
+    set_supplier_name_error(null);
+    set_supplier_address_error(null);
+    set_project_error(null);
+    set_supplier_gst_error(null);
+    set_gate_entry_info_error(null);
+    set_bill_no_error(null);
+    set_dc_no_error(null);
     set_lr_no_error(null);
     set_transporter_error(null);
     set_vehicle_no_error(null);
     set_remark_error(null);
-    set_items_error(null);
 
     const errors = validateData();
 
@@ -529,33 +554,31 @@ export default function WarehouseReceive(props) {
       set_current_type_error("Type Required");
       errorOccured = true;
     }
-
-    if (currentType === 0) {
-      if (currentProject === -1) {
-        set_current_project_error("Project Required");
-        errorOccured = true;
-      }
-      if (currentReleasedTransaction === -1) {
-        set_current_released_indent_error("Release Indent Required");
-        errorOccured = true;
-      }
+    if (currentType == 0 && currentPO === -1) {
+      set_current_po_error("PO Required");
+      errorOccured = true;
     }
-
-    if (currentType === 1) {
-      if (currentStockTransfer === -1) {
-        set_current_stock_transfer_error("Stock Transfer required");
-        errorOccured = true;
-      }
-    }
+    // if (currentType === 1 && project === null) {
+    //   set_project_error("Project Required");
+    //   errorOccured = true;
+    // }
 
     if (errors["remark"]) {
       set_remark_error(errors["remark"]);
       errorOccured = true;
     }
-    // if (errors["esugam"]) {
-    //   set_esugam_error(errors["esugam"]);
-    //   errorOccured = true;
-    // }
+    if (errors["gate_entry_info"]) {
+      set_gate_entry_info_error(errors["gate_entry_info"]);
+      errorOccured = true;
+    }
+    if (errors["bill_no"]) {
+      set_bill_no_error(errors["bill_no"]);
+      errorOccured = true;
+    }
+    if (errors["dc_no"]) {
+      set_dc_no_error(errors["dc_no"]);
+      errorOccured = true;
+    }
     if (errors["lr_no"]) {
       set_lr_no_error(errors["lr_no"]);
       errorOccured = true;
@@ -569,10 +592,31 @@ export default function WarehouseReceive(props) {
       errorOccured = true;
     }
 
-    console.log("items: ", items);
+    if (currentType === 0 && supplyVendor === null) {
+      set_supplier_name_error("SupplyVendor name is required");
+      set_supplier_address_error("SupplyVendor address is required");
+      set_supplier_gst_error("SupplyVendor gst is required");
+      errorOccured = true;
+    }
+
     if (items.length === 0) {
       set_items_error("Items required");
       errorOccured = true;
+    }
+
+    for (let i = 0; i < items.length; ++i) {
+      if (parseInt(items[i].rate) === 0) {
+        setErrorMessage("rate cannot be zero");
+        setShowError(true);
+        errorOccured = true;
+        break;
+      }
+      if (parseFloat(items[i].qty) === 0) {
+        setErrorMessage("qty cannot be zero");
+        setShowError(true);
+        errorOccured = true;
+        break;
+      }
     }
 
     if (errorOccured)
@@ -580,22 +624,20 @@ export default function WarehouseReceive(props) {
 
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/deliverychallan/add";
+      let url = config["baseurl"] + "/api/materialreceivetransaction/add";
 
       let postObj = {};
-      postObj["type"] = getTypeString(currentType);
       postObj["warehouse"] = props.warehouse._id;
-      if (currentType === 0) {
-        postObj["project"] = projects[currentProject]._id;
-        postObj["project"] = projects[currentProject].name;
-        postObj["releasedtransaction"] = releasedTransactions[currentReleasedTransaction].transaction._id;
-        postObj["toaddress"] = toaddress.trim();
-      }
-      else if (currentType === 1) {
-        postObj["stocktransfer"] = stockTransfers[currentStockTransfer].transaction._id;
-      }
-      postObj["esugam_no"] = null;//esugam.trim();
-      postObj["esugam_date"] = null;//esugam_date.toUTCString();
+      postObj["type"] = getTypeString(currentType);
+      if (currentType === 0)
+        postObj["po_id"] = pos[currentPO]._id;
+      // if (currentType === 1)
+      //   postObj["project"] = project._id;
+      postObj["gate_entry_info"] = gate_entry_info.trim();
+      postObj["bill_no"] = bill_no.trim();
+      postObj["bill_date"] = bill_date.toUTCString();
+      postObj["dc_no"] = dc_no.trim();
+      postObj["dc_date"] = dc_date.toUTCString();
       postObj["lr_no"] = lr_no.trim();
       postObj["lr_date"] = lr_date.toUTCString();
       postObj["transporter"] = transporter.trim();
@@ -607,10 +649,25 @@ export default function WarehouseReceive(props) {
         postObj["docs"].push({ name: files[i].name, path: files[i].path });
       }
 
-      // postObj["items"] = [];
-      // for (let i = 0; i < items.length; ++i) {
-      //   postObj["items"].push({ item: items[i]._id, qty: parseInt(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
-      // }
+      postObj["items"] = [];
+      for (let i = 0; i < items.length; ++i) {
+        if (parseFloat(items[i].qty) < 0) {
+          throw "Cannot receive negative qty";
+        }
+
+        if (currentType === 0) {
+          let receivedQty = getReceivedQty(items[i]);
+          if (receivedQty + parseFloat(items[i].qty) > parseInt(items[i].canreceiveqty)) {
+            throw "Cannot receive more than PO ordered qty";
+          }
+          else {
+            postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
+          }
+        }
+        else {
+          postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
+        }
+      }
 
       console.log("postObj: ", postObj);
 
@@ -623,14 +680,14 @@ export default function WarehouseReceive(props) {
       props.history.push("/warehousehome");
     }
     catch (e) {
-      console.log("5");
+      console.log(e);
       if (e.response) {
         console.log("Error in creating");
         setErrorMessage(e.response.data["message"]);
       }
       else {
         console.log("Error in creating");
-        setErrorMessage("Error in creating: ", e.message);
+        setErrorMessage("Error in creating: " + e);
       }
       setShowError(true);
       setShowBackDrop(false);
@@ -640,8 +697,8 @@ export default function WarehouseReceive(props) {
   const addItem = () => {
     if (currentType === 0 && currentPO >= 0)
       setShowSelectItem(true);
-    else if (currentType === 2)
-      setShowSelectItemForLP(true);
+    // else if (currentType === 1)
+    //   setShowSelectItemForLP(true);
   };
 
   const closeSelectItemDialogAction = () => {
@@ -660,6 +717,7 @@ export default function WarehouseReceive(props) {
     console.log(newitem);
 
     let newCopy = cloneDeep(newitem);
+    newCopy.canreceiveqty = newitem.qty;
     newCopy.qty = 0;
 
     let newItems = [...items, newCopy];
@@ -720,39 +778,53 @@ export default function WarehouseReceive(props) {
 
     switch (event.target.value) {
       case 0:
-        if (!projects) {
-          getProjectList();
+        if (!pos) {
+          getPOs();
         }
         break;
       case 1:
-        if (!stockTransfers) {
-          getStockTransfers();
-        }
+        break;
+      case 2:
         break;
     }
   };
 
-  const handleStockTransferChange = (event) => {
-    setCurrentStockTransfer(event.target.value);
+  const handlePOChange = (event) => {
+    setCurrentPO(event.target.value);
+    set_receivedTransactions(null);
+    set_current_po_error(null);
+    setSupplyVendor(null);
+    const vendor = getSupplyVendor(pos[event.target.value].supply_vendor);
+    console.log("vendor: ", vendor);
+    setSupplyVendor(vendor);
+    if (vendor) {
+      set_supplier_name_error(null);
+      set_supplier_address_error(null);
+      set_supplier_gst_error(null);
+    }
 
-    console.log("stockTransfers[event.target.value].transaction: ", stockTransfers[event.target.value].transaction);
-    set_items(stockTransfers[event.target.value].items);
-  };
+    console.log(pos[event.target.value]);
 
-  const handleReleasedIndentChange = (event) => {
-    setCurrentReleasedTransaction(event.target.value);
+    getReceivedMaterials(pos[event.target.value]._id);
 
-    const releaseIndent = releasedTransactions[event.target.value];
-    console.log(releaseIndent);
-    set_items(releaseIndent.items ? releaseIndent.items : []);
-  };
+    set_items([]);
 
-  const handleProjectChange = (event) => {
-    setCurrentProject(event.target.value);
-    setCurrentReleasedTransaction(-1);
-    set_current_project_error(null);
+    let newItems = [];
+    for (let k = 0; k < pos[event.target.value].items.length; ++k) {
+      for (let i = 0; i < allItems.length; ++i) {
+        if (pos[event.target.value].items[k].item === allItems[i]._id) {
+          let item = cloneDeep(allItems[i]);
+          item.rate = pos[event.target.value].items[k].rate;
+          item.qty = pos[event.target.value].items[k].qty;
+          item.scheduled_date = pos[event.target.value].items[k].scheduled_date;
+          item.scheduled_date_conv = dateFns.date(pos[event.target.value].items[k].scheduled_date);
 
-    getReleaseIndents(projects[event.target.value]);
+          newItems.push(item);
+          break;
+        }
+      }
+    }
+    setPOItems(newItems);
   }
 
   const handleSupplyVendorChange = (event) => {
@@ -870,22 +942,77 @@ export default function WarehouseReceive(props) {
     return dateFns.date(val).toDateString();
   };
 
+  const getSupplyVendor = (val) => {
+    console.log("------------");
+    console.log("val: ", val);
+    console.log("supplyVendors: ", supplyVendors);
+    for (let i = 0; i < supplyVendors.length; ++i) {
+      if (supplyVendors[i]._id === val) {
+        return supplyVendors[i];
+      }
+    }
+
+    return null;
+  };
+
+  const getReceivedQty = (receivableItem) => {
+    console.log("receivableItem: ", receivableItem);
+
+    let total = 0;
+    for (let i = 0; i < receivedTransactions.length; ++i) {
+      for (let k = 0; k < receivedTransactions[i].transaction.items.length; ++k) {
+        if (receivedTransactions[i].transaction.items[k].item === receivableItem._id) {
+          total += receivedTransactions[i].transaction.items[k].qty;
+        }
+      }
+    }
+
+    return total;
+  };
+
+  const getProjectNameForPO = (po) => {
+    for (let i = 0; i < projects.length; ++i) {
+      if (projects[i]._id == po.project)
+        return "" + projects[i].code + ", " + projects[i].name;
+    }
+
+    return "";
+  };
+
+
+  const itemRemove = i => {
+    let allItems = [...items];
+    allItems.splice(i, 1);
+    set_items(allItems);
+  }
+
+
   return (
     <div className={clsx(classes.root)}>
       {props.warehouse &&
         <div className={classes.paper}>
 
-          <EnhancedTableToolbar title={props.warehouse.name + ": Generate DC"} />
+          <EnhancedTableToolbar title={props.warehouse.name + ": Internal Purchase Material"} />
+
+          {/* <Breadcrumbs aria-label="breadcrumb">
+            <Link color="inherit" onClick={() => handleBreadCrumClick("/warehouses")}>
+              {"Warehouses"}
+            </Link>
+            <Link color="inherit" onClick={() => handleBreadCrumClick("/warehousehome")}>
+              {props.warehouse.name}
+            </Link>
+            <Typography color="textPrimary">{"Receive Material"}</Typography>
+          </Breadcrumbs> */}
 
           <form className={classes.papernew} autoComplete="off" noValidate>
             <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="type-select-label">Delivery Type *</InputLabel>
+              <InputLabel id="type-select-label">Receive Type *</InputLabel>
               <Select
                 labelId="type-select-label"
                 id="type-select-label"
                 value={currentType === -1 ? "" : currentType}
                 onChange={handleTypeChange}
-                label="Delivery Type *"
+                label="Receive Type *"
               >
                 {types && types.map((row, index) => {
                   return (
@@ -897,110 +1024,102 @@ export default function WarehouseReceive(props) {
             {current_type_error && <Alert className={classes.alert} severity="error"> {current_type_error} </Alert>}
 
             {currentType === 0 && <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="po-select-label">Project *</InputLabel>
+              <InputLabel id="po-select-label">PO *</InputLabel>
               <Select
                 labelId="po-select-label"
                 id="po-select-label"
-                value={currentProject === -1 ? "" : currentProject}
-                onChange={handleProjectChange}
-                label="Project *"
+                value={currentPO === -1 ? "" : currentPO}
+                onChange={handlePOChange}
+                label="PO *"
               >
-                {projects && projects.map((row, index) => {
+                {pos && pos.map((row, index) => {
+                  let createdDate = dateFns.date(row.createdDate);
                   return (
-                    <MenuItem key={"" + index} value={index}>{ row.code +  " --> "  +  row.name}</MenuItem>
+                    <MenuItem key={"" + index} value={index}>{"PO: " + row.code + ", Date: " + createdDate.toDateString() + ", Project: " + getProjectNameForPO(row)}</MenuItem>
                   );
                 })}
               </Select>
             </FormControl>}
             {currentType === 0 && current_po_error && <Alert className={classes.alert} severity="error"> {current_po_error} </Alert>}
 
-            {currentType === 1 && <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="warehouse-select-label">Stock Transfer *</InputLabel>
-              <Select
-                labelId="warehouse-select-label"
-                id="warehouse-select-label"
-                value={currentStockTransfer === -1 ? "" : currentStockTransfer}
-                onChange={handleStockTransferChange}
-                label="Stock Transfer *"
-              >
-                {stockTransfers && stockTransfers.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{"" + row.transaction.code + ": " + row.towarehouse.name}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>}
-            {currentType === 1 && current_stock_transfer_error && <Alert className={classes.alert} severity="error"> {current_stock_transfer_error} </Alert>}
+            {currentType === 0 && pos && (currentPO >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_po_date" value={getDateString(pos[currentPO].createdDate)}
+              label="PO Date" variant="outlined" disabled />}
+            {currentType === 0 && po_date_error && <Alert className={classes.alert} severity="error"> {po_date_error} </Alert>}
 
-            {currentType === 0 && <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="materialindent-select-label">Released Indent *</InputLabel>
-              <Select
-                labelId="materialindent-select-label"
-                id="materialindent-select-label"
-                value={currentReleasedTransaction === -1 ? "" : currentReleasedTransaction}
-                onChange={handleReleasedIndentChange}
-                label="Released Indent *"
-              >
-                {releasedTransactions && releasedTransactions.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={index}>{"" + row.indent.code}</MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>}
-            {currentType === 0 && current_released_indent_error && <Alert className={classes.alert} severity="error"> {current_released_indent_error} </Alert>}
+            {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_name" value={supplyVendor.name}
+              label="Supplier Name" variant="outlined" multiline disabled />}
+            {currentType === 0 && supplier_name_error && <Alert className={classes.alert} severity="error"> {supplier_name_error} </Alert>}
 
-            {currentType === 0 && projects && (currentProject >= 0) && releasedTransactions && (currentReleasedTransaction >= 0)
-              && <TextField size="small" className={classes.inputFields} id="formControl_servicevendor_name"
-                value={releasedTransactions[currentReleasedTransaction].servicevendor ? (releasedTransactions[currentReleasedTransaction].servicevendor.code + " : " + releasedTransactions[currentReleasedTransaction].servicevendor.name) : "Older Data. Dont do anything. Cannot create DC!!!!"}
-                label="ServiceVendor Name" variant="outlined" multiline disabled />}
+            {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_address" value={supplyVendor.address}
+              label="Supplier Address" variant="outlined" multiline disabled />}
+            {currentType === 0 && supplier_address_error && <Alert className={classes.alert} severity="error"> {supplier_address_error} </Alert>}
 
-            {/* <TextField size="small" className={classes.inputFields} id="formControl_esugam" defaultValue={esugam}
-              label="E-Sugam Num" variant="outlined"
-              onChange={(event) => { set_esugam(event.target.value); set_esugam_error(null); }} />
-            {esugam_error && <Alert className={classes.alert} severity="error"> {esugam_error} </Alert>} */}
+            {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_gst" value={supplyVendor.gst}
+              label="Supplier GST" variant="outlined" multiline disabled />}
+            {currentType === 0 && supplier_gst_error && <Alert className={classes.alert} severity="error"> {supplier_gst_error} </Alert>}
 
-            {/* {<FormControl variant="outlined" size="small" className={classes.formControl}>
+            {/* {currentType === 1 && <TextField size="small" className={classes.inputFields} id="formControl_key_project" value={project ? (project.code + " - " + project.name) : ""}
+              label="Project" variant="outlined" disabled />}
+            {currentType === 1 && <Button variant="contained" color="primary" onClick={() => setShowSelectProject(true)} >Select Project</Button>}
+            {currentType === 1 && project_error && <Alert className={classes.alert} severity="error"> {project_error} </Alert>} */}
+
+            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_key_gate_entry_info" defaultValue={gate_entry_info}
+              label="Gate Entry Info" variant="outlined" multiline
+              onChange={(event) => { set_gate_entry_info(event.target.value); set_gate_entry_info_error(null); }} />}
+            {(currentType === 0) && gate_entry_info_error && <Alert className={classes.alert} severity="error"> {gate_entry_info_error} </Alert>}
+
+            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_bill_no" defaultValue={bill_no}
+              label="Bill Num" variant="outlined" multiline
+              onChange={(event) => { set_bill_no(event.target.value); set_bill_no_error(null); }} />}
+            {(currentType === 0) && bill_no_error && <Alert className={classes.alert} severity="error"> {bill_no_error} </Alert>}
+
+            {(currentType === 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
               <MuiPickersUtilsProvider utils={DateFnsUtils} >
-                <DatePicker size="small" label="E-Sugam Date" inputVariant="outlined" format="dd/MM/yyyy" value={esugam_date} onChange={set_esugam_date} />
+                <DatePicker size="small" label="Bill Date" inputVariant="outlined" format="dd/MM/yyyy" value={bill_date} onChange={set_bill_date} />
               </MuiPickersUtilsProvider>
             </FormControl>}
-            {esugam_date_error && <Alert className={classes.alert} severity="error"> {esugam_date_error} </Alert>} */}
+            {(currentType === 0) && bill_date_error && <Alert className={classes.alert} severity="error"> {bill_date_error} </Alert>}
 
+            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_dc_no" defaultValue={dc_no}
+              label="DC Num" variant="outlined" multiline
+              onChange={(event) => { set_dc_no(event.target.value); set_dc_no_error(null); }} />}
+            {(currentType === 0) && dc_no_error && <Alert className={classes.alert} severity="error"> {dc_no_error} </Alert>}
 
-            {currentType === 0 && <TextField size="small" className={classes.inputFields} id="formControl_toaddress" defaultValue={toaddress}
-              label="To Adress" variant="outlined" multiline
-              onChange={(event) => { set_toaddress(event.target.value); set_toaddress_error(null); }} />}
-            {toaddress_error && <Alert className={classes.alert} severity="error"> {toaddress_error} </Alert>}
+            {(currentType === 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
+              <MuiPickersUtilsProvider utils={DateFnsUtils} >
+                <DatePicker size="small" label="DC Date" inputVariant="outlined" format="dd/MM/yyyy" value={dc_date} onChange={set_dc_date} />
+              </MuiPickersUtilsProvider>
+            </FormControl>}
+            {(currentType === 0) && dc_date_error && <Alert className={classes.alert} severity="error"> {dc_date_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_lr_no" defaultValue={lr_no}
+            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_lr_no" defaultValue={lr_no}
               label="LR Num" variant="outlined" multiline
-              onChange={(event) => { set_lr_no(event.target.value); set_lr_no_error(null); }} />
-            {lr_no_error && <Alert className={classes.alert} severity="error"> {lr_no_error} </Alert>}
+              onChange={(event) => { set_lr_no(event.target.value); set_lr_no_error(null); }} />}
+            {(currentType === 0) && lr_no_error && <Alert className={classes.alert} severity="error"> {lr_no_error} </Alert>}
 
-            <FormControl variant="outlined" size="small" className={classes.formControl}>
+            {(currentType === 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
               <MuiPickersUtilsProvider utils={DateFnsUtils} >
                 <DatePicker size="small" label="LR Date" inputVariant="outlined" format="dd/MM/yyyy" value={lr_date} onChange={set_lr_date} />
               </MuiPickersUtilsProvider>
-            </FormControl>
-            {lr_date_error && <Alert className={classes.alert} severity="error"> {lr_date_error} </Alert>}
+            </FormControl>}
+            {(currentType === 0) && lr_date_error && <Alert className={classes.alert} severity="error"> {lr_date_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_transporter" defaultValue={transporter}
+            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_transporter" defaultValue={transporter}
               label="Transporter" variant="outlined" multiline
-              onChange={(event) => { set_transporter(event.target.value); set_transporter_error(null); }} />
-            {transporter_error && <Alert className={classes.alert} severity="error"> {transporter_error} </Alert>}
+              onChange={(event) => { set_transporter(event.target.value); set_transporter_error(null); }} />}
+            {(currentType === 0) && transporter_error && <Alert className={classes.alert} severity="error"> {transporter_error} </Alert>}
 
-            <TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" defaultValue={vehicle_no}
+            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" defaultValue={vehicle_no}
               label="Vehicle Num" variant="outlined" multiline
-              onChange={(event) => { set_vehicle_no(event.target.value); set_vehicle_no_error(null); }} />
-            {vehicle_no_error && <Alert className={classes.alert} severity="error"> {vehicle_no_error} </Alert>}
+              onChange={(event) => { set_vehicle_no(event.target.value); set_vehicle_no_error(null); }} />}
+            {(currentType === 0) && vehicle_no_error && <Alert className={classes.alert} severity="error"> {vehicle_no_error} </Alert>}
 
             <TextField size="small" className={classes.inputFields} id="formControl_remark" defaultValue={remark}
               label="Remark" variant="outlined" multiline
               onChange={(event) => { set_remark(event.target.value); set_remark_error(null); }} />
             {remark_error && <Alert className={classes.alert} severity="error"> {remark_error} </Alert>}
 
-            {/* <div style={{ marginTop: 10 }}>
+            <div style={{ marginTop: 10 }}>
               <div>
                 {files.map((file, index) => {
                   return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
@@ -1012,25 +1131,37 @@ export default function WarehouseReceive(props) {
                   <input type="file" hidden />
                 </Button>
               </div>
-            </div> */}
+            </div>
 
             <Paper className={classes.paper} style={{ marginTop: 10 }}>
-              <TableContainer className={classes.container}>
-                <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                  <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
-                  <TableBody>
-                    {items.map((row, index) => {
-                      return (
-                        <TableRow hover tabIndex={-1} key={"" + index} >
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.details.description}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.details.uomId)}</TableCell>
-                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.qty}</TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              {(currentType === 0) &&
+                <TableContainer className={classes.container}>
+                  <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
+                    <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
+                    <TableBody>
+                      {receivedTransactions && items.map((row, index) => {
+                        return (
+                          <TableRow hover tabIndex={-1} key={"" + index} >
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.description}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.rate}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.canreceiveqty}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getReceivedQty(row)}</TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                              <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
+                                variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
+                            </TableCell>
+                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                              <Button variant="contained" onClick={() => itemRemove(index)}>Remove</Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              }
             </Paper>
             {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
 

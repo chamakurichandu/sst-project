@@ -76,12 +76,11 @@ function EnhancedTableHead(props) {
 
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
-    { id: 'name', numeric: false, disablePadding: false, label: 'Document Name' },
-    { id: 'remarks', numeric: false, disablePadding: false, label: 'Remarks' },
+    { id: 'name', numeric: false, disablePadding: false, label: 'Document Name ' },
+    { id: 'remarks', numeric: false, disablePadding: false, label: 'Remark' },
     { id: 'uploadeddate', numeric: false, disablePadding: false, label: 'Uploaded Date' },
     { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
   ];
-
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);

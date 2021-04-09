@@ -137,7 +137,7 @@ export default function ResponsiveDrawer(props) {
     const theme = useTheme();
     const [homeModes, setHomeModes] = React.useState(["Profile", "Office Administration", "Company Policies"]);
     const [procurementModes, setProcurementModes] = React.useState(["Dashboard", "Letter of Intents", "Purchase Orders", "Local Purchase"]);
-    const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "Receive Materials", "Release Materials", "Inward Stock Transfer", "Outward Stock Transfer", "Generate DC"]);
+    const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "Receive Materials", "Release Materials", "Inward Stock Transfer", "Outward Stock Transfer", "Generate DC","Internal Purchase Material"]);
     const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
     const [outsourcingModes, setOutsourcingModes] = React.useState(["Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report"]);
     const [accountsModes, setAccountsModes] = React.useState(["DC [eSugam Waiting]", "DC [All]"]);
@@ -353,6 +353,9 @@ export default function ResponsiveDrawer(props) {
                     break;
                 case 6:
                     history.push("/generate-dc");
+                    break;
+                case 7:
+                    history.push("/internal-purchase-materials");
                     break;
             }
         }
