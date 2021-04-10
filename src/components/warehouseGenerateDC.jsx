@@ -587,6 +587,7 @@ export default function WarehouseReceive(props) {
       postObj["warehouse"] = props.warehouse._id;
       if (currentType === 0) {
         postObj["project"] = projects[currentProject]._id;
+        postObj["project"] = projects[currentProject].name;
         postObj["releasedtransaction"] = releasedTransactions[currentReleasedTransaction].transaction._id;
         postObj["toaddress"] = toaddress.trim();
       }
@@ -906,7 +907,7 @@ export default function WarehouseReceive(props) {
               >
                 {projects && projects.map((row, index) => {
                   return (
-                    <MenuItem key={"" + index} value={index}>{"" + row.code}</MenuItem>
+                    <MenuItem key={"" + index} value={index}>{ row.code +  " --> "  +  row.name}</MenuItem>
                   );
                 })}
               </Select>

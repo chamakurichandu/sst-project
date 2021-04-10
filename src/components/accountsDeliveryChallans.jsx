@@ -79,6 +79,7 @@ function EnhancedTableHead(props) {
     { id: 'esugam', numeric: false, disablePadding: false, label: 'e-sugam' },
     { id: 'esugam-date', numeric: false, disablePadding: false, label: 'e-sugam date' },
     { id: 'esugam-docs', numeric: false, disablePadding: false, label: 'e-sugam docs' },
+    { id: 'project_id', numeric: false, disablePadding: false, label: 'Project Id' },
     { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
     { id: 'warehouse', numeric: false, disablePadding: false, label: 'Warehouse' },
     { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
@@ -589,6 +590,7 @@ export default function ReleasedMaterials(props) {
                           }
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.project.code : "NA"}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.project.name : "NA"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.type === "projects" ? row.data.warehouse.name : row.data.fromwarehouse.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>

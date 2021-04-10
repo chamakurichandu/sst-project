@@ -111,7 +111,7 @@ function EnhancedTableHeadSmall2(props) {
   );
 }
 
-export default function WarehouseReceive(props) {
+export default function InternalPurchase(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -992,7 +992,7 @@ export default function WarehouseReceive(props) {
       {props.warehouse &&
         <div className={classes.paper}>
 
-          <EnhancedTableToolbar title={props.warehouse.name + ": Receive Material"} />
+          <EnhancedTableToolbar title={props.warehouse.name + ": Internal Purchase Material"} />
 
           {/* <Breadcrumbs aria-label="breadcrumb">
             <Link color="inherit" onClick={() => handleBreadCrumClick("/warehouses")}>

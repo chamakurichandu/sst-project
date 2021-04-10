@@ -575,7 +575,7 @@ export default function EditPO(props) {
         errorOccured = true;
         break;
       }
-      if (parseInt(items[i].qty) === 0) {
+      if (parseFloat(items[i].qty) === 0) {
         setErrorMessage("qty cannot be zero");
         setShowError(true);
         errorOccured = true;
@@ -600,7 +600,7 @@ export default function EditPO(props) {
       postObj["items"] = [];
       console.log(1.1);
       for (let i = 0; i < items.length; ++i) {
-        postObj["items"].push({ item: items[i]._id, qty: parseInt(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
+        postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
       }
       console.log(2);
       console.log("postObj: ", postObj);

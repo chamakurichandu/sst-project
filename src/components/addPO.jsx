@@ -59,7 +59,8 @@ function EnhancedTableHeadSmall(props) {
     { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
     { id: 'schedule_date', numeric: true, disablePadding: false, label: "Scheduled Date" },
     { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
-    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
+    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" },
+    { id: 'remove_item', numeric: false, disablePadding: false, label: "Remove Item" }
   ];
 
   return (
@@ -610,7 +611,7 @@ export default function AddPO(props) {
         errorOccured = true;
         break;
       }
-      if (parseInt(items[i].qty) === 0) {
+      if (parseFloat(items[i].qty) === 0) {
         setErrorMessage("qty cannot be zero");
         setShowError(true);
         errorOccured = true;
@@ -637,7 +638,7 @@ export default function AddPO(props) {
       console.log("items: ", items);
       for (let i = 0; i < items.length; ++i) {
         console.log("item: ", items[i]);
-        postObj["items"].push({ item: items[i]._id, qty: parseInt(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date.toUTCString() });
+        postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date.toUTCString() });
       }
       console.log(3);
       postObj["scope_of_supply"] = scope_of_supply.trim();
@@ -764,6 +765,12 @@ export default function AddPO(props) {
     set_items(newItems);
   };
 
+ const itemRemove = i =>{
+   let allItems = [...items];
+   allItems.splice(i, 1);
+    set_items(allItems);
+  }
+
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
@@ -866,7 +873,9 @@ export default function AddPO(props) {
                           <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
                             variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                         </TableCell>
-
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                        <Button variant="contained" onClick={()=>itemRemove(index)}>Remove</Button>
+                        </TableCell>
                       </TableRow>
                     );
                   })}

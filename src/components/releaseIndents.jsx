@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import DateFnsUtils from '@date-io/date-fns';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -77,6 +78,7 @@ function EnhancedTableHead(props) {
     { id: 'materialindent', numeric: false, disablePadding: false, label: 'Material Indent' },
     { id: 'projectcode', numeric: false, disablePadding: false, label: 'Project Code' },
     { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
+    { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
   ];
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -277,8 +279,16 @@ export default function ReleaseIndents(props) {
       const { data } = await axios.get(url);
       console.log(data);
       console.log(data.list);
-
-      setMaterialIndents(data.list);
+      let newRows = [];
+      const dateFns = new DateFnsUtils();
+      for (let i = 0; i < data.list.length; ++i) {
+        data.list[i].project.createddate_conv = dateFns.date(data.list[i].project.createdDate);
+        newRows.push(createData((offset + i + 1),
+          data.list[i]
+        ));
+      }
+      console.log("newRows:", newRows);
+      setMaterialIndents(data.list,newRows);
 
       setShowBackDrop(false);
     }
@@ -465,6 +475,7 @@ export default function ReleaseIndents(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.indent.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <div><Button onClick={() => handleRelease(row)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Release"}</Button></div>
                         </TableCell>

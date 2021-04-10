@@ -29,6 +29,7 @@ import IconButton from '@material-ui/core/IconButton';
 import EditImage from '@material-ui/icons/Edit';
 import GetAppImage from '@material-ui/icons/GetApp';
 import DetailImage from '@material-ui/icons/ArrowForward';
+import ReleaseMaterialIndent from './releaseMaterialIndent';
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -75,7 +76,9 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'indentcode', numeric: false, disablePadding: false, label: 'Indent Code' },
+    { id: 'project_id', numeric: false, disablePadding: false, label: 'Project Id' },
     { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
+    { id: 'projectdate', numeric: false, disablePadding: false, label: 'Project Date' },
     { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' }
   ];
@@ -274,6 +277,8 @@ export default function ReleasedMaterials(props) {
   const [warehouses, setWarehouses] = React.useState([]);
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
+  const [currentMaterialIndent, setCurrentMaterialIndent] = React.useState(null);
+  const [releaseMaterialIndent, showReleaseMaterialIndent] = React.useState(false);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -291,6 +296,8 @@ export default function ReleasedMaterials(props) {
       const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.length; ++i) {
         data.list[i].indent.createddate_conv = dateFns.date(data.list[i].indent.createdDate);
+        data.list[i].project.createddate_conv = dateFns.date(data.list[i].project.createdDate);
+
         newRows.push(createData((offset + i + 1),
           data.list[i]
         ));
@@ -500,11 +507,25 @@ export default function ReleasedMaterials(props) {
     }
   };
 
-  const detailAction = (data) => {
-      console.log(data);
-      // props.setWarehouseReleaseTransaction(data);
-      props.history.push("/warehousereleasedetails");
+  // const detailAction = (data) => {
+  //     console.log(data);
+  //     // props.setWarehouseReleaseTransaction(data);
+  //     props.history.push("/warehousereleasedetails");
+  // };
+
+  const handleRelease = (data) => {
+    console.log("handleRelease: ", data);
+
+    setCurrentMaterialIndent(data);
+    showReleaseMaterialIndent(true);
+    // props.setSelectedUser(userdata);
+    // props.history.push("/handlerele");
   };
+
+  const handleReleaseClose = () => {
+    showReleaseMaterialIndent(false);
+  };
+
 
   return (
     <div className={clsx(classes.root)}>
@@ -560,10 +581,12 @@ export default function ReleasedMaterials(props) {
                       <TableRow hover tabIndex={-1} key={row.slno}>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => detailAction(row.data)}>
+                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => handleRelease(row.data)}>
                             <DetailImage />
                           </IconButton>
                         </TableCell>
@@ -585,12 +608,12 @@ export default function ReleasedMaterials(props) {
           </Paper>
         </div>
       }
+{releaseMaterialIndent && <ReleaseMaterialIndent materialReleased={true} currentMaterialIndent={currentMaterialIndent} closeAction={handleReleaseClose} {...props} />}
       <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}
         </Alert>
       </Snackbar>
-
       <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
         <CircularProgress color="inherit" />
       </Backdrop>
