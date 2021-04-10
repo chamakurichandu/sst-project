@@ -81,7 +81,7 @@ function EnhancedTableHead(props) {
     { id: 'bill_date', numeric: false, disablePadding: false, label: 'Bill Date' },
     { id: 'project_id', numeric: false, disablePadding: false, label: 'Project Id' },
     { id: 'project_name', numeric: false, disablePadding: false, label: 'Project Name' },
-    { id: 'project_date', numeric: false, disablePadding: false, label: 'Project Date' },
+    // { id: 'project_date', numeric: false, disablePadding: false, label: 'Project Date' },
     { id: 'supplyvendor', numeric: false, disablePadding: false, label: 'Supply Vendor' },
     { id: 'createddate', numeric: false, disablePadding: false, label: 'Created Date' },
     { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
@@ -298,7 +298,7 @@ export default function ReceivedMaterials(props) {
       const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.length; ++i) {
         data.list[i].createddate_conv = dateFns.date(data.list[i].transaction.createdDate);
-        data.list[i].project.createddate_conv = dateFns.date(data.list[i].project.createdDate);
+        // data.list[i].project.createddate_conv = dateFns.date(data.list[i].project.createdDate);
         data.list[i].transaction.bill_date_conv = dateFns.date(data.list[i].transaction.bill_date);
 
         newRows.push(createData((offset + i + 1),
@@ -594,7 +594,7 @@ export default function ReceivedMaterials(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.bill_date_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.project.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.project.name}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.project.createddate_conv.toDateString()}</TableCell>
+                        {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.project.createddate_conv.toDateString()}</TableCell> */}
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.supply_vendor ? row.data.supply_vendor.name : "N/A"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} ><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>

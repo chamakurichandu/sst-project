@@ -78,7 +78,7 @@ function EnhancedTableHead(props) {
     { id: 'indentcode', numeric: false, disablePadding: false, label: 'Indent Code' },
     { id: 'project_id', numeric: false, disablePadding: false, label: 'Project Id' },
     { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
-    { id: 'projectdate', numeric: false, disablePadding: false, label: 'Project Date' },
+    // { id: 'projectdate', numeric: false, disablePadding: false, label: 'Project Date' },
     { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
     { id: 'action', numeric: false, disablePadding: false, label: 'Actions' }
   ];
@@ -296,7 +296,7 @@ export default function ReleasedMaterials(props) {
       const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.length; ++i) {
         data.list[i].indent.createddate_conv = dateFns.date(data.list[i].indent.createdDate);
-        data.list[i].project.createddate_conv = dateFns.date(data.list[i].project.createdDate);
+        // data.list[i].project.createddate_conv = dateFns.date(data.list[i].project.createdDate);
 
         newRows.push(createData((offset + i + 1),
           data.list[i]
@@ -583,7 +583,7 @@ export default function ReleasedMaterials(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.name}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.createddate_conv.toDateString()}</TableCell>
+                        {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.project.createddate_conv.toDateString()}</TableCell> */}
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.indent.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => handleRelease(row.data)}>
