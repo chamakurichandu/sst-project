@@ -28,6 +28,7 @@ import ProcurementImage from '../assets/svg/ss/commercial-2.svg';
 import IconButton from '@material-ui/core/IconButton';
 import EditImage from '@material-ui/icons/Edit';
 import GetAppImage from '@material-ui/icons/GetApp';
+import DetailImage from '@material-ui/icons/ArrowForward';
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -74,6 +75,7 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'code', numeric: false, disablePadding: false, label: 'LocalPurchase Code' },
+    { id: 'project_id', numeric: false, disablePadding: false, label: 'Project Id' },
     { id: 'project', numeric: false, disablePadding: false, label: 'Project Name' },
     { id: 'warehouse', numeric: false, disablePadding: false, label: 'Warehouse Name' },
     { id: 'bill no', numeric: false, disablePadding: false, label: 'Bill No' },
@@ -552,8 +554,8 @@ export default function LocalPurchase(props) {
 
   const editAction = (data) => {
     console.log(data);
-    props.setLoi(data);
-    props.history.push("/edit-loi");
+    // props.setLoi(data);
+    // props.history.push("/edit-loi");
   };
 
   const getItem = (id) => {
@@ -805,6 +807,7 @@ export default function LocalPurchase(props) {
                     <TableRow hover tabIndex={-1} key={row.slno}>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.code}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.project.code}</span></TableCell> 
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.project.name}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.warehouse.name}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.transaction.bill_no}</span></TableCell>
@@ -813,7 +816,7 @@ export default function LocalPurchase(props) {
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                         <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => editAction(row.data)}>
-                          <EditImage />
+                        <DetailImage />
                         </IconButton>
                         {/* <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => downloadAction(row.data)}>
                           <GetAppImage />

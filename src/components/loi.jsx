@@ -74,6 +74,7 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'code', numeric: false, disablePadding: false, label: 'Code' },
+    { id: 'project_id', numeric: false, disablePadding: false, label: 'Project Id' },
     { id: 'project', numeric: false, disablePadding: false, label: 'Project Name' },
     { id: 'warehouse', numeric: false, disablePadding: false, label: 'Warehouse Name' },
     { id: 'supplyvendor', numeric: false, disablePadding: false, label: 'Supply Vendor' },
@@ -601,6 +602,13 @@ export default function LOI(props) {
     }
   };
 
+  const getProjectCode = (id) => {
+    for (let i = 0; i < projects.length; ++i) {
+      if (projects[i]._id === id)
+        return projects[i].code;
+    }
+  };
+
   const getWarehouseName = (id) => {
     for (let i = 0; i < warehouses.length; ++i) {
       if (warehouses[i]._id === id)
@@ -805,6 +813,7 @@ export default function LOI(props) {
                     <TableRow hover tabIndex={-1} key={row.slno}>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProjectCode(row.data.project)}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProjectName(row.data.project)}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getWarehouseName(row.data.warehouse)}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getSupplyVendorName(row.data.supply_vendor)}</span></TableCell>

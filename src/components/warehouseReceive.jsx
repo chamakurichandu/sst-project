@@ -205,7 +205,7 @@ export default function WarehouseReceive(props) {
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
-  const [types, setTypes] = React.useState(["From PO", "From Return Indents"]);
+  const [types, setTypes] = React.useState(["From PO", "From Return Indents","Internal Purchase Material"]);
   const [currentType, setCurrentType] = React.useState(-1);
   const [current_type_error, set_current_type_error] = React.useState(null);
 
@@ -551,6 +551,7 @@ export default function WarehouseReceive(props) {
 
     let errorOccured = false;
     if (currentType === -1) {
+
       set_current_type_error("Type Required");
       errorOccured = true;
     }
@@ -783,8 +784,11 @@ export default function WarehouseReceive(props) {
         }
         break;
       case 1:
+        getPOs();
         break;
       case 2:
+        break;
+      case 3:
         break;
     }
   };
@@ -1023,7 +1027,7 @@ export default function WarehouseReceive(props) {
             </FormControl>
             {current_type_error && <Alert className={classes.alert} severity="error"> {current_type_error} </Alert>}
 
-            {currentType === 0 && <FormControl size="small" variant="outlined" className={classes.formControl}>
+            {currentType >= 0 && <FormControl size="small" variant="outlined" className={classes.formControl}>
               <InputLabel id="po-select-label">PO *</InputLabel>
               <Select
                 labelId="po-select-label"
@@ -1040,79 +1044,80 @@ export default function WarehouseReceive(props) {
                 })}
               </Select>
             </FormControl>}
-            {currentType === 0 && current_po_error && <Alert className={classes.alert} severity="error"> {current_po_error} </Alert>}
+            {currentType >= 0 && current_po_error && <Alert className={classes.alert} severity="error"> {current_po_error} </Alert>}
 
-            {currentType === 0 && pos && (currentPO >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_po_date" value={getDateString(pos[currentPO].createdDate)}
+            {currentType >= 0 && pos && (currentPO >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_po_date" value={getDateString(pos[currentPO].createdDate)}
               label="PO Date" variant="outlined" disabled />}
-            {currentType === 0 && po_date_error && <Alert className={classes.alert} severity="error"> {po_date_error} </Alert>}
+            {currentType >= 0 && po_date_error && <Alert className={classes.alert} severity="error"> {po_date_error} </Alert>}
 
-            {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_name" value={supplyVendor.name}
+            {currentType >= 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_name" value={supplyVendor.name}
               label="Supplier Name" variant="outlined" multiline disabled />}
-            {currentType === 0 && supplier_name_error && <Alert className={classes.alert} severity="error"> {supplier_name_error} </Alert>}
+            {currentType >= 0 && supplier_name_error && <Alert className={classes.alert} severity="error"> {supplier_name_error} </Alert>}
 
-            {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_address" value={supplyVendor.address}
+            {currentType >= 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_address" value={supplyVendor.address}
               label="Supplier Address" variant="outlined" multiline disabled />}
-            {currentType === 0 && supplier_address_error && <Alert className={classes.alert} severity="error"> {supplier_address_error} </Alert>}
+            {currentType >= 0 && supplier_address_error && <Alert className={classes.alert} severity="error"> {supplier_address_error} </Alert>}
 
-            {currentType === 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_gst" value={supplyVendor.gst}
+            {currentType >= 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_gst" value={supplyVendor.gst}
               label="Supplier GST" variant="outlined" multiline disabled />}
-            {currentType === 0 && supplier_gst_error && <Alert className={classes.alert} severity="error"> {supplier_gst_error} </Alert>}
+            {currentType >= 0 && supplier_gst_error && <Alert className={classes.alert} severity="error"> {supplier_gst_error} </Alert>}
 
             {/* {currentType === 1 && <TextField size="small" className={classes.inputFields} id="formControl_key_project" value={project ? (project.code + " - " + project.name) : ""}
               label="Project" variant="outlined" disabled />}
             {currentType === 1 && <Button variant="contained" color="primary" onClick={() => setShowSelectProject(true)} >Select Project</Button>}
             {currentType === 1 && project_error && <Alert className={classes.alert} severity="error"> {project_error} </Alert>} */}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_key_gate_entry_info" defaultValue={gate_entry_info}
+            {(currentType >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_key_gate_entry_info" defaultValue={gate_entry_info}
               label="Gate Entry Info" variant="outlined" multiline
               onChange={(event) => { set_gate_entry_info(event.target.value); set_gate_entry_info_error(null); }} />}
-            {(currentType === 0) && gate_entry_info_error && <Alert className={classes.alert} severity="error"> {gate_entry_info_error} </Alert>}
+            {(currentType >= 0) && gate_entry_info_error && <Alert className={classes.alert} severity="error"> {gate_entry_info_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_bill_no" defaultValue={bill_no}
+            {(currentType >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_bill_no" defaultValue={bill_no}
               label="Bill Num" variant="outlined" multiline
               onChange={(event) => { set_bill_no(event.target.value); set_bill_no_error(null); }} />}
-            {(currentType === 0) && bill_no_error && <Alert className={classes.alert} severity="error"> {bill_no_error} </Alert>}
+            {(currentType >= 0) && bill_no_error && <Alert className={classes.alert} severity="error"> {bill_no_error} </Alert>}
 
-            {(currentType === 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
+            {(currentType >= 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
               <MuiPickersUtilsProvider utils={DateFnsUtils} >
                 <DatePicker size="small" label="Bill Date" inputVariant="outlined" format="dd/MM/yyyy" value={bill_date} onChange={set_bill_date} />
               </MuiPickersUtilsProvider>
             </FormControl>}
-            {(currentType === 0) && bill_date_error && <Alert className={classes.alert} severity="error"> {bill_date_error} </Alert>}
+            {(currentType >= 0) && bill_date_error && <Alert className={classes.alert} severity="error"> {bill_date_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_dc_no" defaultValue={dc_no}
+            {(currentType >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_dc_no" defaultValue={dc_no}
               label="DC Num" variant="outlined" multiline
               onChange={(event) => { set_dc_no(event.target.value); set_dc_no_error(null); }} />}
-            {(currentType === 0) && dc_no_error && <Alert className={classes.alert} severity="error"> {dc_no_error} </Alert>}
+            {(currentType >= 0) && dc_no_error && <Alert className={classes.alert} severity="error"> {dc_no_error} </Alert>}
 
-            {(currentType === 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
+            {(currentType >= 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
               <MuiPickersUtilsProvider utils={DateFnsUtils} >
                 <DatePicker size="small" label="DC Date" inputVariant="outlined" format="dd/MM/yyyy" value={dc_date} onChange={set_dc_date} />
               </MuiPickersUtilsProvider>
             </FormControl>}
-            {(currentType === 0) && dc_date_error && <Alert className={classes.alert} severity="error"> {dc_date_error} </Alert>}
+            {(currentType >= 0) && dc_date_error && <Alert className={classes.alert} severity="error"> {dc_date_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_lr_no" defaultValue={lr_no}
+            {(currentType >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_lr_no" defaultValue={lr_no}
               label="LR Num" variant="outlined" multiline
               onChange={(event) => { set_lr_no(event.target.value); set_lr_no_error(null); }} />}
-            {(currentType === 0) && lr_no_error && <Alert className={classes.alert} severity="error"> {lr_no_error} </Alert>}
+            {(currentType >= 0) && lr_no_error && <Alert className={classes.alert} severity="error"> {lr_no_error} </Alert>}
 
-            {(currentType === 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
+            {(currentType >= 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
               <MuiPickersUtilsProvider utils={DateFnsUtils} >
                 <DatePicker size="small" label="LR Date" inputVariant="outlined" format="dd/MM/yyyy" value={lr_date} onChange={set_lr_date} />
               </MuiPickersUtilsProvider>
             </FormControl>}
-            {(currentType === 0) && lr_date_error && <Alert className={classes.alert} severity="error"> {lr_date_error} </Alert>}
+            {(currentType >= 0) && lr_date_error && <Alert className={classes.alert} severity="error"> {lr_date_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_transporter" defaultValue={transporter}
+            {(currentType >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_transporter" defaultValue={transporter}
               label="Transporter" variant="outlined" multiline
               onChange={(event) => { set_transporter(event.target.value); set_transporter_error(null); }} />}
-            {(currentType === 0) && transporter_error && <Alert className={classes.alert} severity="error"> {transporter_error} </Alert>}
+            {(currentType >= 0) && transporter_error && <Alert className={classes.alert} severity="error"> {transporter_error} </Alert>}
 
-            {(currentType === 0) && <TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" defaultValue={vehicle_no}
+            {(currentType >=0) && <TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" defaultValue={vehicle_no}
               label="Vehicle Num" variant="outlined" multiline
               onChange={(event) => { set_vehicle_no(event.target.value); set_vehicle_no_error(null); }} />}
-            {(currentType === 0) && vehicle_no_error && <Alert className={classes.alert} severity="error"> {vehicle_no_error} </Alert>}
+            {(currentType >=0) && vehicle_no_error && <Alert className={classes.alert} severity="error"> {vehicle_no_error} </Alert>}
+            
 
             <TextField size="small" className={classes.inputFields} id="formControl_remark" defaultValue={remark}
               label="Remark" variant="outlined" multiline
@@ -1134,7 +1139,7 @@ export default function WarehouseReceive(props) {
             </div>
 
             <Paper className={classes.paper} style={{ marginTop: 10 }}>
-              {(currentType === 0) &&
+              {(currentType >=0) &&
                 <TableContainer className={classes.container}>
                   <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
                     <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />

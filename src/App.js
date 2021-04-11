@@ -71,7 +71,6 @@ import ProjectDetails from './components/projectDetails';
 import WarehouseHome from './components/warehouseHome';
 import Procurements from './components/procurements';
 import WarehouseReceive from './components/warehouseReceive';
-import InternalPurchase from './components/internalPurchase';
 import WarehouseReceiveDetails from './components/warehouseReceiveDetails';
 import UpdateProjectWork from './components/updateProjectWork';
 import ReleaseIndents from './components/releaseIndents';
@@ -96,6 +95,7 @@ import WarehouseStockTransferDetails from './components/warehouseStockTransferDe
 import LocalPurchase from './components/localpurchase';
 import CreateLocalPurchase from './components/createLocalPurchase';
  import DwaDocuments from "./components/dwaDocuments";
+ import ReturnIndent from "./components/returnIndent";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -780,7 +780,7 @@ function App(props) {
                   {<Route exact path="/project-workorders" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"workorders"} name={"Work Orders"} project={project} {...props} /> </div>} />}
                   {<Route exact path="/project-documents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"projectdocuments"} name={"Project Documents"} project={project} {...props} /> </div>} />}
                   {<Route exact path="/materialindents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <MaterialIndents refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} {...props} /> </div>} />}
-
+                  {<Route exact path="/returnindents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ReturnIndent refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} {...props} /> </div>} />} 
                   {<Route exact path="/projects" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Projects refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedProject={setSelectedProject} setCustomers={setCustomers} setProject={setProject}  {...props} /> </div>} />}
                   {<Route exact path="/projects-utils" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProjectUtils refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
                   {<Route exact path="/addproject" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddProject refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
@@ -797,7 +797,7 @@ function App(props) {
                   {<Route exact path="/edit-po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditPO projects={projects} po={po} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
 
                   {<Route exact path="/localpurchase" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}>
-                    <LocalPurchase setLocalPurchase={setLocalPurchase} {...props} /> </div>} />}
+                    <LocalPurchase setLocalPurchase={setLocalPurchase}  {...props} /> </div>} />}
 
                   {<Route exact path="/createlocalpurchase" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}>
                     <CreateLocalPurchase {...props} /> </div>} />}
@@ -838,7 +838,7 @@ function App(props) {
                   {(warehouseRole || adminRole) && <Route exact path="/outwardstocktransfer" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <OutwardStockTransfer refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} setSelectedStockTransfer={setSelectedStockTransfer} setStockTransferType={setStockTransferType} {...props} /> </div>} />}
                   {(warehouseRole || adminRole) && <Route exact path="/createstocktransfer" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <WarehouseCreateStockTransfer refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} {...props} /> </div>} />}
                   {(warehouseRole || adminRole) && <Route exact path="/stocktransferdetails" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <WarehouseStockTransferDetails refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} selectedStockTransfer={selectedStockTransfer} stockTransferType={stockTransferType} {...props} /> </div>} />}
-                  {(warehouseRole || adminRole) && <Route exact path="/internal-purchase-materials" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <InternalPurchase refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} {...props} /> </div>} />}
+                  {/* {(warehouseRole || adminRole) && <Route exact path="/internal-purchase-materials" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <InternalPurchase refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} {...props} /> </div>} />} */}
 
                   {(warehouseRole || adminRole) && <Route exact path="/warehousereceive" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <WarehouseReceive refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} {...props} /> </div>} />}
                   {(warehouseRole || adminRole) && <Route exact path="/warehousereceivedetails" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <WarehouseReceiveDetails refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} warehouseRole={warehouseRole} warehouse={selectedWarehouse} warehouseReceiveTransaction={warehouseReceiveTransaction} {...props} /> </div>} />}
