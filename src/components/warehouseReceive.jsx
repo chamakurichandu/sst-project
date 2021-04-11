@@ -91,8 +91,7 @@ function EnhancedTableHeadSmall2(props) {
     { id: 'name', numeric: false, disablePadding: false, label: props.title },
     { id: 'description', numeric: false, disablePadding: false, label: "description" },
     { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
-    { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
-    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" },
+    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
   ];
 
   return (
@@ -181,7 +180,6 @@ export default function WarehouseReceive(props) {
   const [reference_number, set_reference_number] = React.useState('');
   const [reference_number_error, set_reference_number_error] = React.useState(null);
 
-
   const [items, set_items] = React.useState([]);
   const [items_error, set_items_error] = React.useState(null);
 
@@ -205,7 +203,7 @@ export default function WarehouseReceive(props) {
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
-  const [types, setTypes] = React.useState(["From PO", "From Return Indents","Internal Purchase Material"]);
+  const [types, setTypes] = React.useState(["From PO", "From Return Indents", "Local Purchase"]);
   const [currentType, setCurrentType] = React.useState(-1);
   const [current_type_error, set_current_type_error] = React.useState(null);
 
@@ -213,11 +211,12 @@ export default function WarehouseReceive(props) {
   const [currentPO, setCurrentPO] = React.useState(-1);
   const [current_po_error, set_current_po_error] = React.useState(null);
 
-  const [warehouses, setWarehouses] = React.useState([]);
-  const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
-  const [current_warehouse_error, set_current_warehouse_error] = React.useState(null);
+  const [localPurchases, setLocalPurchases] = React.useState(null);
+  const [currentLP, setCurrentLP] = React.useState(-1);
+  const [current_lp_error, set_current_lp_error] = React.useState(null);
 
   const [poItems, setPOItems] = React.useState([]);
+  const [lpItems, setLPItems] = React.useState([]);
 
   const [supplyVendor, setSupplyVendor] = React.useState(null);
 
@@ -388,35 +387,10 @@ export default function WarehouseReceive(props) {
 
       console.log("Projects: ", data.list.docs);
 
-      getWarehouseList();
     }
     catch (e) {
       setShowBackDrop(false);
       console.log("getProjectList e: ", e);
-      if (e.response) {
-        setErrorMessage(e.response.data.message);
-      }
-      else {
-        setErrorMessage("Error in getting list");
-      }
-      setShowError(true);
-    }
-  }
-
-  async function getWarehouseList() {
-    try {
-      setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/warehouse/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      const { data } = await axios.get(url);
-      console.log(data);
-
-      setWarehouses(data.list);
-      setShowBackDrop(false);
-    }
-    catch (e) {
-      setShowBackDrop(false);
-      console.log("getWarehouseList: e: ", e);
       if (e.response) {
         setErrorMessage(e.response.data.message);
       }
@@ -452,6 +426,30 @@ export default function WarehouseReceive(props) {
     }
   }
 
+  async function getLocalPurchaseList() {
+    try {
+      let url = config["baseurl"] + "/api/localpurchase/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "&warehouse=" + props.warehouse._id + "&completed=0";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+      const dateFns = new DateFnsUtils();
+      for (let i = 0; i < data.list.length; ++i) {
+        data.list[i].createddate_conv = dateFns.date(data.list[i].transaction.createdDate);
+      }
+
+      setLocalPurchases(data.list);
+    }
+    catch (e) {
+
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
 
   useEffect(() => {
     if (props.warehouse)
@@ -509,6 +507,9 @@ export default function WarehouseReceive(props) {
         break;
       case 1:
         break;
+      case 2:
+        handleSaveWarehouseReceiveFromLP();
+        break;
       default:
         set_current_type_error("Type Required");
         break;
@@ -531,9 +532,102 @@ export default function WarehouseReceive(props) {
     return "";
   };
 
+
+  const handleSaveWarehouseReceiveFromLP = async () => {
+    set_current_type_error(null)
+    set_current_lp_error(null);
+    set_gate_entry_info_error(null);
+    set_lr_no_error(null);
+    set_transporter_error(null);
+    set_vehicle_no_error(null);
+    set_remark_error(null);
+
+    const errors = validateData();
+
+    let errorOccured = false;
+    if (currentType === -1) {
+
+      set_current_type_error("Type Required");
+      errorOccured = true;
+    }
+    if (currentType == 2 && setCurrentLP === -1) {
+      set_current_lp_error("Local Purchase Required");
+      errorOccured = true;
+    }
+    if (errors["remark"]) {
+      set_remark_error(errors["remark"]);
+      errorOccured = true;
+    }
+    if (errors["gate_entry_info"]) {
+      set_gate_entry_info_error(errors["gate_entry_info"]);
+      errorOccured = true;
+    }
+    if (errors["lr_no"]) {
+      set_lr_no_error(errors["lr_no"]);
+      errorOccured = true;
+    }
+    if (errors["transporter"]) {
+      set_transporter_error(errors["transporter"]);
+      errorOccured = true;
+    }
+    if (errors["vehicle_no"]) {
+      set_vehicle_no_error(errors["vehicle_no"]);
+      errorOccured = true;
+    }
+
+    if (items.length === 0) {
+      set_items_error("Items required");
+      errorOccured = true;
+    }
+
+    if (errorOccured)
+      return;
+
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/localpurchase/complete";
+
+      let postObj = {};
+      postObj["id"] = localPurchases[currentLP].transaction._id;
+      postObj["gate_entry_info"] = gate_entry_info.trim();
+      postObj["lr_no"] = lr_no.trim();
+      postObj["lr_date"] = lr_date.toUTCString();
+      postObj["transporter"] = transporter.trim();
+      postObj["vehicle_no"] = vehicle_no.trim();
+      postObj["remark"] = remark.trim();
+
+      postObj["docs"] = [];
+      for (let i = 0; i < files.length; ++i) {
+        postObj["docs"].push({ name: files[i].name, path: files[i].path });
+      }
+
+      console.log("postObj: ", postObj);
+
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      console.log("3");
+      const response = await axios.post(url, postObj);
+      console.log("4");
+      console.log("successfully Saved");
+      setShowBackDrop(false);
+      props.history.push("/warehousehome");
+    }
+    catch (e) {
+      console.log(e);
+      if (e.response) {
+        console.log("Error in creating");
+        setErrorMessage(e.response.data["message"]);
+      }
+      else {
+        console.log("Error in creating");
+        setErrorMessage("Error in creating: " + e);
+      }
+      setShowError(true);
+      setShowBackDrop(false);
+    }
+  };
+
   const handleSaveWarehouseReceiveFromPO = async () => {
     set_current_type_error(null)
-    set_current_warehouse_error(null);
     set_current_po_error(null);
     set_supplier_name_error(null);
     set_supplier_address_error(null);
@@ -698,8 +792,8 @@ export default function WarehouseReceive(props) {
   const addItem = () => {
     if (currentType === 0 && currentPO >= 0)
       setShowSelectItem(true);
-    // else if (currentType === 1)
-    //   setShowSelectItemForLP(true);
+    else if (currentType === 2 && currentLP >= 0)
+      setShowSelectItemForLP(true);
   };
 
   const closeSelectItemDialogAction = () => {
@@ -708,6 +802,7 @@ export default function WarehouseReceive(props) {
   };
 
   const onSelectItem = (newitem) => {
+    console.log("onSelectItem");
     setShowSelectItem(false);
 
     for (let i = 0; i < items.length; ++i) {
@@ -739,18 +834,23 @@ export default function WarehouseReceive(props) {
   };
 
   const onSelectItemForLP = (newitem) => {
+    console.log("onSelectItemForLP");
     setShowSelectItemForLP(false);
 
     for (let i = 0; i < items.length; ++i) {
-      if (items[i]._id == newitem._id && items[i].scheduled_date == newitem.scheduled_date)
+      if (items[i]._id == newitem._id && items[i].scheduled_date == newitem.scheduled_date) {
+        console.log("Returning because its already added to the list");
         return;
+      }
     }
 
-    console.log(newitem);
+    console.log("newitem:", newitem);
 
     let newCopy = cloneDeep(newitem);
+    newCopy.canreceiveqty = newitem.qty;
     newCopy.qty = 0;
-    newCopy.rate = 0;
+
+    console.log("newCopy: ", newCopy);
 
     let newItems = [...items, newCopy];
     set_items(newItems);
@@ -766,11 +866,6 @@ export default function WarehouseReceive(props) {
 
   };
 
-  const handleWarehouseChange = (event) => {
-    setCurrentWarehouse(event.target.value);
-    set_current_warehouse_error(null);
-  };
-
   const handleTypeChange = (event) => {
     setCurrentType(event.target.value);
     set_current_type_error(null);
@@ -780,6 +875,7 @@ export default function WarehouseReceive(props) {
     switch (event.target.value) {
       case 0:
         if (!pos) {
+          setCurrentLP(-1);
           getPOs();
         }
         break;
@@ -787,11 +883,37 @@ export default function WarehouseReceive(props) {
         getPOs();
         break;
       case 2:
+        setCurrentLP(-1);
+        getLocalPurchaseList();
         break;
       case 3:
         break;
     }
   };
+
+  const handleLPChange = (event) => {
+    setCurrentLP(event.target.value);
+
+    set_items([]);
+
+    let newItems = [];
+    for (let k = 0; k < localPurchases[event.target.value].transaction.items.length; ++k) {
+      for (let i = 0; i < allItems.length; ++i) {
+        if (localPurchases[event.target.value].transaction.items[k].item === allItems[i]._id) {
+          let item = cloneDeep(allItems[i]);
+          item.rate = localPurchases[event.target.value].transaction.items[k].rate;
+          item.qty = localPurchases[event.target.value].transaction.items[k].qty;
+          item.canreceiveqty = localPurchases[event.target.value].transaction.items[k].qty;
+          item.scheduled_date = localPurchases[event.target.value].transaction.items[k].scheduled_date;
+          item.scheduled_date_conv = dateFns.date(localPurchases[event.target.value].transaction.items[k].scheduled_date);
+
+          newItems.push(item);
+          break;
+        }
+      }
+    }
+    set_items(newItems);
+  }
 
   const handlePOChange = (event) => {
     setCurrentPO(event.target.value);
@@ -1027,7 +1149,7 @@ export default function WarehouseReceive(props) {
             </FormControl>
             {current_type_error && <Alert className={classes.alert} severity="error"> {current_type_error} </Alert>}
 
-            {currentType >= 0 && <FormControl size="small" variant="outlined" className={classes.formControl}>
+            {currentType == 0 && <FormControl size="small" variant="outlined" className={classes.formControl}>
               <InputLabel id="po-select-label">PO *</InputLabel>
               <Select
                 labelId="po-select-label"
@@ -1044,80 +1166,97 @@ export default function WarehouseReceive(props) {
                 })}
               </Select>
             </FormControl>}
-            {currentType >= 0 && current_po_error && <Alert className={classes.alert} severity="error"> {current_po_error} </Alert>}
+            {currentType == 0 && current_po_error && <Alert className={classes.alert} severity="error"> {current_po_error} </Alert>}
 
-            {currentType >= 0 && pos && (currentPO >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_po_date" value={getDateString(pos[currentPO].createdDate)}
+            {currentType == 0 && pos && (currentPO >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_po_date" value={getDateString(pos[currentPO].createdDate)}
               label="PO Date" variant="outlined" disabled />}
             {currentType >= 0 && po_date_error && <Alert className={classes.alert} severity="error"> {po_date_error} </Alert>}
 
-            {currentType >= 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_name" value={supplyVendor.name}
+            {currentType == 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_name" value={supplyVendor.name}
               label="Supplier Name" variant="outlined" multiline disabled />}
-            {currentType >= 0 && supplier_name_error && <Alert className={classes.alert} severity="error"> {supplier_name_error} </Alert>}
+            {currentType == 0 && supplier_name_error && <Alert className={classes.alert} severity="error"> {supplier_name_error} </Alert>}
 
-            {currentType >= 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_address" value={supplyVendor.address}
+            {currentType == 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_address" value={supplyVendor.address}
               label="Supplier Address" variant="outlined" multiline disabled />}
-            {currentType >= 0 && supplier_address_error && <Alert className={classes.alert} severity="error"> {supplier_address_error} </Alert>}
+            {currentType == 0 && supplier_address_error && <Alert className={classes.alert} severity="error"> {supplier_address_error} </Alert>}
 
-            {currentType >= 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_gst" value={supplyVendor.gst}
+            {currentType == 0 && pos && (currentPO >= 0) && supplyVendor && <TextField size="small" className={classes.inputFields} id="formControl_supplier_gst" value={supplyVendor.gst}
               label="Supplier GST" variant="outlined" multiline disabled />}
-            {currentType >= 0 && supplier_gst_error && <Alert className={classes.alert} severity="error"> {supplier_gst_error} </Alert>}
+            {currentType == 0 && supplier_gst_error && <Alert className={classes.alert} severity="error"> {supplier_gst_error} </Alert>}
 
             {/* {currentType === 1 && <TextField size="small" className={classes.inputFields} id="formControl_key_project" value={project ? (project.code + " - " + project.name) : ""}
               label="Project" variant="outlined" disabled />}
             {currentType === 1 && <Button variant="contained" color="primary" onClick={() => setShowSelectProject(true)} >Select Project</Button>}
             {currentType === 1 && project_error && <Alert className={classes.alert} severity="error"> {project_error} </Alert>} */}
 
-            {(currentType >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_key_gate_entry_info" defaultValue={gate_entry_info}
+            {currentType == 2 && <FormControl size="small" variant="outlined" className={classes.formControl}>
+              <InputLabel id="po-select-label">Local Purchase Indent *</InputLabel>
+              <Select
+                labelId="po-select-label"
+                id="po-select-label"
+                value={currentLP === -1 ? "" : currentLP}
+                onChange={handleLPChange}
+                label="Local Purchase Indent *"
+              >
+                {localPurchases && localPurchases.map((row, index) => {
+                  return (
+                    <MenuItem key={"" + index} value={index}>{"" + row.transaction.code + ",   " + row.createddate_conv.toDateString()}</MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>}
+            {currentType == 2 && current_lp_error && <Alert className={classes.alert} severity="error"> {current_lp_error} </Alert>}
+
+            {<TextField size="small" className={classes.inputFields} id="formControl_key_gate_entry_info" defaultValue={gate_entry_info}
               label="Gate Entry Info" variant="outlined" multiline
               onChange={(event) => { set_gate_entry_info(event.target.value); set_gate_entry_info_error(null); }} />}
-            {(currentType >= 0) && gate_entry_info_error && <Alert className={classes.alert} severity="error"> {gate_entry_info_error} </Alert>}
+            {gate_entry_info_error && <Alert className={classes.alert} severity="error"> {gate_entry_info_error} </Alert>}
 
-            {(currentType >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_bill_no" defaultValue={bill_no}
+            {(currentType == 0) && <TextField size="small" className={classes.inputFields} id="formControl_bill_no" defaultValue={bill_no}
               label="Bill Num" variant="outlined" multiline
               onChange={(event) => { set_bill_no(event.target.value); set_bill_no_error(null); }} />}
-            {(currentType >= 0) && bill_no_error && <Alert className={classes.alert} severity="error"> {bill_no_error} </Alert>}
+            {(currentType == 0) && bill_no_error && <Alert className={classes.alert} severity="error"> {bill_no_error} </Alert>}
 
-            {(currentType >= 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
+            {(currentType == 0) && <FormControl variant="outlined" size="small" className={classes.formControl}>
               <MuiPickersUtilsProvider utils={DateFnsUtils} >
                 <DatePicker size="small" label="Bill Date" inputVariant="outlined" format="dd/MM/yyyy" value={bill_date} onChange={set_bill_date} />
               </MuiPickersUtilsProvider>
             </FormControl>}
-            {(currentType >= 0) && bill_date_error && <Alert className={classes.alert} severity="error"> {bill_date_error} </Alert>}
+            {(currentType == 0) && bill_date_error && <Alert className={classes.alert} severity="error"> {bill_date_error} </Alert>}
 
-            {(currentType >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_dc_no" defaultValue={dc_no}
+            {(currentType == 0) && <TextField size="small" className={classes.inputFields} id="formControl_dc_no" defaultValue={dc_no}
               label="DC Num" variant="outlined" multiline
               onChange={(event) => { set_dc_no(event.target.value); set_dc_no_error(null); }} />}
-            {(currentType >= 0) && dc_no_error && <Alert className={classes.alert} severity="error"> {dc_no_error} </Alert>}
+            {(currentType == 0) && dc_no_error && <Alert className={classes.alert} severity="error"> {dc_no_error} </Alert>}
 
-            {(currentType >= 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
+            {(currentType == 0) && <FormControl variant="outlined" size="small" className={classes.formControl}>
               <MuiPickersUtilsProvider utils={DateFnsUtils} >
                 <DatePicker size="small" label="DC Date" inputVariant="outlined" format="dd/MM/yyyy" value={dc_date} onChange={set_dc_date} />
               </MuiPickersUtilsProvider>
             </FormControl>}
-            {(currentType >= 0) && dc_date_error && <Alert className={classes.alert} severity="error"> {dc_date_error} </Alert>}
+            {(currentType == 0) && dc_date_error && <Alert className={classes.alert} severity="error"> {dc_date_error} </Alert>}
 
-            {(currentType >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_lr_no" defaultValue={lr_no}
+            {<TextField size="small" className={classes.inputFields} id="formControl_lr_no" defaultValue={lr_no}
               label="LR Num" variant="outlined" multiline
               onChange={(event) => { set_lr_no(event.target.value); set_lr_no_error(null); }} />}
-            {(currentType >= 0) && lr_no_error && <Alert className={classes.alert} severity="error"> {lr_no_error} </Alert>}
+            {lr_no_error && <Alert className={classes.alert} severity="error"> {lr_no_error} </Alert>}
 
-            {(currentType >= 0) && bill_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
+            {lr_date && <FormControl variant="outlined" size="small" className={classes.formControl}>
               <MuiPickersUtilsProvider utils={DateFnsUtils} >
                 <DatePicker size="small" label="LR Date" inputVariant="outlined" format="dd/MM/yyyy" value={lr_date} onChange={set_lr_date} />
               </MuiPickersUtilsProvider>
             </FormControl>}
-            {(currentType >= 0) && lr_date_error && <Alert className={classes.alert} severity="error"> {lr_date_error} </Alert>}
+            {lr_date_error && <Alert className={classes.alert} severity="error"> {lr_date_error} </Alert>}
 
-            {(currentType >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_transporter" defaultValue={transporter}
+            {<TextField size="small" className={classes.inputFields} id="formControl_transporter" defaultValue={transporter}
               label="Transporter" variant="outlined" multiline
               onChange={(event) => { set_transporter(event.target.value); set_transporter_error(null); }} />}
-            {(currentType >= 0) && transporter_error && <Alert className={classes.alert} severity="error"> {transporter_error} </Alert>}
+            {transporter_error && <Alert className={classes.alert} severity="error"> {transporter_error} </Alert>}
 
-            {(currentType >=0) && <TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" defaultValue={vehicle_no}
+            {<TextField size="small" className={classes.inputFields} id="formControl_vehicle_no" defaultValue={vehicle_no}
               label="Vehicle Num" variant="outlined" multiline
               onChange={(event) => { set_vehicle_no(event.target.value); set_vehicle_no_error(null); }} />}
-            {(currentType >=0) && vehicle_no_error && <Alert className={classes.alert} severity="error"> {vehicle_no_error} </Alert>}
-            
+            {vehicle_no_error && <Alert className={classes.alert} severity="error"> {vehicle_no_error} </Alert>}
 
             <TextField size="small" className={classes.inputFields} id="formControl_remark" defaultValue={remark}
               label="Remark" variant="outlined" multiline
@@ -1139,33 +1278,50 @@ export default function WarehouseReceive(props) {
             </div>
 
             <Paper className={classes.paper} style={{ marginTop: 10 }}>
-              {(currentType >=0) &&
-                <TableContainer className={classes.container}>
-                  <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
-                    <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
-                    <TableBody>
-                      {receivedTransactions && items.map((row, index) => {
-                        return (
-                          <TableRow hover tabIndex={-1} key={"" + index} >
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.description}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.rate}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.canreceiveqty}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getReceivedQty(row)}</TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                              <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
-                                variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
-                            </TableCell>
-                            <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                              <Button variant="contained" onClick={() => itemRemove(index)}>Remove</Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+              {currentType == 0 && <TableContainer className={classes.container}>
+                <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
+                  <EnhancedTableHeadSmall title="Purchase Items" onClick={addItem} />
+                  <TableBody>
+                    {items.map((row, index) => {
+                      return (
+                        <TableRow hover tabIndex={-1} key={"" + index} >
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.description}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.rate}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.canreceiveqty}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getReceivedQty(row)}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                            <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
+                              variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
+                          </TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                            <Button variant="contained" onClick={() => itemRemove(index)}>Remove</Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              }
+              {currentType == 2 && <TableContainer className={classes.container}>
+                <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
+                  <EnhancedTableHeadSmall2 title="Purchase Items" onClick={addItem} />
+                  <TableBody>
+                    {items.map((row, index) => {
+                      return (
+                        <TableRow hover tabIndex={-1} key={"" + index} >
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.description}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.qty}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
               }
             </Paper>
             {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
@@ -1182,7 +1338,9 @@ export default function WarehouseReceive(props) {
 
       { showSelectItem && <SelectItem2 closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={(currentType === 0) ? poItems : allItems} selectedItems={items} type={"Receivable Items"} />}
 
-      { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />}
+      { showSelectItemForLP && <SelectItem2 closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={(currentType === 2) ? lpItems : allItems} selectedItems={items} type={"LP Receivable Items"} />}
+
+      {/* { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />} */}
 
       { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects} />}
 

@@ -232,6 +232,10 @@ export default function SelectItem2(props) {
     const handleSelectAllClick = (event) => {
     };
 
+    useEffect(() => {
+        console.log(props.items);
+    }, []);
+
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={true}>

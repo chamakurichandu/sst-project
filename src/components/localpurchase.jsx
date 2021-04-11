@@ -805,18 +805,18 @@ export default function LocalPurchase(props) {
                   const labelId = `enhanced-table-checkbox-${index}`;
                   return (
                     <TableRow hover tabIndex={-1} key={row.slno}>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.transaction.code}</TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.project.code}</span></TableCell> 
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.project.name}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.warehouse.name}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.transaction.bill_no}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.transaction.bill_date}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }} >{row.data.transaction.code}</TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.project.code}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.project.name}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.warehouse.name}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.transaction.bill_no}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.transaction.bill_date}</span></TableCell>
                       {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.transaction.completed ? "Received in Warehouse" : "Not Received yet"}</span></TableCell> */}
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.createddate_conv.toDateString()}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                         <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => editAction(row.data)}>
-                        <DetailImage />
+                          <DetailImage />
                         </IconButton>
                         {/* <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => downloadAction(row.data)}>
                           <GetAppImage />
