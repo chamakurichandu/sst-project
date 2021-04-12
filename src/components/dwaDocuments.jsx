@@ -36,6 +36,8 @@ import MaterialsImage from '../assets/svg/ss/cement.svg';
 import DateFnsUtils from '@date-io/date-fns';
 import SelectItem from './selectItem';
 import cloneDeep from 'lodash/cloneDeep';
+import TextField from '@material-ui/core/TextField';
+import CheckIcon from '@material-ui/icons/Check';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -291,6 +293,7 @@ export default function DwaDocuments(props) {
     const [showSelectItem, setShowSelectItem] = React.useState(false);
     const [items, set_items] = React.useState([]);
     const [open, setOpen] = React.useState(false);
+    const [editableIndex, set_editableIndex] = React.useState(null);
     const importMaterial = React.useRef();
     const pageLimits = [10, 25, 50];
     let offset = 0;
@@ -412,13 +415,12 @@ export default function DwaDocuments(props) {
         getList(newRowsPerPage);
     };
 
-    const handleEdit = (data) => {
-        console.log("handleEdit: ", data);
-
-        props.setSelectedMaterial(data);
-        props.history.push("/editmaterial");
-    };
-
+    const handleEdit = (index) => {
+        console.log("handleEdit: ", index);
+        set_editableIndex(index);
+        // props.setSelectedMaterial(data);
+        // props.history.push("/editmaterial");
+        };
     const handleSave = async (data) => {
 
         // set_hsncode_error(null);
@@ -559,24 +561,24 @@ export default function DwaDocuments(props) {
     };
     const closeSelectItemDialogAction = () => {
         setShowSelectItem(false);
-      };
+    };
 
-      const onSelectItem = (newitem) => {
+    const onSelectItem = (newitem) => {
         setShowSelectItem(false);
-    
+
         for (let i = 0; i < items.length; ++i) {
-          if (items[i]._id == newitem._id)
-            return;
+            if (items[i]._id == newitem._id)
+                return;
         }
-    
+
         console.log(newitem);
-    
+
         let newCopy = cloneDeep(newitem);
         newCopy.qty = 0;
-    
+
         let newItems = [...items, newCopy];
         set_items(newItems);
-      };
+    };
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
@@ -696,22 +698,51 @@ export default function DwaDocuments(props) {
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.data.uomId)}</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <div><Button onClick={() => handleEdit(row.data)} className={classes.button}><EditImage /></Button></div>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        {!(editableIndex === index) && <Button onClick={() => handleEdit(index)} className={classes.button}><EditImage /></Button>}
+                                                        {(editableIndex === index) && <Button onClick={() => handleEdit(null)} className={classes.button}><CheckIcon /></Button>}
                                                     </TableCell>
                                                 </TableRow>
                                             );
