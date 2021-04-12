@@ -31,6 +31,7 @@ import Image, { Shimmer } from 'react-shimmer'
 import { useHistory } from 'react-router-dom';
 import lstrings from '../lstrings';
 import Link from '@material-ui/core/Link';
+import EditImage from '@material-ui/icons/Edit';
 import MaterialsImage from '../assets/svg/ss/cement.svg';
 
 function Alert(props) {
@@ -654,7 +655,7 @@ export default function Materials(props) {
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.data.uomId)}</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                                                        <div><Button onClick={() => handleEdit(row.data)} className={classes.button}><EditImage /></Button></div>
                                                     </TableCell>
                                                 </TableRow>
                                             );

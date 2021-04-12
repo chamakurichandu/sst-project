@@ -17,6 +17,7 @@ import exhibitorsLogo from '../assets/svg/ss/exhibition.svg';
 import notFoundImage from '../assets/svg/ss/page-not-found.svg';
 import profileLogo from '../assets/svg/ss/profile.svg';
 import Button from '@material-ui/core/Button';
+import EditImage from '@material-ui/icons/Edit';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
 import axios from 'axios';
@@ -701,7 +702,7 @@ export default function Feeders(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <div><Button size='small' onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                          <div><Button size='small' onClick={() => handleEdit(row.data)} className={classes.button}><EditImage /></Button></div>
                         </TableCell>
                       </TableRow>
                     );

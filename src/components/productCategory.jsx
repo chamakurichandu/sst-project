@@ -14,6 +14,7 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Button from '@material-ui/core/Button';
+import EditImage from '@material-ui/icons/Edit';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
 import EnhancedTableToolbar from './enhancedToolbar';
@@ -483,7 +484,7 @@ export default function ProductCategory(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                            <div><Button onClick={() => handleEdit(row.data)} className={classes.button}><EditImage /></Button></div>
                           </TableCell>
                         </TableRow>
                       );

@@ -20,6 +20,7 @@ import exhibitorsLogo from '../assets/svg/ss/exhibition.svg';
 import notFoundImage from '../assets/svg/ss/page-not-found.svg';
 import profileLogo from '../assets/svg/ss/profile.svg';
 import Button from '@material-ui/core/Button';
+import EditImage from '@material-ui/icons/Edit';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
 import EnhancedTableToolbar from './enhancedToolbar';
@@ -33,6 +34,8 @@ import lstrings from '../lstrings';
 import Link from '@material-ui/core/Link';
 import MaterialsImage from '../assets/svg/ss/cement.svg';
 import DateFnsUtils from '@date-io/date-fns';
+import SelectItem from './selectItem';
+import cloneDeep from 'lodash/cloneDeep';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -80,6 +83,20 @@ function EnhancedTableHead(props) {
         { id: 'itemname', numeric: false, disablePadding: false, label: 'Item Name' },
         { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
         { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
+        { id: 'unit_price', numeric: false, disablePadding: false, label: 'Unit Price' },
+        { id: 'frieght_insurence', numeric: false, disablePadding: false, label: 'Freight & Insurance Charges' },
+        { id: 'igst', numeric: false, disablePadding: false, label: 'IGST' },
+        { id: 'cgst', numeric: false, disablePadding: false, label: 'CGST' },
+        { id: 'sgst', numeric: false, disablePadding: false, label: 'SGST' },
+        { id: 'others', numeric: false, disablePadding: false, label: 'Others If Any' },
+        { id: 'gst_total', numeric: false, disablePadding: false, label: 'GST Total' },
+        { id: 'total_unity_cost', numeric: false, disablePadding: false, label: 'Total Unity Cost (All Inclusive' },
+        { id: 'quantity', numeric: false, disablePadding: false, label: 'Quantity' },
+        { id: 'estimated_quantity', numeric: false, disablePadding: false, label: 'Estimated Quantity' },
+        { id: 'work_order_quantity', numeric: false, disablePadding: false, label: 'Work Order Quantity' },
+        { id: 'work_done_quantity', numeric: false, disablePadding: false, label: 'Work Done Quantity' },
+        { id: 'invoive_quantity', numeric: false, disablePadding: false, label: 'Invoiced Quantity' },
+        { id: 'progress', numeric: false, disablePadding: false, label: '% Progress' },
         { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
     ];
     const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -88,7 +105,7 @@ function EnhancedTableHead(props) {
     };
     return (
         <TableHead>
-            <TableRow>
+            <TableRow >
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
@@ -147,7 +164,7 @@ export default function DwaDocuments(props) {
             clip: 'rect(0 0 0 0)',
             height: 1,
             margin: -1,
-            overflow: 'hidden',
+            overflow: "hidden",
             padding: 0,
             position: 'absolute',
             top: 20,
@@ -271,6 +288,8 @@ export default function DwaDocuments(props) {
     const [showBackDrop, setShowBackDrop] = React.useState(false);
     const [uploadedDocs, set_uploaded_docs] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [showSelectItem, setShowSelectItem] = React.useState(false);
+    const [items, set_items] = React.useState([]);
     const [open, setOpen] = React.useState(false);
     const importMaterial = React.useRef();
     const pageLimits = [10, 25, 50];
@@ -526,17 +545,38 @@ export default function DwaDocuments(props) {
             processData(data);
         };
 
-        reader.onerror=(e)=>{
-             setShowError(true);
-             setErrorMessage('Unable to read file...')   
+        reader.onerror = (e) => {
+            setShowError(true);
+            setErrorMessage('Unable to read file...')
         }
         reader.readAsBinaryString(file);
         setShowBackDrop(true);
     }
 
     const handleAdd = () => {
-        props.history.push("/addmaterial");
+        setShowSelectItem(true);
+        // props.history.push("/addmaterial");
     };
+    const closeSelectItemDialogAction = () => {
+        setShowSelectItem(false);
+      };
+
+      const onSelectItem = (newitem) => {
+        setShowSelectItem(false);
+    
+        for (let i = 0; i < items.length; ++i) {
+          if (items[i]._id == newitem._id)
+            return;
+        }
+    
+        console.log(newitem);
+    
+        let newCopy = cloneDeep(newitem);
+        newCopy.qty = 0;
+    
+        let newItems = [...items, newCopy];
+        set_items(newItems);
+      };
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
@@ -645,6 +685,7 @@ export default function DwaDocuments(props) {
                                     {stableSort(rows, getComparator(order, orderBy))
                                         .map((row, index) => {
                                             const isItemSelected = isSelected(row.name);
+
                                             const labelId = `enhanced-table-checkbox-${index}`;
                                             return (
                                                 <TableRow hover tabIndex={-1} key={row.slno}>
@@ -655,8 +696,22 @@ export default function DwaDocuments(props) {
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.data.uomId)}</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>12</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                                                        <div><Button onClick={() => handleEdit(row.data)} className={classes.button}><EditImage /></Button></div>
                                                     </TableCell>
                                                 </TableRow>
                                             );
@@ -684,6 +739,8 @@ export default function DwaDocuments(props) {
                     <h1>{uploadedDocs} Uploading material....</h1>
                 </div>
             </Backdrop>
+
+            { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={props.allItems} editable={true} type={"Materials"} />}
 
             <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="error">

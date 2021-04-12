@@ -19,6 +19,7 @@ import profileLogo from '../assets/svg/ss/profile.svg';
 import Button from '@material-ui/core/Button';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
+import EditImage from '@material-ui/icons/Edit';
 import EnhancedTableToolbar from './enhancedToolbar';
 import axios from 'axios';
 import config from "../config.json";
@@ -465,7 +466,7 @@ export default function Users(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.phone}</span><br></br><span>{row.data.email}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(row.data.role)}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
+                            <div><Button onClick={() => handleEdit(row.data)}  className={classes.button}><EditImage /></Button></div>
                           </TableCell>
                         </TableRow>
                       );

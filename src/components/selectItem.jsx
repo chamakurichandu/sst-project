@@ -285,7 +285,9 @@ export default function SelectItem(props) {
                                     {allItems.map((row, index) => {
                                         return (
                                             <TableRow hover tabIndex={-1} key={"" + index} selected={index === current} onClick={(event) => handleClick(event, index)} >
-                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                                              <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name }</TableCell> 
+                                                {/* {!props.editable && <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name }</TableCell>}
+                                                {props.editable && <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.code +"-->" + row.hsncode +"-->" + row.productCategoryId +" -->"+ row.name + "-->" + row.description + "-->"+ row.uomId }</TableCell>} */}
                                             </TableRow>
                                         );
                                     })}
