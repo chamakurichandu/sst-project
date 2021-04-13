@@ -420,7 +420,7 @@ export default function DwaDocuments(props) {
         set_editableIndex(index);
         // props.setSelectedMaterial(data);
         // props.history.push("/editmaterial");
-        };
+    };
     const handleSave = async (data) => {
 
         // set_hsncode_error(null);
@@ -461,11 +461,10 @@ export default function DwaDocuments(props) {
             for (let i = 0; i < data.length; ++i) {
                 let postObj = {};
                 postObj["hsncode"] = data[i].hsncode.trim();
-                postObj["name"] = data[i].itemname.trim();
+                postObj["name"] = data[i].name.trim();
                 postObj["description"] = data[i].description.trim();
-                postObj["productCategoryId"] = props.productCategories.filter(cat => cat.name === data[i].productcategory)[0]._id;
-                postObj["uomId"] = props.UOMs.filter(uom => uom.name === data[i].uom)[0]._id;
-
+                postObj["productCategoryId"] = props.productCategories.filter(cat => cat._id === data[i].productCategoryId)[0]._id;
+                postObj["uomId"] = props.UOMs.filter(uom => uom._id === data[i].uomId)[0]._id;
                 console.log("postObj: ", postObj);
 
                 axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
@@ -566,18 +565,20 @@ export default function DwaDocuments(props) {
     const onSelectItem = (newitem) => {
         setShowSelectItem(false);
 
-        for (let i = 0; i < items.length; ++i) {
-            if (items[i]._id == newitem._id)
+        for (let i = 0; i < rows.length; ++i) {
+            if (rows[i].data._id == newitem._id)
                 return;
         }
 
-        console.log(newitem);
+        console.log('From DWA Documents', newitem);
 
         let newCopy = cloneDeep(newitem);
         newCopy.qty = 0;
 
-        let newItems = [...items, newCopy];
-        set_items(newItems);
+        handleSave([newitem]);
+
+        // let newItems = [...rows, createData(rows.length + 1, newitem)];
+        // setRows(newItems);
     };
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -741,8 +742,8 @@ export default function DwaDocuments(props) {
                                                         <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        {!(editableIndex === index) && <Button onClick={() => handleEdit(index)} className={classes.button}><EditImage /></Button>}
-                                                        {(editableIndex === index) && <Button onClick={() => handleEdit(null)} className={classes.button}><CheckIcon /></Button>}
+                                                        {!(editableIndex === index) && <Button onClick={() => handleEdit(index)} color="primary" className={classes.button}><EditImage /></Button>}
+                                                        {(editableIndex === index) && <Button onClick={() => handleEdit(null)} color="primary" className={classes.button}><CheckIcon /></Button>}
                                                     </TableCell>
                                                 </TableRow>
                                             );

@@ -195,7 +195,8 @@ export default function SelectItem(props) {
     }, []);
 
     const handleSave = async () => {
-        props.onSelect(props.items[current]);
+        // props.onSelect(props.items[current]);
+        props.onSelect(allItems[current]);
         // try {
         //     setContactingServer(true);
         //     let url = config["baseurl"] + "/api/projectplace/add";

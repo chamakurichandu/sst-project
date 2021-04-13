@@ -779,11 +779,16 @@ export default function WarehouseReceive(props) {
           {esugam_date_error && <Alert className={classes.alert} severity="error"> {esugam_date_error} </Alert>}
 
           <div style={{ marginTop: 10 }}>
-            <div>
+            { props.editable && <div>
               {files.map((file, index) => {
-                return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
+                return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable={props.editable} variant="outlined" onClick={() => handleOpenDoc(index)} onDelete={() => handleDelete(index)} />);
               })}
-            </div>
+            </div>}
+            {!props.editable && <div>
+              {files.map((file, index) => {
+                return (<Chip style={{ marginTop: 5, marginRight: 5 }} key={"chip" + index} label={file.name} clickable={props.editable} variant="outlined" onClick={() => handleOpenDoc(index)}/>);
+              })}
+            </div>}
             <div style={{ marginTop: 5 }}>
             {props.editable?  <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label" onChange={onFileSelected}>
                 Upload E-Sugam Document
