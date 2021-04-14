@@ -437,6 +437,9 @@ export default function LocalPurchase(props) {
     getSupplyVendorList();
 
   }, []);
+  useEffect(()=>{
+    console.log(rows)
+  },[rows])
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -809,7 +812,7 @@ export default function LocalPurchase(props) {
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }} >{row.data.transaction.code}</TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.project.code}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.project.name}</span></TableCell>
-                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.warehouse.name}</span></TableCell>
+                      <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.warehouse?row.data.warehouse.name:""}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.transaction.bill_no}</span></TableCell>
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: row.data.transaction.completed == 1 ? "#00BF31" : "#000000" }}><span>{row.data.transaction.bill_date}</span></TableCell>
                       {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.transaction.completed ? "Received in Warehouse" : "Not Received yet"}</span></TableCell> */}

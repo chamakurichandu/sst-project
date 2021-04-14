@@ -534,7 +534,7 @@ export default function Division(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <div>
-                            <Button size='small' onClick={() => handleEdit(row.data)} className={classes.button}><EditImage /> </Button>
+                            <Button size='small' onClick={() => handleEdit(row.data)} color="primary" className={classes.button}><EditImage /> </Button>
                          </div>
                         </TableCell>
                       </TableRow>

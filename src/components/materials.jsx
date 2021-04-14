@@ -655,7 +655,7 @@ export default function Materials(props) {
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.data.uomId)}</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <div><Button onClick={() => handleEdit(row.data)} className={classes.button}><EditImage /></Button></div>
+                                                        <div><Button onClick={() => handleEdit(row.data)} color="primary" className={classes.button}><EditImage /></Button></div>
                                                     </TableCell>
                                                 </TableRow>
                                             );

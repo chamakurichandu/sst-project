@@ -484,7 +484,7 @@ export default function SupplyVendors(props) {
                           </div>
 
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)} className={classes.button}><EditImage /></Button></div>
+                            <div><Button onClick={() => handleEdit(row.data)} color="primary" className={classes.button}><EditImage /></Button></div>
                           </TableCell>
 
                         </TableRow>

@@ -505,7 +505,7 @@ export default function Activities(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <div><Button size='small' onClick={() => handleEdit(row.data)} className={classes.button}><EditImage /></Button></div>
+                          <div><Button size='small' onClick={() => handleEdit(row.data)} color="primary" className={classes.button}><EditImage /></Button></div>
                         </TableCell>
                       </TableRow>
                     );
@@ -515,7 +515,7 @@ export default function Activities(props) {
           </TableContainer>
         </Paper>
       </div>
-      {showNewItem && <AddActivity closeAction={closeNewDialogAction} onNewSaved={onNewSaved} />}
+      {showNewItem && <AddActivity closeAction={closeNewDialogAction} onNewSaved={onNewSaved}/>}
       {showEditItem && <EditActivity closeAction={closeEditDialogAction} deleteAction={deleteAction} onNewSaved={onNewSaved} item={selectedItem} />}
       {showDeleteConfirmationDialog && <ConfirmationDialog noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={"Are you sure you want to delete activity: " + selectedItem.name} title={"Deleting Activity"} />}
 
@@ -524,7 +524,6 @@ export default function Activities(props) {
           {errorMessage}
         </Alert>
       </Snackbar>
-
       <Backdrop className={classes.backdrop} open={showBackdrop}>
         <CircularProgress color="inherit" />
       </Backdrop>

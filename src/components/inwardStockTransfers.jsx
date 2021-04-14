@@ -580,7 +580,7 @@ export default function InwardStockTransfer(props) {
                     return (
                       <TableRow hover tabIndex={-1} key={row.slno}>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.fromwarehouse.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.fromwarehouse?row.data.fromwarehouse.name:""}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.towarehouse.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} >{row.data.transaction.completed === 0 ? "In Transit" : "Delivered"}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} style={{ color: deleted ? "#FE180D" : "#000000" }} ><span>{row.data.createddate_conv.toDateString()}</span></TableCell>

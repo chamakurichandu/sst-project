@@ -797,10 +797,10 @@ function App(props) {
                   {<Route exact path="/edit-po" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditPO projects={projects} po={po} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
 
                   {<Route exact path="/localpurchase" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}>
-                    <LocalPurchase setLocalPurchase={setLocalPurchase}  {...props} /> </div>} />}
+                    <LocalPurchase setLocalPurchase={setLocalPurchase} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
 
                   {<Route exact path="/createlocalpurchase" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}>
-                    <CreateLocalPurchase {...props} /> </div>} />}
+                    <CreateLocalPurchase  projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses}  {...props} /> </div>} />}
 
 
 

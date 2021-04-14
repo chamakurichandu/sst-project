@@ -248,7 +248,6 @@ export default function EditProject(props) {
       console.log("postObj: ", postObj);
 
       let updateObj = { _id: props.project._id, updateParams: postObj };
-
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
       const response = await axios.patch(url, updateObj);

@@ -83,7 +83,7 @@ function EnhancedTableHead(props) {
         { id: 'hsncode', numeric: false, disablePadding: false, label: 'HSN Code' },
         { id: 'productcategory', numeric: false, disablePadding: false, label: 'Product Category' },
         { id: 'itemname', numeric: false, disablePadding: false, label: 'Item Name' },
-        { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
+        // { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
         { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
         { id: 'unit_price', numeric: false, disablePadding: false, label: 'Unit Price' },
         { id: 'frieght_insurence', numeric: false, disablePadding: false, label: 'Freight & Insurance Charges' },
@@ -298,29 +298,29 @@ export default function DwaDocuments(props) {
     const pageLimits = [10, 25, 50];
     let offset = 0;
 
-    async function getList(numberOfRows, search = "") {
-        try {
-            console.log("page: ", page);
-            let url = config["baseurl"] + "/api/material/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
-            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-            const { data } = await axios.get(url);
-            console.log(data);
-            setTotalCount(data.list.totalDocs);
-            let newRows = [];
-            for (let i = 0; i < data.list.docs.length; ++i) {
-                newRows.push(createData((offset + i + 1),
-                    data.list.docs[i]
-                ));
-            }
+    // async function getList(numberOfRows, search = "") {
+    //     try {
+    //         console.log("page: ", page);
+    //         let url = config["baseurl"] + "/api/material/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+    //         axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+    //         const { data } = await axios.get(url);
+    //         console.log(data);
+    //         setTotalCount(data.list.totalDocs);
+    //         let newRows = [];
+    //         for (let i = 0; i < data.list.docs.length; ++i) {
+    //             newRows.push(createData((offset + i + 1),
+    //                 data.list.docs[i]
+    //             ));
+    //         }
 
-            setRows(newRows);
-        }
-        catch (e) {
-            console.log("Error in getting users list");
-            setErrorMessage("Error in getting users list");
-            setShowError(true);
-        }
-    }
+    //         setRows(newRows);
+    //     }
+    //     catch (e) {
+    //         console.log("Error in getting users list");
+    //         setErrorMessage("Error in getting users list");
+    //         setShowError(true);
+    //     }
+    // }
 
     async function getPCList() {
         try {
@@ -345,7 +345,7 @@ export default function DwaDocuments(props) {
             const { data } = await axios.get(url);
             props.setUOMs(data.list);
 
-            getList(rowsPerPage);
+            // getList(rowsPerPage);
         }
         catch (e) {
             console.log("Error in getting UOMs list");
@@ -404,7 +404,7 @@ export default function DwaDocuments(props) {
     const handleChangePage = (event, newPage) => {
         offset = newPage * rowsPerPage;
         setPage(newPage);
-        getList(rowsPerPage);
+    //    getList(rowsPerPage);
     };
 
     const handleChangeRowsPerPage = (event) => {
@@ -412,7 +412,7 @@ export default function DwaDocuments(props) {
         setRowsPerPage(newRowsPerPage);
         setPage(0);
         offset = 0;
-        getList(newRowsPerPage);
+        // getList(newRowsPerPage);
     };
 
     const handleEdit = (index) => {
@@ -562,20 +562,25 @@ export default function DwaDocuments(props) {
         setShowSelectItem(false);
     };
 
+    useEffect(()=>{
+        console.log(rows)
+
+    },[rows]);
     const onSelectItem = (newitem) => {
         setShowSelectItem(false);
+        setRows(prev=>[...prev,{...newitem,gst:0,igst:0,sgst:0,cgst:0,unitPrice:0,freight:0,insuranceCharges:0,qty:0,invoiceQty:0,}])
+        // console.log(newitem);
+        // for (let i = 0; i < rows.length; ++i) {
+        //     if (rows[i].data._id == newitem._id)
+        //         return;
+        // }
 
-        for (let i = 0; i < rows.length; ++i) {
-            if (rows[i].data._id == newitem._id)
-                return;
-        }
+        // console.log('From DWA Documents', newitem);
 
-        console.log('From DWA Documents', newitem);
+        // let newCopy = cloneDeep(newitem);
+        // newCopy.qty = 0;
 
-        let newCopy = cloneDeep(newitem);
-        newCopy.qty = 0;
-
-        handleSave([newitem]);
+        // handleSave([newitem]);
 
         // let newItems = [...rows, createData(rows.length + 1, newitem)];
         // setRows(newItems);
@@ -628,7 +633,7 @@ export default function DwaDocuments(props) {
     const onSearchChange = (event) => {
         console.log(event.target.value);
 
-        getList(rowsPerPage, event.target.value);
+        // getList(rowsPerPage, event.target.value);
     };
 
 
@@ -646,8 +651,8 @@ export default function DwaDocuments(props) {
                                 <span>{lstrings.Materials}</span>
                             </Grid>
                             <Grid item className={classes.addButton}>
-                                <input type="file" accept=".csv,.xlsx,.xls" ref={importMaterial} style={{ display: 'none' }} onChange={handleImport}></input>
-                                <Button onClick={() => importMaterial.current.click()} style={{ background: "#314293", color: "#FFFFFF", marginRight: '1em' }} variant="contained" className={classes.button} >{lstrings.ImportMaterial}</Button>
+                                {/* <input type="file" accept=".csv,.xlsx,.xls" ref={importMaterial} style={{ display: 'none' }} onChange={handleImport}></input> */}
+                                {/* <Button onClick={() => importMaterial.current.click()} style={{ background: "#314293", color: "#FFFFFF", marginRight: '1em' }} variant="contained" className={classes.button} >{lstrings.ImportMaterial}</Button> */}
                                 <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddMaterial}</Button>
                             </Grid>
                         </Grid>
@@ -691,55 +696,55 @@ export default function DwaDocuments(props) {
 
                                             const labelId = `enhanced-table-checkbox-${index}`;
                                             return (
-                                                <TableRow hover tabIndex={-1} key={row.slno}>
+                                                <TableRow hover tabIndex={-1} key={index}>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.code}</TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.data.hsncode}</TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProductCategory(row.data.productCategoryId)}</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.data.uomId)}</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.code}</TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.hsncode}</TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProductCategory(row.productCategoryId)}</span></TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.name}</TableCell>
+                                                    {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell> */}
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.uomId)}</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField  style={{width:"60px"}} id={"unitPrice"+index} disabled={!(editableIndex === index)} defaultValue={row.unitPrice} variant="outlined" />
+                                                    </TableCell>
+                                                    <TableCell  align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <TextField  style={{width:"60px"}} id={"freight"+index} disabled={!(editableIndex === index)} defaultValue={row.freight} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField id={"igst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.igst} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField id={"cgst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.cgst} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField id={"sgst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.sgst} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField id={"gst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.gst} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField id={"qty"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.qty} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField id="outlined-basic" style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
-                                                    </TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                                                         {!(editableIndex === index) && <Button onClick={() => handleEdit(index)} color="primary" className={classes.button}><EditImage /></Button>}

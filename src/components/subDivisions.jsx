@@ -600,7 +600,7 @@ export default function SubDivision(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.data.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <div><Button size='small' onClick={() => handleEdit(row.data)} className={classes.button}><EditImage /></Button></div>
+                          <div><Button size='small' onClick={() => handleEdit(row.data)} color="primary" className={classes.button}><EditImage /></Button></div>
                         </TableCell>
                       </TableRow>
                     );

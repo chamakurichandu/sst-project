@@ -466,7 +466,7 @@ export default function Users(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.phone}</span><br></br><span>{row.data.email}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getStringForArray(row.data.role)}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <div><Button onClick={() => handleEdit(row.data)}  className={classes.button}><EditImage /></Button></div>
+                            <div><Button onClick={() => handleEdit(row.data)}  color="primary" className={classes.button}><EditImage /></Button></div>
                           </TableCell>
                         </TableRow>
                       );
