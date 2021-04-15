@@ -700,7 +700,7 @@ export default function WarehouseReceive(props) {
     }
 
     for (let i = 0; i < items.length; ++i) {
-      if (parseInt(items[i].rate) === 0) {
+      if (parseFloat(items[i].rate) === 0) {
         setErrorMessage("rate cannot be zero");
         setShowError(true);
         errorOccured = true;
@@ -752,15 +752,15 @@ export default function WarehouseReceive(props) {
 
         if (currentType === 0) {
           let receivedQty = getReceivedQty(items[i]);
-          if (receivedQty + parseFloat(items[i].qty) > parseInt(items[i].canreceiveqty)) {
+          if (receivedQty + parseFloat(items[i].qty) > parseFloat(items[i].canreceiveqty)) {
             throw "Cannot receive more than PO ordered qty";
           }
           else {
-            postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
+            postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseFloat(items[i].rate), scheduled_date: items[i].scheduled_date });
           }
         }
         else {
-          postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
+          postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseFloat(items[i].rate), scheduled_date: items[i].scheduled_date });
         }
       }
 

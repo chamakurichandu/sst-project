@@ -38,6 +38,7 @@ import SelectItem from './selectItem';
 import cloneDeep from 'lodash/cloneDeep';
 import TextField from '@material-ui/core/TextField';
 import CheckIcon from '@material-ui/icons/Check';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -100,6 +101,7 @@ function EnhancedTableHead(props) {
         { id: 'invoive_quantity', numeric: false, disablePadding: false, label: 'Invoiced Quantity' },
         { id: 'progress', numeric: false, disablePadding: false, label: '% Progress' },
         { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
+        { id: 'delete', numeric: false, disablePadding: false, label: 'Remove Items' },
     ];
     const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
     const createSortHandler = (property) => (event) => {
@@ -291,6 +293,7 @@ export default function DwaDocuments(props) {
     const [uploadedDocs, set_uploaded_docs] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [showSelectItem, setShowSelectItem] = React.useState(false);
+    const [showSaveBtn, set_showSaveBtn] = React.useState(false);
     const [items, set_items] = React.useState([]);
     const [open, setOpen] = React.useState(false);
     const [editableIndex, set_editableIndex] = React.useState(null);
@@ -328,7 +331,6 @@ export default function DwaDocuments(props) {
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
             const { data } = await axios.get(url);
             props.setProductCategories(data.list);
-
             getUOMList();
         }
         catch (e) {
@@ -344,7 +346,7 @@ export default function DwaDocuments(props) {
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
             const { data } = await axios.get(url);
             props.setUOMs(data.list);
-
+            setRows(props.project.boq_items)
             // getList(rowsPerPage);
         }
         catch (e) {
@@ -421,8 +423,38 @@ export default function DwaDocuments(props) {
         // props.setSelectedMaterial(data);
         // props.history.push("/editmaterial");
     };
-    const handleSave = async (data) => {
 
+    const handleDelete =(index)=>{
+        let allItems = [...rows];
+   allItems.splice(index, 1);
+    setRows(allItems);
+        set_showSaveBtn(true);
+    }
+    const handleSave = async () => {
+
+        try{
+            let url = config["baseurl"] + "/api/project/update";
+                        let postObj = {};
+                        postObj['_id']=props.project._id
+                        postObj["updateParams"]= {boq_items: rows};
+                        // postObj["hsncode"] = data[i].hsncode.trim();
+                        // postObj["name"] = data[i].name.trim();
+                        // postObj["description"] = data[i].description.trim();
+                        // postObj["productCategoryId"] = props.productCategories.filter(cat => cat._id === data[i].productCategoryId)[0]._id;
+                        // postObj["uomId"] = props.UOMs.filter(uom => uom._id === data[i].uomId)[0]._id;
+                        console.log("postObj: ", postObj);
+                        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+                        const response = await axios.patch(url, postObj);
+                        setRows(response.data.boq_items);
+                            console.log("successfully Saved");
+                            setShowBackDrop(false);
+                            set_showSaveBtn(false);
+            }
+                        catch (e) {
+                            
+        }
+        
+        
         // set_hsncode_error(null);
         // set_itemname_error(null);
         // set_description_error(null);
@@ -456,42 +488,45 @@ export default function DwaDocuments(props) {
         // if (errorOccured)
         // return;
 
-        try {
-            let url = config["baseurl"] + "/api/material/add";
-            for (let i = 0; i < data.length; ++i) {
-                let postObj = {};
-                postObj["hsncode"] = data[i].hsncode.trim();
-                postObj["name"] = data[i].name.trim();
-                postObj["description"] = data[i].description.trim();
-                postObj["productCategoryId"] = props.productCategories.filter(cat => cat._id === data[i].productCategoryId)[0]._id;
-                postObj["uomId"] = props.UOMs.filter(uom => uom._id === data[i].uomId)[0]._id;
-                console.log("postObj: ", postObj);
+        // try {
+        //     let url = config["baseurl"] + "/api/material/add";
+        //     for (let i = 0; i < data.length; ++i) {
+        //         let postObj = {};
+        //         postObj["hsncode"] = data[i].hsncode.trim();
+        //         postObj["name"] = data[i].name.trim();
+        //         postObj["description"] = data[i].description.trim();
+        //         postObj["productCategoryId"] = props.productCategories.filter(cat => cat._id === data[i].productCategoryId)[0]._id;
+        //         postObj["uomId"] = props.UOMs.filter(uom => uom._id === data[i].uomId)[0]._id;
+        //         console.log("postObj: ", postObj);
 
-                axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+        //         axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
-                const response = await axios.post(url, postObj);
-                set_uploaded_docs(i + 1);
-                debugger;
-            }
-            console.log("successfully Saved");
-            setShowBackDrop(false);
-        }
-        catch (e) {
-            if (e.response) {
-                console.log(e);
-                console.log("Error in creating material");
-                setErrorMessage(e.response.data["message"]);
-            }
-            else {
-                console.log(e);
-                console.log("Error in creating");
-                setErrorMessage("Error in creating: ", e.message);
-            }
-            setShowError(true);
-            // setContactingServer(false);
-        }
+        //         const response = await axios.post(url, postObj);
+        //         set_uploaded_docs(i + 1);
+        //         debugger;
+        //     }
+        //     console.log("successfully Saved");
+        //     setShowBackDrop(false);
+        // }
+        // catch (e) {
+        //     if (e.response) {
+        //         console.log(e);
+        //         console.log("Error in creating material");
+        //         setErrorMessage(e.response.data["message"]);
+        //     }
+        //     else {
+        //         console.log(e);
+        //         console.log("Error in creating");
+        //         setErrorMessage("Error in creating: ", e.message);
+        //     }
+        //     setShowError(true);
+        //     // setContactingServer(false);
+        // }
     };
 
+    useEffect(()=>{
+        console.log(props.project)
+    },[])
     const processData = dataString => {
         const dataStringLines = dataString.split(/\r\n|\n/);
         const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -568,7 +603,11 @@ export default function DwaDocuments(props) {
     },[rows]);
     const onSelectItem = (newitem) => {
         setShowSelectItem(false);
-        setRows(prev=>[...prev,{...newitem,gst:0,igst:0,sgst:0,cgst:0,unitPrice:0,freight:0,insuranceCharges:0,qty:0,invoiceQty:0,}])
+        let newObj = {...newitem,igst:0,sgst:0,cgst:0,unitPrice:0,freight:0,insuranceCharges:0,qty:0,invoiceQty:0,others:0}
+        newObj.gst = newObj.igst + newObj.cgst + newObj.sgst;
+        newObj.totalUnityCost = newObj.unitPrice + newObj.freight + newObj.gst;
+        setRows(prev=>[newObj, ...prev])
+        set_showSaveBtn(true);
         // console.log(newitem);
         // for (let i = 0; i < rows.length; ++i) {
         //     if (rows[i].data._id == newitem._id)
@@ -613,6 +652,19 @@ export default function DwaDocuments(props) {
         return val;
     }
 
+    useEffect(() => {
+        console.log(rows);
+    }, [rows]);
+
+    const changeItem = (i, k, v) => {
+        let modifyingItem = [...rows];
+        modifyingItem[i][k] = v;
+        setRows(preVal => {
+            preVal[i][k] = v;
+        });
+        set_showSaveBtn(true);
+    }
+
     const getProductCategory = (id) => {
         for (let i = 0; i < props.productCategories.length; ++i) {
             if (props.productCategories[i]._id === id)
@@ -636,7 +688,7 @@ export default function DwaDocuments(props) {
         // getList(rowsPerPage, event.target.value);
     };
 
-
+ 
     return (
         <div className={clsx(classes.root)}>
             {props.refreshUI && props.project &&
@@ -653,7 +705,8 @@ export default function DwaDocuments(props) {
                             <Grid item className={classes.addButton}>
                                 {/* <input type="file" accept=".csv,.xlsx,.xls" ref={importMaterial} style={{ display: 'none' }} onChange={handleImport}></input> */}
                                 {/* <Button onClick={() => importMaterial.current.click()} style={{ background: "#314293", color: "#FFFFFF", marginRight: '1em' }} variant="contained" className={classes.button} >{lstrings.ImportMaterial}</Button> */}
-                                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.AddMaterial}</Button>
+                                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF",marginRight: '1em' }} variant="contained" className={classes.button}>{lstrings.AddMaterial}</Button>
+                            {showSaveBtn && <Button onClick={() => handleSave()} style={{ background: "#314293", color: "#FFFFFF"}} variant="contained" className={classes.button}>{'Save'}</Button>}
                             </Grid>
                         </Grid>
                     </Paper>
@@ -705,50 +758,55 @@ export default function DwaDocuments(props) {
                                                     {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell> */}
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.uomId)}</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField  style={{width:"60px"}} id={"unitPrice"+index} disabled={!(editableIndex === index)} defaultValue={row.unitPrice} variant="outlined" />
+                                                        <TextField  style={{width:"60px"}} id={"unitPrice"+index} disabled={!(editableIndex === index)} defaultValue={row.unitPrice} onChange={(e) => changeItem(index, 'unitPrice', e.target.value)} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell  align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField  style={{width:"60px"}} id={"freight"+index} disabled={!(editableIndex === index)} defaultValue={row.freight} variant="outlined" />
+                                                        <TextField  style={{width:"60px"}} id={"freight"+index} disabled={!(editableIndex === index)} defaultValue={row.freight} variant="outlined" onChange={(e) => changeItem(index, 'freight', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"igst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.igst} variant="outlined" />
+                                                        <TextField id={"igst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.igst} onChange={(e) => changeItem(index, 'igst', e.target.value)} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"cgst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.cgst} variant="outlined" />
+                                                        <TextField id={"cgst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.cgst} variant="outlined" onChange={(e) => changeItem(index, 'cgst', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"sgst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.sgst} variant="outlined" />
+                                                        <TextField id={"sgst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.sgst} variant="outlined" onChange={(e) => changeItem(index, 'sgst', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"gst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.gst} variant="outlined" />
+                                                        <TextField id={"others"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.others} variant="outlined" onChange={(e) => changeItem(index, 'others', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"qty"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.qty} variant="outlined" />
+                                                        <TextField id={"gst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.gst} variant="outlined" onChange={(e) => changeItem(index, 'gst', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id="outlined-basic" style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField id={"totalUnityCost" + index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.totalUnityCost} variant="outlined" onChange={(e) => changeItem(index, 'totalUnityCost', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id={"qty" + index} disabled={!(editableIndex === index)} defaultValue={row.qty} variant="outlined" onChange={(e) => changeItem(index, 'qty', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id={"estimated_qty" + index} disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" onChange={(e) => changeItem(index, 'estimated_qty', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id={"wo_qty" + index} disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" onChange={(e) => changeItem(index, 'wo_qty', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id={"invoiced_qty" + index} disabled={!(editableIndex === index)} defaultValue={row.invoiceQty} variant="outlined" onChange={(e) => changeItem(index, 'invoiced_qty', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                        <TextField style={{width:"60px"}} id={"progress" + index} disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" onChange={(e) => changeItem(index, 'progress', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                                                         <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                                                         {!(editableIndex === index) && <Button onClick={() => handleEdit(index)} color="primary" className={classes.button}><EditImage /></Button>}
-                                                        {(editableIndex === index) && <Button onClick={() => handleEdit(null)} color="primary" className={classes.button}><CheckIcon /></Button>}
+                                                        {(editableIndex === index) && <Button onClick={() => handleEdit(null)} color="primary" 
+                                                        className={classes.button}><CheckIcon /></Button>}
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                    <Button onClick={() => handleDelete(index)} color="primary" 
+                                                        className={classes.button}><DeleteIcon /></Button>
                                                     </TableCell>
                                                 </TableRow>
                                             );
@@ -777,7 +835,7 @@ export default function DwaDocuments(props) {
                 </div>
             </Backdrop>
 
-            { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={props.allItems} editable={true} type={"Materials"} />}
+            { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={props.allItems} dwaEditable={true} type={"Materials"} />}
 
             <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="error">
