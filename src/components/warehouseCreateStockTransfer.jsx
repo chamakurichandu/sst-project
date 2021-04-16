@@ -484,7 +484,7 @@ export default function WarehouseCreateStockTransfer(props) {
     }
 
     for (let i = 0; i < items.length; ++i) {
-      if (parseInt(items[i].qty) === 0) {
+      if (parseFloat(items[i].qty) === 0) {
         setErrorMessage("qty cannot be zero");
         setShowError(true);
         errorOccured = true;
@@ -514,15 +514,15 @@ export default function WarehouseCreateStockTransfer(props) {
 
       postObj["items"] = [];
       for (let i = 0; i < items.length; ++i) {
-        if (parseInt(items[i].qty) < 0) {
+        if (parseFloat(items[i].qty) < 0) {
           throw "Cannot receive negative qty";
         }
 
-        if (parseInt(items[i].qty) > parseInt(items[i].stockqty)) {
+        if (parseFloat(items[i].qty) > parseFloat(items[i].stockqty)) {
           throw "Cannot send more than stock qty";
         }
         else {
-          postObj["items"].push({ item: items[i]._id, qty: parseInt(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date });
+          postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseFloat(items[i].rate), scheduled_date: items[i].scheduled_date });
         }
       }
 

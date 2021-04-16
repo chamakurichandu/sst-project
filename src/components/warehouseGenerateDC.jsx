@@ -339,7 +339,7 @@ export default function WarehouseReceive(props) {
   async function getProjectList() {
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/project/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      let url = config["baseurl"] + "/api/project/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "" + "&warehouse=" + props.warehouse._id;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
