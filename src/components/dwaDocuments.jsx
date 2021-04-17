@@ -39,6 +39,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import TextField from '@material-ui/core/TextField';
 import CheckIcon from '@material-ui/icons/Check';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { ContactSupportOutlined } from '@material-ui/icons';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -308,7 +309,7 @@ export default function DwaDocuments(props) {
     //         axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
     //         const { data } = await axios.get(url);
     //         console.log(data);
-    //         setTotalCount(data.list.totalDocs);
+    //         // setTotalCount(data.list.totalDocs);
     //         let newRows = [];
     //         for (let i = 0; i < data.list.docs.length; ++i) {
     //             newRows.push(createData((offset + i + 1),
@@ -316,7 +317,7 @@ export default function DwaDocuments(props) {
     //             ));
     //         }
 
-    //         setRows(newRows);
+    //         // setRows(newRows);
     //     }
     //     catch (e) {
     //         console.log("Error in getting users list");
@@ -346,7 +347,7 @@ export default function DwaDocuments(props) {
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
             const { data } = await axios.get(url);
             props.setUOMs(data.list);
-            setRows(props.project.boq_items)
+            setRows(props.project?props.project.boq_items:[])
             // getList(rowsPerPage);
         }
         catch (e) {
@@ -358,7 +359,7 @@ export default function DwaDocuments(props) {
 
     useEffect(() => {
         getPCList();
-    }, []);
+    }, [props.project]);
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -445,6 +446,8 @@ export default function DwaDocuments(props) {
                         console.log("postObj: ", postObj);
                         axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
                         const response = await axios.patch(url, postObj);
+                        console.log(response.data.boq_items)
+                        props.setProject({...props.project, boq_items: response.data.boq_items});
                         setRows(response.data.boq_items);
                             console.log("successfully Saved");
                             setShowBackDrop(false);
@@ -659,9 +662,7 @@ export default function DwaDocuments(props) {
     const changeItem = (i, k, v) => {
         let modifyingItem = [...rows];
         modifyingItem[i][k] = v;
-        setRows(preVal => {
-            preVal[i][k] = v;
-        });
+        setRows(modifyingItem);
         set_showSaveBtn(true);
     }
 
