@@ -557,8 +557,10 @@ export default function LocalPurchase(props) {
 
   const editAction = (data) => {
     console.log(data);
+    props.setCurrentLp(data);
+    // alert(data.project.code);
     // props.setLoi(data);
-    // props.history.push("/edit-loi");
+    props.history.push("/lp-details");
   };
 
   const getItem = (id) => {
