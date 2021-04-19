@@ -768,12 +768,12 @@ export default function WarehouseReceive(props) {
 
           <TextField size="small" className={classes.inputFields} id="formControl_esugam" value={esugam}
             label="E-Sugam Num" variant="outlined"
-            onChange={(event) => { set_esugam(event.target.value); set_esugam_error(null); }} disabled />
+            onChange={(event) => { set_esugam(event.target.value); set_esugam_error(null); }} disabled={!props.editable} />
           {esugam_error && <Alert className={classes.alert} severity="error"> {esugam_error} </Alert>}
 
           {<FormControl variant="outlined" size="small" className={classes.formControl}>
             <MuiPickersUtilsProvider utils={DateFnsUtils} >
-              <DatePicker size="small" label="E-Sugam Date" inputVariant="outlined" format="dd/MM/yyyy" value={esugam_date} onChange={set_esugam_date} disabled/>
+              <DatePicker size="small" label="E-Sugam Date" inputVariant="outlined" format="dd/MM/yyyy" value={esugam_date} onChange={set_esugam_date} disabled={!props.editable}/>
             </MuiPickersUtilsProvider>
           </FormControl>}
           {esugam_date_error && <Alert className={classes.alert} severity="error"> {esugam_date_error} </Alert>}

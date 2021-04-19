@@ -88,14 +88,15 @@ function EnhancedTableHead(props) {
         // { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
         { id: 'uom', numeric: false, disablePadding: false, label: 'UOM' },
         { id: 'unit_price', numeric: false, disablePadding: false, label: 'Unit Price' },
-        { id: 'frieght_insurence', numeric: false, disablePadding: false, label: 'Freight & Insurance Charges' },
+        { id: 'frieght_insurence', numeric: false, disablePadding: false, label: 'frieght & Insurance Charges' },
         { id: 'igst', numeric: false, disablePadding: false, label: 'IGST' },
         { id: 'cgst', numeric: false, disablePadding: false, label: 'CGST' },
         { id: 'sgst', numeric: false, disablePadding: false, label: 'SGST' },
         { id: 'others', numeric: false, disablePadding: false, label: 'Others If Any' },
         { id: 'gst_total', numeric: false, disablePadding: false, label: 'GST Total' },
-        { id: 'total_unity_cost', numeric: false, disablePadding: false, label: 'Total Unity Cost (All Inclusive' },
+        { id: 'total_unit_cost', numeric: false, disablePadding: false, label: 'Total Unit Cost (All Inclusive' },
         { id: 'quantity', numeric: false, disablePadding: false, label: 'Quantity' },
+        { id: 'total_cost', numeric: false, disablePadding: false, label: 'Total Cost' },
         { id: 'estimated_quantity', numeric: false, disablePadding: false, label: 'Estimated Quantity' },
         { id: 'work_order_quantity', numeric: false, disablePadding: false, label: 'Work Order Quantity' },
         { id: 'work_done_quantity', numeric: false, disablePadding: false, label: 'Work Done Quantity' },
@@ -295,36 +296,27 @@ export default function DwaDocuments(props) {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [showSelectItem, setShowSelectItem] = React.useState(false);
     const [showSaveBtn, set_showSaveBtn] = React.useState(false);
-    const [items, set_items] = React.useState([]);
+    const [allItems, set_allItems] = React.useState([]);
     const [open, setOpen] = React.useState(false);
     const [editableIndex, set_editableIndex] = React.useState(null);
     const importMaterial = React.useRef();
     const pageLimits = [10, 25, 50];
     let offset = 0;
 
-    // async function getList(numberOfRows, search = "") {
-    //     try {
-    //         console.log("page: ", page);
-    //         let url = config["baseurl"] + "/api/material/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
-    //         axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-    //         const { data } = await axios.get(url);
-    //         console.log(data);
-    //         // setTotalCount(data.list.totalDocs);
-    //         let newRows = [];
-    //         for (let i = 0; i < data.list.docs.length; ++i) {
-    //             newRows.push(createData((offset + i + 1),
-    //                 data.list.docs[i]
-    //             ));
-    //         }
-
-    //         // setRows(newRows);
-    //     }
-    //     catch (e) {
-    //         console.log("Error in getting users list");
-    //         setErrorMessage("Error in getting users list");
-    //         setShowError(true);
-    //     }
-    // }
+    async function getList(numberOfRows, search = "") {
+        try {
+            let url = config["baseurl"] + "/api/material/list?count=" + numberOfRows + "&offset=" + 0 + "&search=" + search;
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+            const { data } = await axios.get(url);
+            set_allItems(data.list.docs);
+            getPCList();
+        }
+        catch (e) {
+            console.log("Error in getting all items");
+            setErrorMessage("Error in getting all items");
+            setShowError(true);
+        }
+    }
 
     async function getPCList() {
         try {
@@ -347,7 +339,7 @@ export default function DwaDocuments(props) {
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
             const { data } = await axios.get(url);
             props.setUOMs(data.list);
-            setRows(props.project?props.project.boq_items:[])
+            getBoqItems();
             // getList(rowsPerPage);
         }
         catch (e) {
@@ -358,8 +350,12 @@ export default function DwaDocuments(props) {
     }
 
     useEffect(() => {
-        getPCList();
+        getList(10000, "");
     }, [props.project]);
+
+    const getMaterialInfo = (id) => {
+        return allItems.filter(item => item._id === id)[0];
+    };
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -421,8 +417,6 @@ export default function DwaDocuments(props) {
     const handleEdit = (index) => {
         console.log("handleEdit: ", index);
         set_editableIndex(index);
-        // props.setSelectedMaterial(data);
-        // props.history.push("/editmaterial");
     };
 
     const handleDelete =(index)=>{
@@ -431,24 +425,35 @@ export default function DwaDocuments(props) {
     setRows(allItems);
         set_showSaveBtn(true);
     }
+
+    const getBoqItems = async () => {
+        try {
+            let url = config["baseurl"] + "/api/project/boq?_id=" + props.project._id;
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+            const response = await axios.get(url);
+            console.log(response);
+            setRows(response.data.boq_items?response.data.boq_items:[]);
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
     const handleSave = async () => {
 
         try{
             let url = config["baseurl"] + "/api/project/update";
                         let postObj = {};
                         postObj['_id']=props.project._id
-                        postObj["updateParams"]= {boq_items: rows};
-                        // postObj["hsncode"] = data[i].hsncode.trim();
-                        // postObj["name"] = data[i].name.trim();
-                        // postObj["description"] = data[i].description.trim();
-                        // postObj["productCategoryId"] = props.productCategories.filter(cat => cat._id === data[i].productCategoryId)[0]._id;
-                        // postObj["uomId"] = props.UOMs.filter(uom => uom._id === data[i].uomId)[0]._id;
+                        postObj["updateParams"]= {boq_items: rows.map(row => {
+                            let {id, qty, others, totalCost, totalUnitCost, gst, cgst, igst, sgst, uomId, productCategoryId, unitPrice, frieght} = row;
+                            return {id, gst, igst, cgst, sgst, qty, others, totalCost, totalUnitCost, uomId, productCategoryId, unitPrice, frieght};
+                        })};
                         console.log("postObj: ", postObj);
                         axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
                         const response = await axios.patch(url, postObj);
                         console.log(response.data.boq_items)
-                        props.setProject({...props.project, boq_items: response.data.boq_items});
-                        setRows(response.data.boq_items);
+                        // props.setProject({...props.project, boq_items: response.data.boq_items});
+                        getBoqItems();
                             console.log("successfully Saved");
                             setShowBackDrop(false);
                             set_showSaveBtn(false);
@@ -456,75 +461,6 @@ export default function DwaDocuments(props) {
                         catch (e) {
                             
         }
-        
-        
-        // set_hsncode_error(null);
-        // set_itemname_error(null);
-        // set_description_error(null);
-        // set_productcategory_error(null);
-        // set_uom_error(null);
-
-        // const errors = validateData();
-
-        // let errorOccured = false;
-        // if (errors["hsncode"]) {
-        // set_hsncode_error(errors["hsncode"]);
-        // errorOccured = true;
-        // }
-        // if (errors["itemname"]) {
-        // set_itemname_error(errors["itemname"]);
-        // errorOccured = true;
-        // }
-        // if (errors["description"]) {
-        // set_description_error(errors["description"]);
-        // errorOccured = true;
-        // }
-        // if (errors["productcategory"]) {
-        // set_productcategory_error(errors["productcategory"]);
-        // errorOccured = true;
-        // }
-        // if (errors["uom"]) {
-        // set_uom_error(errors["uom"]);
-        // errorOccured = true;
-        // }
-
-        // if (errorOccured)
-        // return;
-
-        // try {
-        //     let url = config["baseurl"] + "/api/material/add";
-        //     for (let i = 0; i < data.length; ++i) {
-        //         let postObj = {};
-        //         postObj["hsncode"] = data[i].hsncode.trim();
-        //         postObj["name"] = data[i].name.trim();
-        //         postObj["description"] = data[i].description.trim();
-        //         postObj["productCategoryId"] = props.productCategories.filter(cat => cat._id === data[i].productCategoryId)[0]._id;
-        //         postObj["uomId"] = props.UOMs.filter(uom => uom._id === data[i].uomId)[0]._id;
-        //         console.log("postObj: ", postObj);
-
-        //         axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-
-        //         const response = await axios.post(url, postObj);
-        //         set_uploaded_docs(i + 1);
-        //         debugger;
-        //     }
-        //     console.log("successfully Saved");
-        //     setShowBackDrop(false);
-        // }
-        // catch (e) {
-        //     if (e.response) {
-        //         console.log(e);
-        //         console.log("Error in creating material");
-        //         setErrorMessage(e.response.data["message"]);
-        //     }
-        //     else {
-        //         console.log(e);
-        //         console.log("Error in creating");
-        //         setErrorMessage("Error in creating: ", e.message);
-        //     }
-        //     setShowError(true);
-        //     // setContactingServer(false);
-        // }
     };
 
     useEffect(()=>{
@@ -594,7 +530,6 @@ export default function DwaDocuments(props) {
 
     const handleAdd = () => {
         setShowSelectItem(true);
-        // props.history.push("/addmaterial");
     };
     const closeSelectItemDialogAction = () => {
         setShowSelectItem(false);
@@ -606,26 +541,9 @@ export default function DwaDocuments(props) {
     },[rows]);
     const onSelectItem = (newitem) => {
         setShowSelectItem(false);
-        let newObj = {...newitem,igst:0,sgst:0,cgst:0,unitPrice:0,freight:0,insuranceCharges:0,qty:0,invoiceQty:0,others:0}
-        newObj.gst = newObj.igst + newObj.cgst + newObj.sgst;
-        newObj.totalUnityCost = newObj.unitPrice + newObj.freight + newObj.gst;
-        setRows(prev=>[newObj, ...prev])
+        let newObj = cloneDeep(newitem);
+        setRows([{id: newObj._id, uomId: newObj.uomId, productCategoryId: newObj.productCategoryId, install_qty: 0, workOrderQty: 0, igst:0, sgst:0, cgst:0, unitPrice:0, frieght:0, qty:0, invoicedQty:0, others:0, gst:0, totalUnitCost: 0, progress: 0, totalCost: 0,survey_qty:0,}, ...rows])
         set_showSaveBtn(true);
-        // console.log(newitem);
-        // for (let i = 0; i < rows.length; ++i) {
-        //     if (rows[i].data._id == newitem._id)
-        //         return;
-        // }
-
-        // console.log('From DWA Documents', newitem);
-
-        // let newCopy = cloneDeep(newitem);
-        // newCopy.qty = 0;
-
-        // handleSave([newitem]);
-
-        // let newItems = [...rows, createData(rows.length + 1, newitem)];
-        // setRows(newItems);
     };
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
@@ -662,6 +580,12 @@ export default function DwaDocuments(props) {
     const changeItem = (i, k, v) => {
         let modifyingItem = [...rows];
         modifyingItem[i][k] = v;
+        let newChange = cloneDeep(modifyingItem[i]);
+        let gst = parseFloat(newChange.igst?newChange.igst:"0") + parseFloat(newChange.cgst?newChange.cgst: "0") + parseFloat(newChange.sgst?newChange.sgst:"0");
+        // ( Unit Price + (GST Total * Unity Price /100) + Frieght & insurance + other)
+        let totalUnitCost = parseFloat(newChange.unitPrice?newChange.unitPrice:"0") + (parseFloat(gst?gst:"0") * parseFloat(newChange.unitPrice?newChange.unitPrice:"0") /100) + parseFloat(newChange.frieght?newChange.frieght:"0") + parseFloat(newChange.others?newChange.others:"0");
+        let totalCost = parseFloat(newChange.qty?newChange.qty:"0") * parseFloat(totalUnitCost?totalUnitCost:"0");
+        modifyingItem[i] = {...newChange, gst, totalUnitCost, totalCost}
         setRows(modifyingItem);
         set_showSaveBtn(true);
     }
@@ -746,59 +670,61 @@ export default function DwaDocuments(props) {
                                 <TableBody>
                                     {stableSort(rows, getComparator(order, orderBy))
                                         .map((row, index) => {
-                                            const isItemSelected = isSelected(row.name);
-
+                                            const {code, hsncode, name} = getMaterialInfo(row.id);
                                             const labelId = `enhanced-table-checkbox-${index}`;
                                             return (
                                                 <TableRow hover tabIndex={-1} key={index}>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'} component="th" id={labelId} scope="row" padding="none">{row.slno}</TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.code}</TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{row.hsncode}</TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{code?code:"NA"}</TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{hsncode?hsncode:"NA"}</TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getProductCategory(row.productCategoryId)}</span></TableCell>
-                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.name}</TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{name?name:"NA"}</TableCell>
                                                     {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.description}</span></TableCell> */}
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{getUOM(row.uomId)}</span></TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField  style={{width:"60px"}} id={"unitPrice"+index} disabled={!(editableIndex === index)} defaultValue={row.unitPrice} onChange={(e) => changeItem(index, 'unitPrice', e.target.value)} variant="outlined" />
+                                                        <TextField  style={{width:"60px"}} id={"unitPrice"+index} disabled={!(editableIndex === index)} value={row.unitPrice} onChange={(e) => changeItem(index, 'unitPrice', e.target.value)} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell  align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField  style={{width:"60px"}} id={"freight"+index} disabled={!(editableIndex === index)} defaultValue={row.freight} variant="outlined" onChange={(e) => changeItem(index, 'freight', e.target.value)}/>
+                                                        <TextField  style={{width:"60px"}} id={"frieght"+index} disabled={!(editableIndex === index)} value={row.frieght} variant="outlined" onChange={(e) => changeItem(index, 'frieght', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"igst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.igst} onChange={(e) => changeItem(index, 'igst', e.target.value)} variant="outlined" />
+                                                        <TextField id={"igst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} value={row.igst} onChange={(e) => changeItem(index, 'igst', e.target.value)} variant="outlined" />
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"cgst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.cgst} variant="outlined" onChange={(e) => changeItem(index, 'cgst', e.target.value)}/>
+                                                        <TextField id={"cgst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} value={row.cgst} variant="outlined" onChange={(e) => changeItem(index, 'cgst', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"sgst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.sgst} variant="outlined" onChange={(e) => changeItem(index, 'sgst', e.target.value)}/>
+                                                        <TextField id={"sgst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} value={row.sgst} variant="outlined" onChange={(e) => changeItem(index, 'sgst', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"others"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.others} variant="outlined" onChange={(e) => changeItem(index, 'others', e.target.value)}/>
+                                                        <TextField id={"others"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} value={row.others} variant="outlined" onChange={(e) => changeItem(index, 'others', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"gst"+index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.gst} variant="outlined" onChange={(e) => changeItem(index, 'gst', e.target.value)}/>
+                                                        <span>{row.gst}</span>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField id={"totalUnityCost" + index} style={{width:"60px"}} disabled={!(editableIndex === index)} defaultValue={row.totalUnityCost} variant="outlined" onChange={(e) => changeItem(index, 'totalUnityCost', e.target.value)}/>
+                                                        <span>{row.totalUnitCost}</span>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id={"qty" + index} disabled={!(editableIndex === index)} defaultValue={row.qty} variant="outlined" onChange={(e) => changeItem(index, 'qty', e.target.value)}/>
+                                                        <TextField style={{width:"60px"}} id={"qty" + index} disabled={!(editableIndex === index)} value={row.qty} variant="outlined" onChange={(e) => changeItem(index, 'qty', e.target.value)}/>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id={"estimated_qty" + index} disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" onChange={(e) => changeItem(index, 'estimated_qty', e.target.value)}/>
+                                                        <span>{row.totalCost}</span>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id={"wo_qty" + index} disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" onChange={(e) => changeItem(index, 'wo_qty', e.target.value)}/>
+                                                    <span>{row.survey_qty}</span>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id={"invoiced_qty" + index} disabled={!(editableIndex === index)} defaultValue={row.invoiceQty} variant="outlined" onChange={(e) => changeItem(index, 'invoiced_qty', e.target.value)}/>
+                                                    <span>{row.workOrderQty?row.workOrderQty:"0"}</span>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id={"progress" + index} disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" onChange={(e) => changeItem(index, 'progress', e.target.value)}/>
+                                                    <span>{row.install_qty}</span>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <TextField style={{width:"60px"}} id="outlined-basic" disabled={!(editableIndex === index)} defaultValue={12} variant="outlined" />
+                                                    <span>{row.invoicedQty?row.invoicedQty:"0"}</span>
+                                                    </TableCell>
+                                                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                        <span>{row.progress?row.progress:"0"}</span>
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                                                         {!(editableIndex === index) && <Button onClick={() => handleEdit(index)} color="primary" className={classes.button}><EditImage /></Button>}
