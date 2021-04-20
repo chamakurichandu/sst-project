@@ -352,8 +352,8 @@ export default function MaterialIndents(props) {
     getMaterialIndentList(newRowsPerPage);
   };
 
-  const gotoIndentDetails = () => {
-
+  const gotoIndentDetails = (row) => {
+      console.log(row);
   };
 
   const getWarehouseName = (id) => {

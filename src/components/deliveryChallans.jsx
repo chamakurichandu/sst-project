@@ -556,7 +556,8 @@ export default function ReleasedMaterials(props) {
 
   const createPDFAndDownload = async (data, title) => {
 
-    let enqItems = [];
+    if (data.transaction.type === "projects") {
+      let enqItems = [];
     enqItems.push([{ text: 'S.No.', style: 'tableHeader', fontSize: 10 }, { text: 'HSN Code', style: 'tableHeader', fontSize: 10 }, { text: 'Material Description', style: 'tableHeader', fontSize: 10 }, { text: 'UOM', style: 'tableHeader', fontSize: 10 }, { text: 'Scheduled Date', style: 'tableHeader', fontSize: 10 }, { text: 'Qty', style: 'tableHeader', fontSize: 10 }, { text: 'Rate', style: 'tableHeader', fontSize: 10 }, { text: 'Amount(Rs)', style: 'tableHeader', fontSize: 10 }]);
 
     let numberFormatter = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 });
@@ -567,15 +568,21 @@ export default function ReleasedMaterials(props) {
       if (!completeItem.hsncode)
         completeItem.hsncode = " ";
       completeItem.scheduled_date_conv = dateFns.date(item.scheduled_date);
-      completeItem.total = item.qty * item.rate;
-      totalAmount += completeItem.total;
-      enqItems.push(["" + (index + 1), completeItem.hsncode, completeItem.description, getUOMName(completeItem.uomId), completeItem.scheduled_date_conv.toDateString(), { text: numberFormatter.format(item.qty), fontSize: 10, alignment: 'right' }, { text: "" + numberFormatter.format(item.rate), fontSize: 10, alignment: 'right' }, { text: numberFormatter.format(completeItem.total), fontSize: 10, alignment: 'right' }]);
+      let rate = 0, amount = 0;
+      let boq_items = data.project.boq_items;
+      for(let i = 0; i < boq_items.length; ++i) {
+        if(boq_items[i].id === item.item) {
+          rate = boq_items[i].unitPrice;
+          amount = item.qty * rate;
+        }
+      }
+      // completeItem.total = item.qty * item.rate;
+      totalAmount += amount;
+      enqItems.push(["" + (index + 1), completeItem.hsncode, completeItem.description, getUOMName(completeItem.uomId), completeItem.scheduled_date_conv.toDateString(), { text: numberFormatter.format(item.qty), fontSize: 10, alignment: 'right' }, { text: "" + numberFormatter.format(rate), fontSize: 10, alignment: 'right' }, { text: numberFormatter.format(amount), fontSize: 10, alignment: 'right' }]);
     });
     enqItems.push([{}, {}, {}, {}, {}, {}, {}, {}]);
     enqItems.push([{}, {}, {}, {}, {}, {}, { text: "Total:", bold: true }, { text: "" + numberFormatter.format(totalAmount), bold: true, alignment: 'right' }]);
     const profileInfo = JSON.parse(window.localStorage.getItem("profile"));
-
-    if (data.transaction.type === "projects") {
       console.log("data: ", data);
       var docDefinition = {
         pageMargins: [40, 140, 40, 60],
@@ -648,6 +655,24 @@ export default function ReleasedMaterials(props) {
       pdfMake.createPdf(docDefinition).download(data.transaction.code + "_" + title + ".pdf");
     }
     else if (data.transaction.type === "stocktransfer") {
+      let enqItems = [];
+    enqItems.push([{ text: 'S.No.', style: 'tableHeader', fontSize: 10 }, { text: 'HSN Code', style: 'tableHeader', fontSize: 10 }, { text: 'Material Description', style: 'tableHeader', fontSize: 10 }, { text: 'UOM', style: 'tableHeader', fontSize: 10 }, { text: 'Scheduled Date', style: 'tableHeader', fontSize: 10 }, { text: 'Qty', style: 'tableHeader', fontSize: 10 }, { text: 'Rate', style: 'tableHeader', fontSize: 10 }, { text: 'Amount(Rs)', style: 'tableHeader', fontSize: 10 }]);
+
+    let numberFormatter = new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 });
+    let totalAmount = 0;
+    data.items.forEach(function (item, index) {
+      let completeItem = getItem(item.item);
+      const dateFns = new DateFnsUtils();
+      if (!completeItem.hsncode)
+        completeItem.hsncode = " ";
+      completeItem.scheduled_date_conv = dateFns.date(item.scheduled_date);
+      completeItem.total = item.qty * item.rate;
+      totalAmount += completeItem.total;
+      enqItems.push(["" + (index + 1), completeItem.hsncode, completeItem.description, getUOMName(completeItem.uomId), completeItem.scheduled_date_conv.toDateString(), { text: numberFormatter.format(item.qty), fontSize: 10, alignment: 'right' }, { text: "" + numberFormatter.format(item.rate), fontSize: 10, alignment: 'right' }, { text: numberFormatter.format(completeItem.total), fontSize: 10, alignment: 'right' }]);
+    });
+    enqItems.push([{}, {}, {}, {}, {}, {}, {}, {}]);
+    enqItems.push([{}, {}, {}, {}, {}, {}, { text: "Total:", bold: true }, { text: "" + numberFormatter.format(totalAmount), bold: true, alignment: 'right' }]);
+    const profileInfo = JSON.parse(window.localStorage.getItem("profile"));
       var docDefinition = {
         pageMargins: [40, 140, 40, 60],
         header: { image: await getBase64ImageFromURL("https://demossga.s3.ap-south-1.amazonaws.com/temp/RajashreeElectricalsHeader.png"), width: 594, height: 130, alignment: "center" },

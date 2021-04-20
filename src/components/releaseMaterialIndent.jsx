@@ -212,6 +212,7 @@ export default function ReleaseMaterialIndent(props) {
     const [allItems, set_allItems] = React.useState([]);
     const [uoms, set_uoms] = React.useState([]);
     const [warehouseStocks, setWarehouseStocks] = React.useState([]);
+    const [projectStocks, setProjectStocks] = React.useState([]);
 
     async function getWarehouseInventory() {
         try {
@@ -239,6 +240,38 @@ export default function ReleaseMaterialIndent(props) {
         }
     }
 
+
+    async function getProjectInventory() {
+        try {
+            let ids = [];
+            props.currentMaterialIndent.indent.materials.forEach(material => {
+                ids.push(material.item);
+            })
+            setShowBackDrop(true);
+            let url = config["baseurl"] + `/api/project/material-project-qty?_id=${props.currentMaterialIndent.project._id}&mats=${ids.join(',')}`;
+            console.log('url: ', url);
+            axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+
+            const { data } = await axios.get(url);
+            console.log("getProjectInventory: ", data);
+            console.log('-------------------------------')
+            setProjectStocks(data.values);
+
+            setShowBackDrop(false);
+        }
+        catch (e) {
+            setShowBackDrop(false);
+            if (e.response) {
+                setErrorMessage(e.response.data.message);
+            }
+            else {
+                setErrorMessage("Error in getting list");
+            }
+            setShowError(true);
+        }
+    }
+
+
     const handleRelease = async () => {
         setShowError(false);
         set_current_warehouse_error(null);
@@ -255,7 +288,7 @@ export default function ReleaseMaterialIndent(props) {
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
 
             const response = await axios.post(url, postObj);
-
+            console.log(response);
             console.log("successfully Saved");
             setShowBackDrop(false);
 
@@ -293,8 +326,34 @@ export default function ReleaseMaterialIndent(props) {
 
     useEffect(() => {
         getWarehouseInventory();
+        getProjectInventory();
     }, []);
 
+    const getProjectQty=(id)=>{
+        
+        for (let i = 0; i < projectStocks.length; ++i) {
+            if (projectStocks[i].material === id) {
+                return projectStocks[i].project_qty;
+            }
+        }
+        return null;
+        // console.log('project qty: ', projectStocks.filter(item=> item.material === id)[0].project_qty.id);
+        //    return projectStocks[id];
+        
+        
+    }
+
+    const getReleasedQty=(id)=>{
+
+        for (let i = 0; i < projectStocks.length; ++i) {
+            if (projectStocks[i].material === id) {
+                return projectStocks[i].released_qty;
+            }
+        }
+        return null;
+        // console.log('release qty: ', projectStocks.filter(item=> item.material === id)[0].released_qty.id);
+        // return projectStocks[id];
+    }
     const handleWarehouseChange = (event) => {
         setCurrentWarehouse(event.target.value);
         set_current_warehouse_error(null);
@@ -339,17 +398,27 @@ export default function ReleaseMaterialIndent(props) {
                                 />
 
                                 <TableBody>
-                                    {warehouseStocks.length > 0 && props.currentMaterialIndent.indent.materials.map((row, index) => {
+                                    {projectStocks.length > 0 && warehouseStocks.length > 0 && props.currentMaterialIndent.indent.materials.map((row, index) => {
                                         let disable = true;//(parseInt(row.qtyOrdered) >= parseInt(row.qty));
                                         const item = getItem(row.item);
                                         return (
                                             <TableRow hover tabIndex={-1} key={"" + index} selected={index === current} >
                                                 <TableCell width={200} align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + (item != null ? item.material.name : "")}</TableCell>
                                                 <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (item != null ? item.material.description : "")}</TableCell>
-                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (item.stored ? item.stored.qty : 0)}</TableCell>
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (() => {
+                                                    if(item) {
+                                                        if(item.stored) {
+                                                            return item.stored.qty;
+                                                        } else {
+                                                            return 0;
+                                                        }
+                                                    } else {
+                                                        return 0;
+                                                    }
+                                                })()}</TableCell>
                                                 <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.qty}</TableCell>
-                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>3</TableCell>
-                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>9</TableCell>
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getProjectQty(row.item)}</TableCell>
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getReleasedQty(row.item)}</TableCell>
                                             </TableRow>
                                         );
                                     })}
