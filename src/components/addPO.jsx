@@ -37,6 +37,7 @@ import AddImage from '@material-ui/icons/Add';
 import SelectItem from './selectItem';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
+import ConfirmDelete from "./confirmDelete";
 import {
   DatePicker,
   TimePicker,
@@ -224,6 +225,8 @@ export default function AddPO(props) {
   const [showSelectItem, setShowSelectItem] = React.useState(false);
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
+  
+  const [showConfirmationDialog, setShowConfirmationDialog] = React.useState(false);
 
   async function getSupplyVendorList() {
     try {
@@ -765,12 +768,21 @@ export default function AddPO(props) {
     set_items(newItems);
   };
 
- const itemRemove = i =>{
-   let allItems = [...items];
-   allItems.splice(i, 1);
+  const itemRemove = i => {
+    let allItems = [...items];
+    allItems.splice(i, 1);
     set_items(allItems);
   }
+  
+  const noConfirmationDialogAction = () => {
+    setShowConfirmationDialog(false);
+  };
 
+  const yesConfirmationDialogAction = () => {
+    setShowConfirmationDialog(false);
+
+    itemRemove();
+  };
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
@@ -874,7 +886,7 @@ export default function AddPO(props) {
                             variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                        <Button variant="contained" onClick={()=>itemRemove(index)}>Remove</Button>
+                          <Button variant="contained" onClick={() => { setShowConfirmationDialog(true); }}>Remove</Button>
                         </TableCell>
                       </TableRow>
                     );
@@ -891,14 +903,24 @@ export default function AddPO(props) {
           {scope_of_supply_error && <Alert className={classes.alert} severity="error"> {scope_of_supply_error} </Alert>}
 
           <TextField size="small" className={classes.inputFields} id="formControl_price_escalation" defaultValue={price_escalation}
-            label="Price Escalation *" variant="outlined" multiline
+            label="Price and  Escalation *" variant="outlined" multiline
             onChange={(event) => { set_price_escalation(event.target.value); set_price_escalation_error(null); }} />
           {price_escalation_error && <Alert className={classes.alert} severity="error"> {price_escalation_error} </Alert>}
+          
+          <TextField size="small" className={classes.inputFields} id="formControl_taxes_and_duties" defaultValue={taxes_and_duties}
+            label="Taxes & Duties *" variant="outlined" multiline
+            onChange={(event) => { set_taxes_and_duties(event.target.value); set_taxes_and_duties_error(null); }} />
+          {taxes_and_duties_error && <Alert className={classes.alert} severity="error"> {taxes_and_duties_error} </Alert>}
 
-          <TextField size="small" className={classes.inputFields} id="formControl_warranty_period" defaultValue={warranty_period}
-            label="Warranty Period *" variant="outlined" multiline
-            onChange={(event) => { set_warranty_period(event.target.value); set_warranty_period_error(null); }} />
-          {warranty_period_error && <Alert className={classes.alert} severity="error"> {warranty_period_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_frieght_and_insurance" defaultValue={frieght_and_insurance}
+            label="Frieght & Insurance *" variant="outlined" multiline
+            onChange={(event) => { set_frieght_and_insurance(event.target.value); set_frieght_and_insurance_error(null); }} />
+          {frieght_and_insurance_error && <Alert className={classes.alert} severity="error"> {frieght_and_insurance_error} </Alert>}
+
+          <TextField size="small" className={classes.inputFields} id="formControl_performance_bank_guarantee" defaultValue={performance_bank_guarantee}
+            label="Performance Bank Guarantee *" variant="outlined" multiline
+            onChange={(event) => { set_performance_bank_guarantee(event.target.value); set_performance_bank_guarantee_error(null); }} />
+          {performance_bank_guarantee_error && <Alert className={classes.alert} severity="error"> {performance_bank_guarantee_error} </Alert>}
 
           <TextField size="small" className={classes.inputFields} id="formControl_commencement_date" defaultValue={commencement_date}
             label="Commencement Date *" variant="outlined" multiline
@@ -915,41 +937,31 @@ export default function AddPO(props) {
             onChange={(event) => { set_liquidated_damages(event.target.value); set_liquidated_damages_error(null); }} />
           {liquidated_damages_error && <Alert className={classes.alert} severity="error"> {liquidated_damages_error} </Alert>}
 
-          <TextField size="small" className={classes.inputFields} id="formControl_performance_bank_guarantee" defaultValue={performance_bank_guarantee}
-            label="Performance Bank Guarantee *" variant="outlined" multiline
-            onChange={(event) => { set_performance_bank_guarantee(event.target.value); set_performance_bank_guarantee_error(null); }} />
-          {performance_bank_guarantee_error && <Alert className={classes.alert} severity="error"> {performance_bank_guarantee_error} </Alert>}
-
-          <TextField size="small" className={classes.inputFields} id="formControl_arbitration" defaultValue={arbitration}
-            label="Arbitration *" variant="outlined" multiline
-            onChange={(event) => { set_arbitration(event.target.value); set_arbitration_error(null); }} />
-          {arbitration_error && <Alert className={classes.alert} severity="error"> {arbitration_error} </Alert>}
-
-          <TextField size="small" className={classes.inputFields} id="formControl_inspection_and_testing" defaultValue={inspection_and_testing}
-            label="Inspection and Testing *" variant="outlined" multiline
-            onChange={(event) => { set_inspection_and_testing(event.target.value); set_inspection_and_testing_error(null); }} />
-          {inspection_and_testing_error && <Alert className={classes.alert} severity="error"> {inspection_and_testing_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_warranty_period" defaultValue={warranty_period}
+            label="Warranty Period *" variant="outlined" multiline
+            onChange={(event) => { set_warranty_period(event.target.value); set_warranty_period_error(null); }} />
+          {warranty_period_error && <Alert className={classes.alert} severity="error"> {warranty_period_error} </Alert>}
 
           <TextField size="small" className={classes.inputFields} id="formControl_test_certificates_instruction_manuals" defaultValue={test_certificates_instruction_manuals}
             label="Test Certificates/Instruction Manuals *" variant="outlined" multiline
             onChange={(event) => { set_test_certificates_instruction_manuals(event.target.value); set_test_certificates_instruction_manuals_error(null); }} />
           {test_certificates_instruction_manuals_error && <Alert className={classes.alert} severity="error"> {test_certificates_instruction_manuals_error} </Alert>}
 
-          <TextField size="small" className={classes.inputFields} id="formControl_taxes_and_duties" defaultValue={taxes_and_duties}
-            label="Taxes & Duties *" variant="outlined" multiline
-            onChange={(event) => { set_taxes_and_duties(event.target.value); set_taxes_and_duties_error(null); }} />
-          {taxes_and_duties_error && <Alert className={classes.alert} severity="error"> {taxes_and_duties_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_inspection_and_testing" defaultValue={inspection_and_testing}
+            label="Inspection and Testing *" variant="outlined" multiline
+            onChange={(event) => { set_inspection_and_testing(event.target.value); set_inspection_and_testing_error(null); }} />
+          {inspection_and_testing_error && <Alert className={classes.alert} severity="error"> {inspection_and_testing_error} </Alert>}
 
           <TextField size="small" className={classes.inputFields} id="formControl_acceptance" defaultValue={acceptance}
             label="Acceptance *" variant="outlined" multiline
             onChange={(event) => { set_acceptance(event.target.value); set_acceptance_error(null); }} />
           {acceptance_error && <Alert className={classes.alert} severity="error"> {acceptance_error} </Alert>}
 
-          <TextField size="small" className={classes.inputFields} id="formControl_frieght_and_insurance" defaultValue={frieght_and_insurance}
-            label="Frieght & Insurance *" variant="outlined" multiline
-            onChange={(event) => { set_frieght_and_insurance(event.target.value); set_frieght_and_insurance_error(null); }} />
-          {frieght_and_insurance_error && <Alert className={classes.alert} severity="error"> {frieght_and_insurance_error} </Alert>}
-
+          <TextField size="small" className={classes.inputFields} id="formControl_arbitration" defaultValue={arbitration}
+            label="Arbitration *" variant="outlined" multiline
+            onChange={(event) => { set_arbitration(event.target.value); set_arbitration_error(null); }} />
+          {arbitration_error && <Alert className={classes.alert} severity="error"> {arbitration_error} </Alert>}
+          
           <TextField size="small" className={classes.inputFields} id="formControl_payment_terms" defaultValue={payment_terms}
             label="Payment Terms *" variant="outlined" multiline
             onChange={(event) => { set_payment_terms(event.target.value); set_payment_terms_error(null); }} />
@@ -974,7 +986,7 @@ export default function AddPO(props) {
         {/* </Paper> */}
       </div>
       { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={allItems} type={"Purchasable Items"} />}
-
+      {showConfirmationDialog && <ConfirmDelete noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={lstrings.DeletingUserConfirmationMessage} title={lstrings.DeletingUser} />}
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}

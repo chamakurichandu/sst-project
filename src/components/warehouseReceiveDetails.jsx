@@ -39,6 +39,11 @@ import SelectItem from './selectItem';
 import SelectProject from './selectProject';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import {
   DatePicker,
   TimePicker,
@@ -234,6 +239,7 @@ export default function WarehouseReceive(props) {
   const [remark_error, set_remark_error] = React.useState(null);
 
   const [files, set_files] = React.useState([]);
+  const [openDialogue, setOpenDialogue] = React.useState(false);
 
   const dateFns = new DateFnsUtils();
 
@@ -945,6 +951,7 @@ export default function WarehouseReceive(props) {
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const response = await axios.post(url, postObj);
       setShowBackDrop(false);
+      handleCloses();
       props.history.push("/warehousehome");
     }
     catch (e) {
@@ -961,7 +968,12 @@ export default function WarehouseReceive(props) {
       setShowBackDrop(false);
     }
   };
-
+  const handleCloses = () => {
+    setOpenDialogue(false);
+  };
+  const handleClickOpen = () => {
+    setOpenDialogue(true);
+  };
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
@@ -1124,7 +1136,29 @@ export default function WarehouseReceive(props) {
           {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
 
           <div className={classes.submit}>
-            {!props.warehouseReceiveTransaction.transaction.deleted && <Button style={{ marginRight: 20 }} variant="contained" color="secondary" onClick={handleTransactionDelete} >Delete</Button>}
+             <Button style={{ marginRight: 20 }} variant="contained" color="secondary" onClick={handleClickOpen} >Delete</Button>
+            <Dialog
+              open={openDialogue}
+              onClose={handleCloses}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">{"Warehouse Receive Details Section"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure, Do you want to delete?
+               </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloses} color="primary">
+                  Cancel
+                </Button>
+                {!props.warehouseReceiveTransaction.transaction.deleted && <Button color="primary" autoFocus onClick={handleTransactionDelete} >Delete</Button>}
+                {/* <Button onClick={() => handleTransactionDelete} color="primary" autoFocus>
+                  Delete
+                </Button> */}
+              </DialogActions>
+            </Dialog>
             <Button variant="contained" color="primary" onClick={handleCancel} >Back</Button>
             {/* <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} >Save</Button> */}
           </div>

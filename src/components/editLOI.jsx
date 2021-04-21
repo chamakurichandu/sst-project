@@ -38,6 +38,11 @@ import DeleteImage from '@material-ui/icons/Delete';
 import SelectItem from './selectItem';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import {
   DatePicker,
   TimePicker,
@@ -218,6 +223,7 @@ export default function EditLOI(props) {
   const [supplyVendors, setSupplyVendors] = React.useState([]);
   const [currentSupplyVendor, setCurrentSupplyVendor] = React.useState(-1);
   const [currentSupplyVendor_error, setCurrentSupplyVendor_error] = React.useState(null);
+  const [openDialogue, setOpenDialogue] = React.useState(false);
 
   const [showSelectItem, setShowSelectItem] = React.useState(false);
 
@@ -737,8 +743,14 @@ export default function EditLOI(props) {
   const deleteAction = (index) => {
     let newItems = cloneDeep(items);
     set_items([...newItems.slice(0, index), ...newItems.slice(index + 1)]);
+    handleCloses();
   };
-
+  const handleCloses = () => {
+    setOpenDialogue(false);
+  };
+  const handleClickOpen = () => {
+    setOpenDialogue(true);
+  };
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
@@ -845,9 +857,24 @@ export default function EditLOI(props) {
                             variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={() => deleteAction(index)}>
+                          <IconButton color="primary" aria-label="upload picture" size="small" onClick={handleClickOpen}>
                             <DeleteImage />
                           </IconButton>
+                          <Dialog
+                            open={openDialogue}
+                            onClose={handleCloses}
+                            aria-labelledby="alert-dialog-title"
+                            aria-describedby="alert-dialog-description"
+                          >
+                            <DialogTitle id="alert-dialog-title">{"Edit LOI Section"}</DialogTitle>
+                            <DialogContent>
+                              <DialogContentText id="alert-dialog-description">Are you sure, Do you want to delete?</DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                              <Button onClick={handleCloses} color="primary">Cancel</Button>
+                              <Button onClick={() => deleteAction(index)} color="primary" autoFocus>Delete</Button>
+                            </DialogActions>
+                          </Dialog>
                         </TableCell>
                       </TableRow>
                     );

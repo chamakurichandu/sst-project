@@ -807,14 +807,14 @@ function App(props) {
                     
                     {<Route exact path="/lp-details" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <LPDetails projects={projects} currentLp={currentLp} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
 
-                  {/* {loiState === 0 && <LOI goto={gotoFromLOI} setLoi={setLoi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
-            {loiState === 1 && <AddLOI goto={gotoFromLOI} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
-            {loiState === 2 && <EditLOI goto={gotoFromLOI} loi={loi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />} */}
+                {/* {loiState === 0 && <LOI goto={gotoFromLOI} setLoi={setLoi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+                {loiState === 1 && <AddLOI goto={gotoFromLOI} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+                {loiState === 2 && <EditLOI goto={gotoFromLOI} loi={loi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />} */}
 
-                  {/* {poState === 0 && <PO goto={gotoFromPO} setPO={setPO} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
-            {poState === 1 && <AddPO goto={gotoFromPO} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
-            {poState === 2 && <EditPO goto={gotoFromPO} po={po} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
-            {poState === 3 && <AddPO goto={gotoFromPO} loi={loi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />} */}
+                {/* {poState === 0 && <PO goto={gotoFromPO} setPO={setPO} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+                {poState === 1 && <AddPO goto={gotoFromPO} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+                {poState === 2 && <EditPO goto={gotoFromPO} po={po} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+                {poState === 3 && <AddPO goto={gotoFromPO} loi={loi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />} */}
 
 
                   {<Route exact path="/customers" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Customers refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedCustomer={setSelectedCustomer}  {...props} /> </div>} />}

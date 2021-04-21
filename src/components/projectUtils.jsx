@@ -208,7 +208,7 @@ export default function ProjectUtils(props) {
               <Tab label="Divisions" {...a11yProps(0)} />
               <Tab label="Sub Divisions" {...a11yProps(1)} />
               <Tab label="O&M Sections" {...a11yProps(2)} />
-              <Tab label="Feeders" {...a11yProps(3)} />
+              <Tab label="Feeders/Locations" {...a11yProps(3)} />
               <Tab label="Activities" {...a11yProps(4)} />
             </Tabs>
           </AppBar>
