@@ -60,7 +60,7 @@ export default function ConfirmDelete(props) {
             <Dialog onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={open}>
             <DialogTitle id="alert-dialog-title">{props.title}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="alert-dialog-description">{"Are you sure, Do you want to Delete?"}</DialogContentText>
+                    <DialogContentText id="alert-dialog-description">{lstrings.DeleteItemConfirmationMessage}</DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={props.noConfirmationDialogAction} color="primary">{lstrings["No"]}</Button>

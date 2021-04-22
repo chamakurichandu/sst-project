@@ -1143,16 +1143,12 @@ export default function WarehouseReceive(props) {
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
             >
-              <DialogTitle id="alert-dialog-title">{"Warehouse Receive Details Section"}</DialogTitle>
+              <DialogTitle id="alert-dialog-title">{"Deleting Item"}</DialogTitle>
               <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Are you sure, Do you want to delete?
-               </DialogContentText>
+                <DialogContentText id="alert-dialog-description">Are you sure, Do you want to delete? Please Confirm</DialogContentText>
               </DialogContent>
               <DialogActions>
-                <Button onClick={handleCloses} color="primary">
-                  Cancel
-                </Button>
+                <Button onClick={handleCloses} color="primary">Cancel</Button>
                 {!props.warehouseReceiveTransaction.transaction.deleted && <Button color="primary" autoFocus onClick={handleTransactionDelete} >Delete</Button>}
                 {/* <Button onClick={() => handleTransactionDelete} color="primary" autoFocus>
                   Delete

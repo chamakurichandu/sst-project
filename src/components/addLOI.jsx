@@ -200,6 +200,9 @@ export default function AddLOI(props) {
   const [extra1, set_extra1] = React.useState('');
   const [extra2, set_extra2] = React.useState('');
   const [extra3, set_extra3] = React.useState('');
+  const [dispatch_instruction, set_dispatch_instruction] = React.useState('dummy data');
+  const [compliance, set_compliance] = React.useState('dammy data');
+  const [guarantee, set_guarantee] = React.useState('dummy data');
 
   const [items, set_items] = React.useState([]);
   const [items_error, set_items_error] = React.useState(null);
@@ -585,6 +588,9 @@ export default function AddLOI(props) {
       postObj["extra1"] = extra1.trim();
       postObj["extra2"] = extra2.trim();
       postObj["extra3"] = extra3.trim();
+      postObj["dispatch_instruction"] = dispatch_instruction.trim();
+      postObj["compliance"] = compliance.trim();
+      postObj["guarantee"] = guarantee.trim();
 
       console.log("postObj: ", postObj);
 
@@ -811,14 +817,23 @@ export default function AddLOI(props) {
           {scope_of_supply_error && <Alert className={classes.alert} severity="error"> {scope_of_supply_error} </Alert>}
 
           <TextField size="small" className={classes.inputFields} id="formControl_price_escalation" defaultValue={price_escalation}
-            label="Price Escalation *" variant="outlined" multiline
+            label="Price and Escalation *" variant="outlined" multiline
             onChange={(event) => { set_price_escalation(event.target.value); set_price_escalation_error(null); }} />
           {price_escalation_error && <Alert className={classes.alert} severity="error"> {price_escalation_error} </Alert>}
 
-          <TextField size="small" className={classes.inputFields} id="formControl_warranty_period" defaultValue={warranty_period}
-            label="Warranty Period *" variant="outlined" multiline
-            onChange={(event) => { set_warranty_period(event.target.value); set_warranty_period_error(null); }} />
-          {warranty_period_error && <Alert className={classes.alert} severity="error"> {warranty_period_error} </Alert>}
+          <TextField size="small" className={classes.inputFields} id="formControl_taxes_and_duties" defaultValue={taxes_and_duties}
+            label="Taxes & Duties *" variant="outlined" multiline
+            onChange={(event) => { set_taxes_and_duties(event.target.value); set_taxes_and_duties_error(null); }} />
+          {taxes_and_duties_error && <Alert className={classes.alert} severity="error"> {taxes_and_duties_error} </Alert>}
+
+          <TextField size="small" className={classes.inputFields} id="formControl_frieght_and_insurance" defaultValue={frieght_and_insurance}
+            label="Frieght & Insurance *" variant="outlined" multiline
+            onChange={(event) => { set_frieght_and_insurance(event.target.value); set_frieght_and_insurance_error(null); }} />
+          {frieght_and_insurance_error && <Alert className={classes.alert} severity="error"> {frieght_and_insurance_error} </Alert>}
+
+          <TextField size="small" className={classes.inputFields} id="formControl_guarantee" defaultValue={guarantee}
+            label=" Guarantee *" variant="outlined" multiline
+            onChange={(event) => { set_guarantee(event.target.value); }} />
 
           <TextField size="small" className={classes.inputFields} id="formControl_commencement_date" defaultValue={commencement_date}
             label="Commencement Date *" variant="outlined" multiline
@@ -835,6 +850,19 @@ export default function AddLOI(props) {
             onChange={(event) => { set_liquidated_damages(event.target.value); set_liquidated_damages_error(null); }} />
           {liquidated_damages_error && <Alert className={classes.alert} severity="error"> {liquidated_damages_error} </Alert>}
 
+          <TextField size="small" className={classes.inputFields} id="formControl_dispatch_instruction" defaultValue={dispatch_instruction}
+            label="Dispatch Instruction *" variant="outlined" multiline
+            onChange={(event) => { set_dispatch_instruction(event.target.value); }} />
+
+          <TextField size="small" className={classes.inputFields} id="formControl_test_certificates_instruction_manuals" defaultValue={test_certificates_instruction_manuals}
+            label="Test Certificates/Instruction Manuals *" variant="outlined" multiline
+            onChange={(event) => { set_test_certificates_instruction_manuals(event.target.value); set_test_certificates_instruction_manuals_error(null); }} />
+          {test_certificates_instruction_manuals_error && <Alert className={classes.alert} severity="error"> {test_certificates_instruction_manuals_error} </Alert>}
+
+          <TextField size="small" className={classes.inputFields} id="formControl_compliance" defaultValue={compliance}
+            label="Compliance *" variant="outlined" multiline
+            onChange={(event) => { set_compliance(event.target.value); }} />
+
           <TextField size="small" className={classes.inputFields} id="formControl_performance_bank_guarantee" defaultValue={performance_bank_guarantee}
             label="Performance Bank Guarantee *" variant="outlined" multiline
             onChange={(event) => { set_performance_bank_guarantee(event.target.value); set_performance_bank_guarantee_error(null); }} />
@@ -845,35 +873,25 @@ export default function AddLOI(props) {
             onChange={(event) => { set_arbitration(event.target.value); set_arbitration_error(null); }} />
           {arbitration_error && <Alert className={classes.alert} severity="error"> {arbitration_error} </Alert>}
 
+          <TextField size="small" className={classes.inputFields} id="formControl_payment_terms" defaultValue={payment_terms}
+            label="Payment Terms *" variant="outlined" multiline
+            onChange={(event) => { set_payment_terms(event.target.value); set_payment_terms_error(null); }} />
+          {payment_terms_error && <Alert className={classes.alert} severity="error"> {payment_terms_error} </Alert>}
+
+          <TextField size="small" className={classes.inputFields} id="formControl_warranty_period" defaultValue={warranty_period}
+            label="Warranty Period *" variant="outlined" multiline
+            onChange={(event) => { set_warranty_period(event.target.value); set_warranty_period_error(null); }} />
+          {warranty_period_error && <Alert className={classes.alert} severity="error"> {warranty_period_error} </Alert>}
+
           <TextField size="small" className={classes.inputFields} id="formControl_inspection_and_testing" defaultValue={inspection_and_testing}
             label="Inspection and Testing *" variant="outlined" multiline
             onChange={(event) => { set_inspection_and_testing(event.target.value); set_inspection_and_testing_error(null); }} />
           {inspection_and_testing_error && <Alert className={classes.alert} severity="error"> {inspection_and_testing_error} </Alert>}
 
-          <TextField size="small" className={classes.inputFields} id="formControl_test_certificates_instruction_manuals" defaultValue={test_certificates_instruction_manuals}
-            label="Test Certificates/Instruction Manuals *" variant="outlined" multiline
-            onChange={(event) => { set_test_certificates_instruction_manuals(event.target.value); set_test_certificates_instruction_manuals_error(null); }} />
-          {test_certificates_instruction_manuals_error && <Alert className={classes.alert} severity="error"> {test_certificates_instruction_manuals_error} </Alert>}
-
-          <TextField size="small" className={classes.inputFields} id="formControl_taxes_and_duties" defaultValue={taxes_and_duties}
-            label="Taxes & Duties *" variant="outlined" multiline
-            onChange={(event) => { set_taxes_and_duties(event.target.value); set_taxes_and_duties_error(null); }} />
-          {taxes_and_duties_error && <Alert className={classes.alert} severity="error"> {taxes_and_duties_error} </Alert>}
-
           <TextField size="small" className={classes.inputFields} id="formControl_acceptance" defaultValue={acceptance}
             label="Acceptance *" variant="outlined" multiline
             onChange={(event) => { set_acceptance(event.target.value); set_acceptance_error(null); }} />
           {acceptance_error && <Alert className={classes.alert} severity="error"> {acceptance_error} </Alert>}
-
-          <TextField size="small" className={classes.inputFields} id="formControl_frieght_and_insurance" defaultValue={frieght_and_insurance}
-            label="Frieght & Insurance *" variant="outlined" multiline
-            onChange={(event) => { set_frieght_and_insurance(event.target.value); set_frieght_and_insurance_error(null); }} />
-          {frieght_and_insurance_error && <Alert className={classes.alert} severity="error"> {frieght_and_insurance_error} </Alert>}
-
-          <TextField size="small" className={classes.inputFields} id="formControl_payment_terms" defaultValue={payment_terms}
-            label="Payment Terms *" variant="outlined" multiline
-            onChange={(event) => { set_payment_terms(event.target.value); set_payment_terms_error(null); }} />
-          {payment_terms_error && <Alert className={classes.alert} severity="error"> {payment_terms_error} </Alert>}
 
           <TextField size="small" className={classes.inputFields} id="formControl_extra1" defaultValue={extra1}
             label="" variant="outlined" multiline

@@ -39,6 +39,7 @@ import SelectItem from './selectItem';
 import SelectProject from './selectProject';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
+import ConfirmDelete from "./confirmDelete";
 import {
   DatePicker,
   TimePicker,
@@ -268,7 +269,8 @@ export default function WarehouseReceive(props) {
   const [files, set_files] = React.useState([]);
 
   const [receivedTransactions, set_receivedTransactions] = React.useState(null);
-
+  const [showConfirmationDialog, setShowConfirmationDialog] = React.useState(false);
+  const [indexTobeDeleted, set_indexTobeDeleted] = React.useState(null);
   const dateFns = new DateFnsUtils();
 
   async function getPOs() {
@@ -1105,13 +1107,21 @@ export default function WarehouseReceive(props) {
     return "";
   };
 
+  const deleteAction = (index) => {
+    console.log('delete...')
+    set_indexTobeDeleted(index);
+    setShowConfirmationDialog(true);
+  };
+  const noConfirmationDialogAction = () => {
+    setShowConfirmationDialog(false);
+  };
 
-  const itemRemove = i => {
-    let allItems = [...items];
-    allItems.splice(i, 1);
-    set_items(allItems);
-  }
-
+  const yesConfirmationDialogAction = () => {
+    let newItems = cloneDeep(items);
+    newItems.splice(indexTobeDeleted, 1);
+    set_items([...newItems]);
+    setShowConfirmationDialog(false);
+  };
 
   return (
     <div className={clsx(classes.root)}>
@@ -1296,7 +1306,7 @@ export default function WarehouseReceive(props) {
                               variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                           </TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <Button variant="contained" onClick={() => itemRemove(index)}>Remove</Button>
+                            <Button variant="contained" onClick={() => {deleteAction(index)}}>Remove</Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -1343,7 +1353,7 @@ export default function WarehouseReceive(props) {
       {/* { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />} */}
 
       { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects} />}
-
+      {showConfirmationDialog && <ConfirmDelete noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={lstrings.DeleteItemConfirmationMessage} title={lstrings.DeletingItem} />}
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}

@@ -35,12 +35,6 @@ import fileImage from '../assets/svg/ss/file.svg';
 import folderImage from '../assets/svg/ss/folder.svg';
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
@@ -278,7 +272,7 @@ export default function DocumentsFolder(props) {
 
   const [currentPath, setCurrentPath] = React.useState("/" + props.type);
   const [currentPathArr, setCurrentPathArr] = React.useState([]);
-  const [openDialogue, setOpenDialogue] = React.useState(false);
+ 
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -329,7 +323,7 @@ export default function DocumentsFolder(props) {
       console.log("Delete Saved");
       setShowBackDrop(false);
       getList(currentPath, rowsPerPage);
-      handleCloses();
+      
     }
     catch (e) {
       if (e.response) {
@@ -519,12 +513,7 @@ export default function DocumentsFolder(props) {
     setPath(path);
     getList(path, rowsPerPage);
   }
-  const handleCloses = () => {
-    setOpenDialogue(false);
-  };
-  const handleClickOpen = () => {
-    setOpenDialogue(true);
-  };
+
   return (
     <div className={clsx(classes.root)}>
       {props.refreshUI && props.project &&
@@ -600,26 +589,9 @@ export default function DocumentsFolder(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.remark}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.createdDate_conv.toDateString()}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <IconButton color="primary" aria-label="delete picture" component="span" onClick={handleClickOpen}>
+                            <IconButton color="primary" aria-label="delete picture" component="span" onClick={()=>deleteDocument(index)}>
                               <DeleteIcon />
                             </IconButton>
-                            <Dialog
-                              open={openDialogue}
-                              onClose={handleCloses}
-                              aria-labelledby="alert-dialog-title"
-                              aria-describedby="alert-dialog-description"
-                            >
-                              <DialogTitle id="alert-dialog-title">{"Project Document Section"}</DialogTitle>
-                              <DialogContent>
-                                <DialogContentText id="alert-dialog-description">
-                                 Are you sure, Do you want to delete?
-                                 </DialogContentText>
-                              </DialogContent>
-                              <DialogActions>
-                                <Button onClick={handleCloses} color="primary">Cancel</Button>
-                                <Button onClick={() => deleteDocument(index)} color="primary" autoFocus>Delete</Button>
-                              </DialogActions>
-                            </Dialog>
                           </TableCell>
                         </TableRow>
                       );

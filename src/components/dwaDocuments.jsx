@@ -300,6 +300,7 @@ export default function DwaDocuments(props) {
     const [allItems, set_allItems] = React.useState([]);
     const [open, setOpen] = React.useState(false);
     const [editableIndex, set_editableIndex] = React.useState(null);
+    const [indexTobeDeleted, set_indexTobeDeleted] = React.useState(null);
     const importMaterial = React.useRef();
     const [showConfirmationDialog, setShowConfirmationDialog] = React.useState(false);
     const pageLimits = [10, 25, 50];
@@ -496,7 +497,7 @@ export default function DwaDocuments(props) {
                 }
             }
         }
-        
+
         console.log(list);
 
         handleSave(list);
@@ -610,15 +611,20 @@ export default function DwaDocuments(props) {
 
         // getList(rowsPerPage, event.target.value);
     };
-    
-    const noConfirmationDialogAction = () => {
+
+    const deleteAction = (index) => {
+        set_indexTobeDeleted(index);
+        setShowConfirmationDialog(true);
+      };
+      const noConfirmationDialogAction = () => {
         setShowConfirmationDialog(false);
       };
     
       const yesConfirmationDialogAction = () => {
+        let newItems = cloneDeep(rows);
+        newItems.splice(indexTobeDeleted, 1);
+        setRows([...newItems]);
         setShowConfirmationDialog(false);
-    
-        handleDelete();
       };
 
     return (
@@ -739,7 +745,7 @@ export default function DwaDocuments(props) {
                                                             className={classes.button}><CheckIcon /></Button>}
                                                     </TableCell>
                                                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                                                        <Button onClick={() => { setShowConfirmationDialog(true); }} color="primary"
+                                                        <Button onClick={() => { deleteAction(index) }} color="primary"
                                                             className={classes.button}><DeleteIcon /></Button>
                                                     </TableCell>
                                                 </TableRow>
@@ -770,7 +776,7 @@ export default function DwaDocuments(props) {
             </Backdrop>
 
             { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={props.allItems} dwaEditable={true} type={"Materials"} />}
-            {showConfirmationDialog && <ConfirmDelete noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={lstrings.DeletingUserConfirmationMessage} title={lstrings.DeletingUser} />}
+            {showConfirmationDialog && <ConfirmDelete noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={lstrings.DeleteItemConfirmationMessage} title={lstrings.DeletingItem} />}
             <Snackbar open={showError} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="error">
                     {errorMessage}
