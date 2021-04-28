@@ -39,8 +39,6 @@ import SelectItem from './selectItem';
 import SelectProject from './selectProject';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
 import {
   DatePicker,
   TimePicker,
@@ -551,7 +549,7 @@ export default function CreateLocalPurchase(props) {
       let url = config["baseurl"] + "/api/localpurchase/add";
 
       let postObj = {};
-      postObj["warehouse"] = currentWarehouse;;
+      postObj["warehouse"] = warehouses[currentWarehouse]._id;
       postObj["type"] = "local_purchase";
       postObj["project"] = project._id;
       postObj["gate_entry_info"] = gate_entry_info.trim();
@@ -684,10 +682,6 @@ export default function CreateLocalPurchase(props) {
   const handleCloseBackDrop = () => {
 
   };
-  const warehouseById = (id) => {
-    return warehouses.filter(warehouse => warehouse._id === id)[0]?.name;
-   }
-
   const handleWarehouseChange = (event) => {
     console.log(event.target.value);
     setCurrentWarehouse(event.target.value);
@@ -903,18 +897,13 @@ export default function CreateLocalPurchase(props) {
             <Select
               labelId="type-select-label"
               id="type-select-label"
-              multiple
               value={currentWarehouse === -1 ? "" : currentWarehouse}
               onChange={handleWarehouseChange}
               label="Warehouse *"
-              renderValue={(selected) => selected.map(w => warehouseById(w)).join(',')}
             >
               {warehouses && warehouses.map((row, index) => {
                 return (
-                  <MenuItem key={"" + index} value={row._id}>
-                    <Checkbox checked={currentWarehouse.indexOf(row._id) > -1} />
-                    <ListItemText primary={row.name} />
-                  </MenuItem>
+                  <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>  
                 );
               })}
             </Select>
@@ -1099,7 +1088,7 @@ export default function CreateLocalPurchase(props) {
 
       { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />}
 
-      { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects} />}
+      { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects.filter(project => project.warehouse === warehouses[currentWarehouse]._id)} type={"Project"} />}
 
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">

@@ -39,8 +39,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ConfirmDelete from "./confirmDelete";
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
 import {
   DatePicker,
   TimePicker,
@@ -571,7 +569,7 @@ export default function AddLOI(props) {
       let postObj = {};
       postObj["supply_vendor"] = supplyVendors[currentSupplyVendor]._id;
       postObj["project"] = projects[currentProject]._id;
-      postObj["warehouse"] = currentWarehouse;
+      postObj["warehouse"] = warehouses[currentWarehouse]._id;
       postObj["key_remark"] = key_remark.trim();
       postObj["reference_number"] = reference_number.trim();
       postObj["items"] = [];
@@ -762,18 +760,13 @@ export default function AddLOI(props) {
             <Select
               labelId="warehouse-select-label"
               id="warehouse-select-label"
-              multiple
               value={currentWarehouse === -1 ? "" : currentWarehouse}
               onChange={handleWarehouseChange}
               label="Warehouse *"
-              renderValue={(selected) => selected.map(w => warehouseById(w)).join(',')}
             >
               {warehouses && warehouses.map((row, index) => {
                 return (
-                  <MenuItem key={"" + index} value={row._id}>
-                    <Checkbox checked={currentWarehouse.indexOf(row._id) > -1} />
-                    <ListItemText primary={row.name} />
-                  </MenuItem>
+                  <MenuItem key={"" + index} value={row._id}>{row.name}</MenuItem>
                 );
               })}
             </Select>

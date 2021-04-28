@@ -76,6 +76,7 @@ function EnhancedTableHead(props) {
   const headCells = [
     { id: 'slno', numeric: true, disablePadding: true, label: 'SL' },
     { id: 'materialindent', numeric: false, disablePadding: false, label: 'Material Indent' },
+    { id: 'Warehouse', numeric: false, disablePadding: false, label: 'Warehouse' },
     { id: 'projectcode', numeric: false, disablePadding: false, label: 'Project Code' },
     { id: 'projectname', numeric: false, disablePadding: false, label: 'Project Name' },
     { id: 'date', numeric: false, disablePadding: false, label: 'Date' },
@@ -267,6 +268,7 @@ export default function ReleaseIndents(props) {
   const [showBackDrop, setShowBackDrop] = React.useState(false);
   const [releaseMaterialIndent, showReleaseMaterialIndent] = React.useState(false);
   const [currentMaterialIndent, setCurrentMaterialIndent] = React.useState(null);
+  const [warehouses, setWarehouses] = React.useState([]);
 
   const pageLimits = [10, 25, 50];
   let offset = 0;
@@ -304,7 +306,33 @@ export default function ReleaseIndents(props) {
     if (props.warehouse)
       getMaterialIndentList();
   }, [props.warehouse]);
+  async function getWarehouseList() {
+    try {
+      setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/warehouse/list";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+      console.log(data.count);
+      console.log(data.list);
 
+      setWarehouses(data.list);
+
+      setShowBackDrop(false);
+
+      getMaterialIndentList(rowsPerPage);
+    }
+    catch (e) {
+      console.log("Error in getting users list");
+      setErrorMessage("Error in getting users list");
+      setShowError(true);
+      setShowBackDrop(false);
+    }
+  }
+
+  useEffect(()=>{
+      getWarehouseList()
+  },[])
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -400,6 +428,15 @@ export default function ReleaseIndents(props) {
     else if (val === 2)
       props.history.push("/warehousehome");
   };
+  
+  const getWarehouseName = (id) => {
+    for (let i = 0; i < warehouses.length; ++i) {
+      if (warehouses[i]._id === id) {
+        return warehouses[i].name;
+      }
+    }
+    return "Unknown";
+  };
 
   return (
     <div className={clsx(classes.root)}>
@@ -473,6 +510,7 @@ export default function ReleaseIndents(props) {
                           {(index + 1)}
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.indent.code}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getWarehouseName(row.indent.warehouse)}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.createddate_conv.toDateString()}</TableCell>

@@ -38,14 +38,13 @@ import SelectItem from './selectItem';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
 import ConfirmDelete from "./confirmDelete";
-import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
 import {
   DatePicker,
   TimePicker,
   DateTimePicker,
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
+import Warehouses from './warehouses';
 
 const Joi = require('joi');
 
@@ -668,7 +667,7 @@ export default function AddPO(props) {
       let postObj = {};
       postObj["supply_vendor"] = supplyVendors[currentSupplyVendor]._id;
       postObj["project"] = projects[currentProject]._id;
-      postObj["warehouse"] = currentWarehouse;
+      postObj["warehouse"] = Warehouses[currentWarehouse]._id;
       postObj["key_remark"] = key_remark.trim();
       postObj["reference_number"] = reference_number.trim();
       postObj["items"] = [];
@@ -756,10 +755,6 @@ export default function AddPO(props) {
   const handleCloseBackDrop = () => {
 
   };
-
-  const warehouseById = (id) => {
-    return warehouses.filter(warehouse => warehouse._id === id)[0]?.name;
-   }
 
   const handleWarehouseChange = (event) => {
     setCurrentWarehouse(event.target.value);
@@ -865,18 +860,13 @@ export default function AddPO(props) {
             <Select
               labelId="warehouse-select-label"
               id="warehouse-select-label"
-              multiple
               value={currentWarehouse === -1 ? "" : currentWarehouse}
               onChange={handleWarehouseChange}
               label="Warehouse *"
-              renderValue={(selected) => selected.map(w => warehouseById(w)).join(',')}
             >
               {warehouses && warehouses.map((row, index) => {
                 return (
-                  <MenuItem key={index} value={row._id}>
-                    <Checkbox checked={currentWarehouse.indexOf(row._id) > -1} />
-                    <ListItemText primary={row.name} />
-                  </MenuItem>
+                  <MenuItem key={index} value={index}>{row.name}</MenuItem>
                 );
               })}
             </Select>

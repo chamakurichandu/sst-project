@@ -204,8 +204,8 @@ export default function AddMaterialIndent(props) {
     const [currentServiceVendor, setCurrentServiceVendor] = React.useState(-1);
     const [current_service_vendor_error, set_current_service_vendor_error] = React.useState(null);
 
-    // const [warehouses, setWarehouses] = React.useState([]);
-    // const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
+    const [warehouses, setWarehouses] = React.useState([]);
+    const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
     const [warehouse, set_warehouse] = React.useState(null);
     const [current_warehouse_error, set_current_warehouse_error] = React.useState(null);
 
@@ -313,7 +313,7 @@ export default function AddMaterialIndent(props) {
             }
 
             postObj["work"] = props.workData.work._id;
-            postObj["warehouse"] = warehouse._id;
+            postObj["warehouse"] = warehouses[currentWarehouse]._id;
             postObj["servicevendor"] = serviceVendors[currentServiceVendor]._id;
             postObj["project"] = props.project._id;
 
@@ -361,15 +361,15 @@ export default function AddMaterialIndent(props) {
     async function getWarehouseList() {
         try {
             setShowBackdrop(true);
-            // let url = config["baseurl"] + "/api/warehouse/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
-            let url = config["baseurl"] + "/api/warehouse/list";
+            let url = config["baseurl"] + "/api/warehouse/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+            // let url = config["baseurl"] + "/api/warehouse/list";
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
             const { data } = await axios.get(url);
             console.log(data);
 
-            // setWarehouses(data.list);
-            let currentWarehouse = data.list.filter(dataItem => dataItem._id === props.project.warehouse)[0];
-            set_warehouse(currentWarehouse);
+            setWarehouses(data.list);
+            // let currentWarehouse = data.list.filter(dataItem => dataItem._id === props.project.warehouse)[0];
+            // set_warehouse(currentWarehouse);
             setShowBackdrop(false);
 
             getServiceVendors();
@@ -444,10 +444,10 @@ export default function AddMaterialIndent(props) {
         getWarehouseList();
     }, []);
 
-    // const handleWarehouseChange = (event) => {
-    //     setCurrentWarehouse(event.target.value);
-    //     set_current_warehouse_error(null);
-    // };
+    const handleWarehouseChange = (event) => {
+        setCurrentWarehouse(event.target.value);
+        set_current_warehouse_error(null);
+    };
 
     const handleServiceVendorChange = (event) => {
         setCurrentServiceVendor(event.target.value);
@@ -474,17 +474,16 @@ export default function AddMaterialIndent(props) {
                     <Paper className={classes.paper}>
                         <form className={classes.papernew} autoComplete="off" noValidate>
 
-                            <TextField size="small" className={classes.inputFields}
-                                disabled
+                            {/* <TextField size="small" className={classes.inputFields}
                                 id="outlined-disabled"
                                 label="Warehouse"
                                 value={warehouse?warehouse.name:''}
                                 variant="outlined"
-                            />
-                            {/* <FormControl size="small" variant="outlined" className={classes.formControl}>
+                            /> */}
+
+                            <FormControl size="small" variant="outlined" className={classes.formControl}>
                                 <InputLabel id="type-select-label">Warehouse *</InputLabel>
                                 <Select
-                                disabled
                                     labelId="type-select-label"
                                     id="type-select-label"
                                     value={currentWarehouse === -1 ? "" : currentWarehouse}
@@ -493,11 +492,11 @@ export default function AddMaterialIndent(props) {
                                 >
                                     {warehouses && warehouses.map((row, index) => {
                                         return (
-                                            <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
+                                            <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
                                         );
                                     })}
                                 </Select>
-                            </FormControl> */}
+                            </FormControl>
                             {current_warehouse_error && <Alert className={classes.alert} severity="error"> {current_warehouse_error} </Alert>}
                             <FormControl size="small" variant="outlined" className={classes.formControl}>
                                 <InputLabel id="service-vendor-select-label">Service Vendor *</InputLabel>
