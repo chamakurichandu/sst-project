@@ -39,6 +39,8 @@ import SelectItem from './selectItem';
 import SelectProject from './selectProject';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
+import ListItemText from '@material-ui/core/ListItemText';
+import Checkbox from '@material-ui/core/Checkbox';
 import {
   DatePicker,
   TimePicker,
@@ -211,7 +213,7 @@ export default function CreateLocalPurchase(props) {
   const [current_po_error, set_current_po_error] = React.useState(null);
 
   const [warehouses, setWarehouses] = React.useState([]);
-  const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
+  const [currentWarehouse, setCurrentWarehouse] = React.useState([]);
   const [current_warehouse_error, set_current_warehouse_error] = React.useState(null);
 
   const [poItems, setPOItems] = React.useState([]);
@@ -549,7 +551,7 @@ export default function CreateLocalPurchase(props) {
       let url = config["baseurl"] + "/api/localpurchase/add";
 
       let postObj = {};
-      postObj["warehouse"] = warehouses[currentWarehouse]._id;
+      postObj["warehouse"] = currentWarehouse;;
       postObj["type"] = "local_purchase";
       postObj["project"] = project._id;
       postObj["gate_entry_info"] = gate_entry_info.trim();
@@ -567,7 +569,6 @@ export default function CreateLocalPurchase(props) {
       for (let i = 0; i < files.length; ++i) {
         postObj["docs"].push({ name: files[i].name, path: files[i].path });
       }
-
       postObj["items"] = [];
       for (let i = 0; i < items.length; ++i) {
         if (parseInt(items[i].qty) < 0) {
@@ -683,8 +684,12 @@ export default function CreateLocalPurchase(props) {
   const handleCloseBackDrop = () => {
 
   };
+  const warehouseById = (id) => {
+    return warehouses.filter(warehouse => warehouse._id === id)[0]?.name;
+   }
 
   const handleWarehouseChange = (event) => {
+    console.log(event.target.value);
     setCurrentWarehouse(event.target.value);
     set_current_warehouse_error(null);
   };
@@ -898,13 +903,18 @@ export default function CreateLocalPurchase(props) {
             <Select
               labelId="type-select-label"
               id="type-select-label"
+              multiple
               value={currentWarehouse === -1 ? "" : currentWarehouse}
               onChange={handleWarehouseChange}
               label="Warehouse *"
+              renderValue={(selected) => selected.map(w => warehouseById(w)).join(',')}
             >
               {warehouses && warehouses.map((row, index) => {
                 return (
-                  <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
+                  <MenuItem key={"" + index} value={row._id}>
+                    <Checkbox checked={currentWarehouse.indexOf(row._id) > -1} />
+                    <ListItemText primary={row.name} />
+                  </MenuItem>
                 );
               })}
             </Select>

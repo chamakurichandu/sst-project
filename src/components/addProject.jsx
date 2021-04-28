@@ -24,6 +24,8 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import DateFnsUtils from '@date-io/date-fns';
+import ListItemText from '@material-ui/core/ListItemText';
+import Checkbox from '@material-ui/core/Checkbox';
 import {
     DatePicker,
     TimePicker,
@@ -105,7 +107,7 @@ export default function AddProject(props) {
     const [name_error, set_name_error] = React.useState(null);
 
     const [warehouses, setWarehouses] = React.useState([]);
-    const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
+    const [currentWarehouse, setCurrentWarehouse] = React.useState([]);
     const [warehouse_error, set_warehouse_error] = React.useState(null);
 
     const [customers, setCustomers] = React.useState([]);
@@ -233,10 +235,12 @@ export default function AddProject(props) {
         try {
             setContactingServer(true);
             let url = config["baseurl"] + "/api/project/add";
+            console.log(currentWarehouse);
+            console.log(warehouses);
 
             let postObj = {};
             postObj["name"] = name.trim();
-            postObj["warehouse"] = warehouses[currentWarehouse]._id;
+            postObj["warehouse"] = currentWarehouse;
             postObj["customer"] = customers[currentCustomer]._id;
             postObj["remark"] = remarks.trim();
             postObj["startdate"] = startDate.toUTCString();
@@ -245,7 +249,6 @@ export default function AddProject(props) {
             for (let i = 0; i < files.length; ++i) {
                 postObj["docs"].push({ name: files[i].name, path: files[i].path });
             }
-
             console.log("postObj: ", postObj);
 
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
@@ -263,7 +266,7 @@ export default function AddProject(props) {
                 setErrorMessage(e.response.data["message"]);
             }
             else {
-                console.log("Error in creating");
+                console.log("Error in creating" + e);
                 setErrorMessage("Error in creating: ", e.message);
             }
             setShowError(true);
@@ -346,7 +349,12 @@ export default function AddProject(props) {
 
     };
 
+    const warehouseById = (id) => {
+        return warehouses.filter(warehouse => warehouse._id === id)[0]?.name;
+    }
+
     const handleWarehouseChange = event => {
+        console.log(event.target.value);
         setCurrentWarehouse(event.target.value);
         set_warehouse_error(null)
     }
@@ -384,13 +392,18 @@ export default function AddProject(props) {
                             <Select
                                 labelId="warehouse-select-label"
                                 id="warehouse-select-label"
+                                multiple
                                 value={currentWarehouse === -1 ? "" : currentWarehouse}
                                 onChange={handleWarehouseChange}
                                 label="Warehouse *"
+                                renderValue={(selected) => selected.map(w => warehouseById(w)).join(',')}
                             >
                                 {warehouses.map((row, index) => {
                                     return (
-                                        <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+                                        <MenuItem key={"" + index} value={row._id}>
+                                            <Checkbox checked={currentWarehouse.indexOf(row._id) > -1} />
+                                            <ListItemText primary={row.name} />
+                                        </MenuItem>
                                     );
                                 })}
                             </Select>

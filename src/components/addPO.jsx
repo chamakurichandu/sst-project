@@ -38,6 +38,8 @@ import SelectItem from './selectItem';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
 import ConfirmDelete from "./confirmDelete";
+import ListItemText from '@material-ui/core/ListItemText';
+import Checkbox from '@material-ui/core/Checkbox';
 import {
   DatePicker,
   TimePicker,
@@ -208,7 +210,7 @@ export default function AddPO(props) {
   const [guarantee_error, set_guarantee_error] = React.useState(null);
   const [compliance_error, set_compliance_error] = React.useState(null);
   const [dispatch_instruction_error, set_dispatch_instruction_error] = React.useState(null);
-  
+
   const [items, set_items] = React.useState([]);
   const [items_error, set_items_error] = React.useState(null);
 
@@ -223,7 +225,7 @@ export default function AddPO(props) {
   const [currentSupplyVendor_error, setCurrentSupplyVendor_error] = React.useState(null);
 
   const [currentProject, setCurrentProject] = React.useState(-1);
-  const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
+  const [currentWarehouse, setCurrentWarehouse] = React.useState([]);
 
   const [projects, setProjects] = React.useState([]);
   const [warehouses, setWarehouses] = React.useState([]);
@@ -500,9 +502,9 @@ export default function AddPO(props) {
       taxes_and_duties: taxes_and_duties.trim(),
       acceptance: acceptance.trim(),
       frieght_and_insurance: frieght_and_insurance.trim(),
-      compliance:compliance.trim(),
-      guarantee:guarantee.trim(),
-      dispatch_instruction:dispatch_instruction.trim(),
+      compliance: compliance.trim(),
+      guarantee: guarantee.trim(),
+      dispatch_instruction: dispatch_instruction.trim(),
       payment_terms: payment_terms.trim()
     }, { abortEarly: false });
     const allerrors = {};
@@ -666,7 +668,7 @@ export default function AddPO(props) {
       let postObj = {};
       postObj["supply_vendor"] = supplyVendors[currentSupplyVendor]._id;
       postObj["project"] = projects[currentProject]._id;
-      postObj["warehouse"] = warehouses[currentWarehouse]._id;
+      postObj["warehouse"] = currentWarehouse;
       postObj["key_remark"] = key_remark.trim();
       postObj["reference_number"] = reference_number.trim();
       postObj["items"] = [];
@@ -755,6 +757,10 @@ export default function AddPO(props) {
 
   };
 
+  const warehouseById = (id) => {
+    return warehouses.filter(warehouse => warehouse._id === id)[0]?.name;
+   }
+
   const handleWarehouseChange = (event) => {
     setCurrentWarehouse(event.target.value);
     set_warehouses_error(null);
@@ -780,6 +786,7 @@ export default function AddPO(props) {
   };
 
   const set_item_qty_for = (value, index) => {
+    console.log(value + "--" + index);
     let newItems = [...items];
     newItems[index].qty = value;
     set_items(newItems);
@@ -805,7 +812,7 @@ export default function AddPO(props) {
     set_items(newItems);
   };
 
-   const deleteAction = (index) => {
+  const deleteAction = (index) => {
     set_indexTobeDeleted(index);
     setShowConfirmationDialog(true);
   };
@@ -814,7 +821,8 @@ export default function AddPO(props) {
   };
 
   const yesConfirmationDialogAction = () => {
-    let newItems = cloneDeep(items);
+    console.log(indexTobeDeleted);
+    let newItems = cloneDeep(items); console.log(newItems[indexTobeDeleted]);
     newItems.splice(indexTobeDeleted, 1);
     set_items([...newItems]);
     setShowConfirmationDialog(false);
@@ -857,13 +865,18 @@ export default function AddPO(props) {
             <Select
               labelId="warehouse-select-label"
               id="warehouse-select-label"
+              multiple
               value={currentWarehouse === -1 ? "" : currentWarehouse}
               onChange={handleWarehouseChange}
               label="Warehouse *"
+              renderValue={(selected) => selected.map(w => warehouseById(w)).join(',')}
             >
               {warehouses && warehouses.map((row, index) => {
                 return (
-                  <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+                  <MenuItem key={index} value={row._id}>
+                    <Checkbox checked={currentWarehouse.indexOf(row._id) > -1} />
+                    <ListItemText primary={row.name} />
+                  </MenuItem>
                 );
               })}
             </Select>
@@ -914,15 +927,15 @@ export default function AddPO(props) {
                           </MuiPickersUtilsProvider>
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <TextField size="small" id={"formControl_rate_" + index} type="number" defaultValue={row.rate}
+                          <TextField size="small" id={"formControl_rate_" + index} type="number" value={row.rate}
                             variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
                         </TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{console.log(row.qty)}
+                          <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.qty}
                             variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <Button variant="contained" onClick={()=>{deleteAction(index)}}>Remove</Button>
+                          <Button variant="contained" onClick={() => { deleteAction(index) }}>Remove</Button>
                         </TableCell>
                       </TableRow>
                     );
@@ -956,7 +969,7 @@ export default function AddPO(props) {
           <TextField size="small" className={classes.inputFields} id="formControl_guarantee" defaultValue={guarantee}
             label=" Guarantee *" variant="outlined" multiline
             onChange={(event) => { set_guarantee(event.target.value); set_guarantee_error(null); }} />
-            {guarantee_error && <Alert className={classes.alert} severity="error"> {guarantee_error} </Alert>}
+          {guarantee_error && <Alert className={classes.alert} severity="error"> {guarantee_error} </Alert>}
 
           <TextField size="small" className={classes.inputFields} id="formControl_commencement_date" defaultValue={commencement_date}
             label="Commencement Date *" variant="outlined" multiline
@@ -977,7 +990,7 @@ export default function AddPO(props) {
             label="Dispatch Instruction *" variant="outlined" multiline
             onChange={(event) => { set_dispatch_instruction(event.target.value); set_dispatch_instruction_error(null) }} />
           {dispatch_instruction_error && <Alert className={classes.alert} severity="error"> {dispatch_instruction_error} </Alert>}
-  
+
 
           <TextField size="small" className={classes.inputFields} id="formControl_test_certificates_instruction_manuals" defaultValue={test_certificates_instruction_manuals}
             label="Test Certificates/Instruction Manuals *" variant="outlined" multiline

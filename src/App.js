@@ -94,9 +94,9 @@ import WarehouseCreateStockTransfer from './components/warehouseCreateStockTrans
 import WarehouseStockTransferDetails from './components/warehouseStockTransferDetails';
 import LocalPurchase from './components/localpurchase';
 import CreateLocalPurchase from './components/createLocalPurchase';
- import DwaDocuments from "./components/dwaDocuments";
- import ReturnIndent from "./components/returnIndent";
- import LPDetails from "./components/lpDetails";
+import DwaDocuments from "./components/dwaDocuments";
+import ReturnIndent from "./components/returnIndent";
+import LPDetails from "./components/lpDetails";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -176,7 +176,7 @@ function App(props) {
   const [loi, setLoi] = React.useState(null);
   const [po, setPO] = React.useState(null);
   const [localPurchase, setLocalPurchase] = React.useState(null);
-  const [currentLp, setCurrentLp]=React.useState({});
+  const [currentLp, setCurrentLp] = React.useState({});
   const [createFromLoi, setCreateFromLoi] = React.useState(false);
   const [dc, setDC] = React.useState(null);
   const [stockTransferType, setStockTransferType] = React.useState(-1);
@@ -777,13 +777,13 @@ function App(props) {
                   {<Route exact path="/project-lettercorr" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"lettercorr"} name={"Letter Corr"} project={project} {...props} /> </div>} />}
                   {(warehouseRole || adminRole) && <Route exact path="/project-dwaboq" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DwaDocuments refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} name={'DWA BOQ'} warehouseRole={warehouseRole} productCategories={productCategories} setProductCategories={setProductCategories} UOMs={UOMs} setUOMs={setUOMs} project={project} setProject={setProject} setSelectedMaterial={setSelectedMaterial}  {...props} /> </div>} />}
 
-                 {/* {<Route exact path="/project-dwaboq" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DwaDocuments refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"dwaboq"} name={"DWA BOQ"} project={project} {...props} /> </div>} />} */}
+                  {/* {<Route exact path="/project-dwaboq" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DwaDocuments refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"dwaboq"} name={"DWA BOQ"} project={project} {...props} /> </div>} />} */}
                   {/* {<Route exact path="/project-dwaboq" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"dwaboq"} name={"DWA BOQ"} project={project} {...props} /> </div>} />} */}
                   {<Route exact path="/project-projectestimates" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"projectestimates"} name={"Project Estimates"} project={project} {...props} /> </div>} />}
                   {<Route exact path="/project-workorders" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"workorders"} name={"Work Orders"} project={project} {...props} /> </div>} />}
                   {<Route exact path="/project-documents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"projectdocuments"} name={"Project Documents"} project={project} {...props} /> </div>} />}
                   {<Route exact path="/materialindents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <MaterialIndents refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} {...props} /> </div>} />}
-                  {<Route exact path="/returnindents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ReturnIndent refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} {...props} /> </div>} />} 
+                  {<Route exact path="/returnindents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ReturnIndent refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} {...props} /> </div>} />}
                   {<Route exact path="/projects" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Projects refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedProject={setSelectedProject} setCustomers={setCustomers} setProject={setProject}  {...props} /> </div>} />}
                   {<Route exact path="/projects-utils" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProjectUtils refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
                   {<Route exact path="/addproject" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddProject refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
@@ -803,15 +803,15 @@ function App(props) {
                     <LocalPurchase setLocalPurchase={setLocalPurchase} setCurrentLp={setCurrentLp} projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
 
                   {<Route exact path="/createlocalpurchase" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}>
-                    <CreateLocalPurchase  projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses}  {...props} /> </div>} />}
-                    
-                    {<Route exact path="/lp-details" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <LPDetails projects={projects} currentLp={currentLp} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
+                    <CreateLocalPurchase projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses}  {...props} /> </div>} />}
 
-                {/* {loiState === 0 && <LOI goto={gotoFromLOI} setLoi={setLoi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+                  {<Route exact path="/lp-details" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <LPDetails projects={projects} currentLp={currentLp} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
+
+                  {/* {loiState === 0 && <LOI goto={gotoFromLOI} setLoi={setLoi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
                 {loiState === 1 && <AddLOI goto={gotoFromLOI} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
                 {loiState === 2 && <EditLOI goto={gotoFromLOI} loi={loi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />} */}
 
-                {/* {poState === 0 && <PO goto={gotoFromPO} setPO={setPO} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
+                  {/* {poState === 0 && <PO goto={gotoFromPO} setPO={setPO} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
                 {poState === 1 && <AddPO goto={gotoFromPO} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
                 {poState === 2 && <EditPO goto={gotoFromPO} po={po} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />}
                 {poState === 3 && <AddPO goto={gotoFromPO} loi={loi} projects={props.projects} setProjects={props.setProjects} warehouses={props.warehouses} setWarehouses={props.setWarehouses} />} */}

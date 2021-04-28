@@ -37,6 +37,10 @@ import AddImage from '@material-ui/icons/Add';
 import SelectItem from './selectItem';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
+import DeleteIcon from '@material-ui/icons/Delete';
+import ConfirmDelete from "./confirmDelete";
+import ListItemText from '@material-ui/core/ListItemText';
+import Checkbox from '@material-ui/core/Checkbox';
 import {
   DatePicker,
   TimePicker,
@@ -59,7 +63,8 @@ function EnhancedTableHeadSmall(props) {
     { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
     { id: 'schedule_date', numeric: true, disablePadding: false, label: "Schedule Date" },
     { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
-    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
+    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" },
+    { id: 'remove_item', numeric: true, disablePadding: false, label: "Remove Item" },
   ];
 
   return (
@@ -220,12 +225,14 @@ export default function AddLOI(props) {
   const [currentSupplyVendor_error, setCurrentSupplyVendor_error] = React.useState(null);
 
   const [currentProject, setCurrentProject] = React.useState(-1);
-  const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
+  const [currentWarehouse, setCurrentWarehouse] = React.useState([]);
 
   const [projects, setProjects] = React.useState([]);
   const [warehouses, setWarehouses] = React.useState([]);
 
   const [showSelectItem, setShowSelectItem] = React.useState(false);
+  const [indexTobeDeleted, set_indexTobeDeleted] = React.useState(null);
+  const [showConfirmationDialog, setShowConfirmationDialog] = React.useState(false);
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
@@ -564,7 +571,7 @@ export default function AddLOI(props) {
       let postObj = {};
       postObj["supply_vendor"] = supplyVendors[currentSupplyVendor]._id;
       postObj["project"] = projects[currentProject]._id;
-      postObj["warehouse"] = warehouses[currentWarehouse]._id;
+      postObj["warehouse"] = currentWarehouse;
       postObj["key_remark"] = key_remark.trim();
       postObj["reference_number"] = reference_number.trim();
       postObj["items"] = [];
@@ -648,6 +655,9 @@ export default function AddLOI(props) {
   const handleCloseBackDrop = () => {
 
   };
+  const warehouseById = (id) => {
+    return warehouses.filter(warehouse => warehouse._id === id)[0]?.name;
+   }
 
   const handleWarehouseChange = (event) => {
     setCurrentWarehouse(event.target.value);
@@ -699,6 +709,20 @@ export default function AddLOI(props) {
     set_items(newItems);
   };
 
+  const deleteAction = (index) => {
+    set_indexTobeDeleted(index);
+    setShowConfirmationDialog(true);
+  };
+  const noConfirmationDialogAction = () => {
+    setShowConfirmationDialog(false);
+  };
+
+  const yesConfirmationDialogAction = () => {
+    let newItems = cloneDeep(items);
+    newItems.splice(indexTobeDeleted, 1);
+    set_items([...newItems]);
+    setShowConfirmationDialog(false);
+  };
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
@@ -722,6 +746,7 @@ export default function AddLOI(props) {
               value={currentProject === -1 ? "" : currentProject}
               onChange={handleProjectChange}
               label="Project *"
+
             >
               {projects && projects.map((row, index) => {
                 return (
@@ -737,13 +762,18 @@ export default function AddLOI(props) {
             <Select
               labelId="warehouse-select-label"
               id="warehouse-select-label"
+              multiple
               value={currentWarehouse === -1 ? "" : currentWarehouse}
               onChange={handleWarehouseChange}
               label="Warehouse *"
+              renderValue={(selected) => selected.map(w => warehouseById(w)).join(',')}
             >
               {warehouses && warehouses.map((row, index) => {
                 return (
-                  <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+                  <MenuItem key={"" + index} value={row._id}>
+                    <Checkbox checked={currentWarehouse.indexOf(row._id) > -1} />
+                    <ListItemText primary={row.name} />
+                  </MenuItem>
                 );
               })}
             </Select>
@@ -794,14 +824,18 @@ export default function AddLOI(props) {
                           </MuiPickersUtilsProvider>
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <TextField size="small" id={"formControl_rate_" + index} type="number" defaultValue={row.rate}
+                          <TextField size="small" id={"formControl_rate_" + index} type="number" value={row.rate}
                             variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={itemqty[index]}
+                          <TextField size="small" id={"formControl_qty_" + index} type="number" value={itemqty[index]}
                             variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                         </TableCell>
-
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <IconButton color="primary" aria-label="delete picture" component="span" onClick={() => { deleteAction(index) }}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -912,7 +946,7 @@ export default function AddLOI(props) {
         {/* </Paper> */}
       </div>
       { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={allItems} type={"Purchasable Items"} />}
-
+      {showConfirmationDialog && <ConfirmDelete noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={lstrings.DeleteItemConfirmationMessage} title={lstrings.DeletingItem} />}
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}

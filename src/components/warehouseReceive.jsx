@@ -1302,7 +1302,7 @@ export default function WarehouseReceive(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.canreceiveqty}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getReceivedQty(row)}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <TextField size="small" id={"formControl_qty_" + index} style={{width: '100px'}} type="number" defaultValue={row.qty}
+                            <TextField size="small" id={"formControl_qty_" + index} style={{width: '100px'}} type="number" value={row.qty}
                               variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                           </TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
