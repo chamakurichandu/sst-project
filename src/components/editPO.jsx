@@ -843,9 +843,10 @@ export default function EditPO(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + items[index].name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + getuomFor(items[index].uomId)}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <MuiPickersUtilsProvider utils={DateFnsUtils} >
+                          {/* <MuiPickersUtilsProvider utils={DateFnsUtils} >
                             <DatePicker size="small" label="Schedule Date" inputVariant="outlined" format="dd/MM/yyyy" value={items[index].scheduled_date} onChange={(newDate) => handleScheduleDateChange(newDate, index)} />
-                          </MuiPickersUtilsProvider>
+                          </MuiPickersUtilsProvider> */}
+                          <TextField size="small" label="Schedule Date" variant="outlined" format="dd/MM/yyyy" value={items[index].scheduled_date} onChange={(e) => handleScheduleDateChange(e.target.value, index)}/>
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <TextField size="small" id={"formControl_rate_" + index} type="number" value={items[index].rate}

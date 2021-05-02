@@ -211,7 +211,7 @@ export default function CreateLocalPurchase(props) {
   const [current_po_error, set_current_po_error] = React.useState(null);
 
   const [warehouses, setWarehouses] = React.useState([]);
-  const [currentWarehouse, setCurrentWarehouse] = React.useState([]);
+  const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
   const [current_warehouse_error, set_current_warehouse_error] = React.useState(null);
 
   const [poItems, setPOItems] = React.useState([]);
@@ -947,7 +947,7 @@ export default function CreateLocalPurchase(props) {
 
           {currentType === 1 && <TextField size="small" className={classes.inputFields} id="formControl_key_project" value={project ? (project.code + " - " + project.name) : ""}
             label="Project" variant="outlined" disabled />}
-          {currentType === 1 && <Button variant="contained" color="primary" onClick={() => setShowSelectProject(true)} >Select Project</Button>}
+          {currentType === 1 && <Button variant="contained" disabled={currentWarehouse === -1} color="primary" onClick={() => setShowSelectProject(true)} >Select Project</Button>}
           {currentType === 1 && project_error && <Alert className={classes.alert} severity="error"> {project_error} </Alert>}
 
           {(currentType === 0 || currentType === 1) && <TextField size="small" className={classes.inputFields} id="formControl_key_gate_entry_info" defaultValue={gate_entry_info}
