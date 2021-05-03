@@ -574,7 +574,8 @@ export default function AddLOI(props) {
       postObj["reference_number"] = reference_number.trim();
       postObj["items"] = [];
       for (let i = 0; i < items.length; ++i) {
-        postObj["items"].push({ item: items[i]._id, qty: parseInt(itemqty[i]), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduledDate.toUTCString() });
+        postObj["items"].push({ item: items[i]._id, qty: parseFloat(itemqty[i]), rate: parseFloat
+          (items[i].rate), scheduled_date: items[i].scheduledDate.toUTCString() });
       }
       postObj["scope_of_supply"] = scope_of_supply.trim();
       postObj["price_escalation"] = price_escalation.trim();
@@ -600,9 +601,8 @@ export default function AddLOI(props) {
       console.log("postObj: ", postObj);
 
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      console.log("3");
       const response = await axios.post(url, postObj);
-      console.log("4");
+      console.log(response);
       console.log("successfully Saved");
       setShowBackDrop(false);
       props.history.push("/loi");
@@ -744,7 +744,7 @@ export default function AddLOI(props) {
               value={currentProject === -1 ? "" : currentProject}
               onChange={handleProjectChange}
               label="Project *"
-
+              
             >
               {projects && projects.map((row, index) => {
                 return (

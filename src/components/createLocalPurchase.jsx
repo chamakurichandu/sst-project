@@ -1088,7 +1088,7 @@ export default function CreateLocalPurchase(props) {
 
       { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />}
 
-      { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects.filter(project => project.warehouse === warehouses[currentWarehouse]._id)} type={"Project"} />}
+      { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects.filter(project => project.warehouse.includes(warehouses[currentWarehouse]._id))} type={"Project"} />}
 
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">

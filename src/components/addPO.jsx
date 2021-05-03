@@ -667,7 +667,7 @@ export default function AddPO(props) {
       let postObj = {};
       postObj["supply_vendor"] = supplyVendors[currentSupplyVendor]._id;
       postObj["project"] = projects[currentProject]._id;
-      postObj["warehouse"] = Warehouses[currentWarehouse]._id;
+      postObj["warehouse"] = warehouses[currentWarehouse]._id;
       postObj["key_remark"] = key_remark.trim();
       postObj["reference_number"] = reference_number.trim();
       postObj["items"] = [];
@@ -675,7 +675,7 @@ export default function AddPO(props) {
       console.log("items: ", items);
       for (let i = 0; i < items.length; ++i) {
         console.log("item: ", items[i]);
-        postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseInt(items[i].rate), scheduled_date: items[i].scheduled_date.toUTCString() });
+        postObj["items"].push({ item: items[i]._id, qty: parseFloat(items[i].qty), rate: parseFloat(items[i].rate), scheduled_date: items[i].scheduled_date.toUTCString() });
       }
       console.log(3);
       postObj["scope_of_supply"] = scope_of_supply.trim();
