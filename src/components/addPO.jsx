@@ -864,7 +864,9 @@ export default function AddPO(props) {
               onChange={handleWarehouseChange}
               label="Warehouse *"
             >
-              {warehouses && warehouses.map((row, index) => {
+              {projects[currentProject] && projects[currentProject].warehouse.map(id => {
+                return warehouses.find(wh => wh._id === id)
+              }).map((row, index) => {
                 return (
                   <MenuItem key={index} value={index}>{row.name}</MenuItem>
                 );

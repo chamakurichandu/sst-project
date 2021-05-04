@@ -490,9 +490,11 @@ export default function AddMaterialIndent(props) {
                                     onChange={handleWarehouseChange}
                                     label="Warehouse *"
                                 >
-                                    {warehouses && warehouses.map((row, index) => {
+                                    {props.project && props.project.warehouse.map(id => {
+                                        return warehouses.find(wh => wh._id === id)
+                                    }).map((row, index) => {
                                         return (
-                                            <MenuItem key={"" + index} value={index}>{row.name}</MenuItem>
+                                            <MenuItem key={"" + index} value={index}>{row?.name}</MenuItem>
                                         );
                                     })}
                                 </Select>

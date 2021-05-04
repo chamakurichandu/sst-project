@@ -60,7 +60,7 @@ function stableSort(array, comparator) {
     return a[1] - b[1];
   });
   return stabilizedThis.map((el) => el[0]);
-}
+};
 
 function EnhancedTableHead(props) {
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
@@ -272,12 +272,12 @@ export default function Projects(props) {
   async function getList(numberOfRows, search = "") {
     try {
       console.log("page: ", page);
-      let url = config["baseurl"] + "/api/project/list?count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/project/list?count=" + 1000 + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
       let newRows = [];
-      setTotalCount(data.list.totalDocs);
+      setTotalCount(data.list.docs.length);
       const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.docs.length; ++i) {
         data.list.docs[i].startdate_conv = dateFns.date(data.list.docs[i].startdate);
@@ -374,9 +374,10 @@ export default function Projects(props) {
   };
 
   const handleChangePage = (event, newPage) => {
-    offset = newPage * rowsPerPage;
+    // offset = newPage * rowsPerPage;
     setPage(newPage);
-    getList(rowsPerPage);
+    console.log(page);
+    // getList(rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -384,7 +385,7 @@ export default function Projects(props) {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
     offset = 0;
-    getList(newRowsPerPage);
+    // getList(newRowsPerPage);
   };
 
   const handleEdit = (data) => {
