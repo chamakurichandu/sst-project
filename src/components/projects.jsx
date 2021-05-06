@@ -502,6 +502,7 @@ export default function Projects(props) {
 
                 <TableBody>
                   {stableSort(rows, getComparator(order, orderBy))
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row, index) => {
                       const isItemSelected = isSelected(row.name);
                       const labelId = `enhanced-table-checkbox-${index}`;
@@ -524,7 +525,7 @@ export default function Projects(props) {
             <TablePagination
               rowsPerPageOptions={pageLimits}
               component="div"
-              count={totalCount}
+              count={rows.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onChangePage={handleChangePage}

@@ -551,7 +551,7 @@ export default function AddLOI(props) {
     }
 
     for (let i = 0; i < itemqty.length; ++i) {
-      if (parseInt(itemqty[i]) === 0) {
+      if (parseInt(itemqty[i].qty) === 0) {
         setErrorMessage("item cannot be zero");
         setShowError(true);
         errorOccured = true;
@@ -569,12 +569,12 @@ export default function AddLOI(props) {
       let postObj = {};
       postObj["supply_vendor"] = supplyVendors[currentSupplyVendor]._id;
       postObj["project"] = projects[currentProject]._id;
-      postObj["warehouse"] = warehouses[currentWarehouse]._id;
+      postObj["warehouse"] = currentWarehouse;
       postObj["key_remark"] = key_remark.trim();
       postObj["reference_number"] = reference_number.trim();
       postObj["items"] = [];
       for (let i = 0; i < items.length; ++i) {
-        postObj["items"].push({ item: items[i]._id, qty: parseFloat(itemqty[i]), rate: parseFloat
+        postObj["items"].push({ item: items[i]._id, qty: parseFloat(itemqty[i].qty), rate: parseFloat
           (items[i].rate), scheduled_date: items[i].scheduledDate.toUTCString() });
       }
       postObj["scope_of_supply"] = scope_of_supply.trim();
@@ -608,7 +608,7 @@ export default function AddLOI(props) {
       props.history.push("/loi");
     }
     catch (e) {
-      console.log("5");
+      console.log("5", e);
       if (e.response) {
         console.log("Error in creating");
         setErrorMessage(e.response.data["message"]);
@@ -760,7 +760,7 @@ export default function AddLOI(props) {
             <Select
               labelId="warehouse-select-label"
               id="warehouse-select-label"
-              value={currentWarehouse === -1 ? "" : currentWarehouse}
+              value={currentWarehouse}
               onChange={handleWarehouseChange}
               label="Warehouse *"
             >
