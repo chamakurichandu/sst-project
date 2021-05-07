@@ -32,6 +32,7 @@ import {
   DateTimePicker,
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
+import Warehouses from './warehouses';
 
 const Joi = require('joi');
 
@@ -248,6 +249,7 @@ export default function EditAddProject(props) {
 
       let postObj = {};
       postObj["name"] = name.trim();
+      postObj["warehouse"] = currentWarehouse;
       postObj["customer"] = customers[currentCustomer]._id;
       postObj["remark"] = remarks.trim();
       postObj["startdate"] = startDate.toUTCString();

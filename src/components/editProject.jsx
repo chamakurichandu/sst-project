@@ -246,6 +246,7 @@ export default function EditProject(props) {
 
       let postObj = {};
       postObj["name"] = name.trim();
+      postObj["warehouse"] = currentWarehouse;
       postObj["customer"] = customers[currentCustomer]._id;
       postObj["remark"] = remarks.trim();
       postObj["startdate"] = startDate.toUTCString();
