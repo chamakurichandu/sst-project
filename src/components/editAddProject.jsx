@@ -4,9 +4,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import EnhancedTableToolbar from './enhancedToolbar';
+import Checkbox from '@material-ui/core/Checkbox';
 import axios from 'axios';
 import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
+import ListItemText from '@material-ui/core/ListItemText';
 import MuiAlert from '@material-ui/lab/Alert';
 import lstrings from '../lstrings.js';
 import Typography from '@material-ui/core/Typography';
@@ -14,8 +16,6 @@ import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import 'date-fns';
 import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemText from '@material-ui/core/ListItemText';
 import Chip from '@material-ui/core/Chip';
 import { v4 as uuidv4 } from 'uuid';
 import Backdrop from '@material-ui/core/Backdrop';
@@ -39,7 +39,7 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-export default function EditProject(props) {
+export default function EditAddProject(props) {
 
   const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
 
@@ -108,7 +108,6 @@ export default function EditProject(props) {
 
   const [currentWarehouse, setCurrentWarehouse] = React.useState(props.project.warehouse);
   const [warehouses, set_warehouses] = React.useState([]);
-
   const [customers, setCustomers] = React.useState(props.customers);
   const [customer_error, set_customer_error] = React.useState(null);
   const [currentCustomer, setCurrentCustomer] = React.useState(-1);
@@ -132,9 +131,9 @@ export default function EditProject(props) {
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
-
+      console.log(data.list.docs);
       setCustomers(data.list.docs);
-      setCurrentCustomer(getCustomerIndex(props.project.customer , data.list.docs));
+      setCurrentCustomer(getCustomerIndex(props.project.customer,data.list.docs));
       setShowBackDrop(false);
     }
     catch (e) {
@@ -151,18 +150,18 @@ export default function EditProject(props) {
 
   async function getWarehouseList() {
     try {
-      let url = config["baseurl"] + "/api/warehouse/list";
-      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-      const { data } = await axios.get(url);
-      let warehouseList = data.list;
-      set_warehouses(warehouseList);
+        let url = config["baseurl"] + "/api/warehouse/list";
+        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+        const { data } = await axios.get(url);
+        let warehouseList = data.list;
+        set_warehouses(warehouseList);
     }
     catch (e) {
-      console.log("Error in getting users list");
-      setErrorMessage("Error in getting users list");
-      setShowError(true);
+        console.log("Error in getting users list");
+        setErrorMessage("Error in getting users list");
+        setShowError(true);
     }
-  }
+}
 
   useEffect(() => {
     getCustomerList();
@@ -182,16 +181,18 @@ export default function EditProject(props) {
   };
 
   const handleBreadCrumProjectDetailsClick = () => {
-    props.history.push("/projectdetails");
+    props.history.push("/addproject");
   };
 
   const handleCancel = () => {
-    props.history.push("/projectdetails");
+    props.history.push("/projects");
+
   };
+
   const handleWarehouseChange = event => {
     console.log(event.target.value);
     setCurrentWarehouse(event.target.value);
-  }
+}
 
   const validateData = () => {
     const schema = Joi.object({
@@ -213,7 +214,8 @@ export default function EditProject(props) {
 
   const warehouseById = (id) => {
     return warehouses.filter(warehouse => warehouse._id === id)[0]?.name;
-  }
+}
+
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -265,7 +267,7 @@ export default function EditProject(props) {
       console.log("4");
       console.log("successfully Saved");
       setShowBackDrop(false);
-      props.history.push("/projectdetails");
+      props.history.push("/addproject");
     }
     catch (e) {
       console.log("5");
@@ -393,6 +395,7 @@ export default function EditProject(props) {
   };
 
   const getCustomerIndex = (customerId,data) => {
+    console.log(data);
     for (let i = 0; i < data.length; ++i) {
       if (data[i]._id === customerId)
         return i;
@@ -427,29 +430,29 @@ export default function EditProject(props) {
             {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
 
             {warehouses && <FormControl size="small" variant="outlined" className={classes.formControl}>
-              <InputLabel id="customer-select-label">Warehouse *</InputLabel>
-              <Select
-                labelId="warehouse-select-label"
-                id="warehouse-select-label"
-                multiple
-                value={currentWarehouse === -1 ? "" : currentWarehouse}
-                onChange={handleWarehouseChange}
-                label="Warehouse *"
-                renderValue={(selected) => selected.map(w => warehouseById(w)).join(',')}
-              >
-                {warehouses.map((row, index) => {
-                  return (
-                    <MenuItem key={"" + index} value={row._id}>
-                      <Checkbox checked={currentWarehouse.indexOf(row._id) > -1} />
-                      <ListItemText primary={row.name} />
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>}
+                            <InputLabel id="customer-select-label">Warehouse *</InputLabel>
+                            <Select
+                                labelId="warehouse-select-label"
+                                id="warehouse-select-label"
+                                multiple
+                                value={currentWarehouse === -1 ? "" : currentWarehouse}
+                                onChange={handleWarehouseChange}
+                                label="Warehouse *"
+                                renderValue={(selected) => selected.map(w => warehouseById(w)).join(',')}
+                            >
+                                {warehouses.map((row, index) => {
+                                    return (
+                                        <MenuItem key={"" + index} value={row._id}>
+                                            <Checkbox checked={currentWarehouse.indexOf(row._id) > -1} />
+                                            <ListItemText primary={row.name} />
+                                        </MenuItem>
+                                    );
+                                })}
+                            </Select>
+                        </FormControl>}
             {name_error && <Alert className={classes.alert} severity="error"> {name_error} </Alert>}
 
-            <FormControl size="small" variant="outlined" className={classes.formControl}>
+            {customers && <FormControl size="small" variant="outlined" className={classes.formControl}>
               <InputLabel id="customer-select-label">Customer *</InputLabel>
               <Select
                 labelId="customer-select-label"
@@ -464,7 +467,7 @@ export default function EditProject(props) {
                   );
                 })}
               </Select>
-            </FormControl>
+            </FormControl>}
             {customer_error && <Alert className={classes.alert} severity="error"> {customer_error} </Alert>}
 
             <TextField size="small" className={classes.inputFields} id="formControl_remarks" defaultValue={remarks}

@@ -67,6 +67,7 @@ import EditCustomer from './components/editCustomer';
 import ProjectUtils from './components/projectUtils';
 import AddProject from './components/addProject';
 import EditProject from './components/editProject';
+import EditAddProject from './components/editAddProject';
 import ProjectDetails from './components/projectDetails';
 import WarehouseHome from './components/warehouseHome';
 import Procurements from './components/procurements';
@@ -787,7 +788,8 @@ function App(props) {
                   {<Route exact path="/projects" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Projects refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedProject={setSelectedProject} setCustomers={setCustomers} setProject={setProject}  {...props} /> </div>} />}
                   {<Route exact path="/projects-utils" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProjectUtils refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
                   {<Route exact path="/addproject" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddProject refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
-                  {<Route exact path="/editproject" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditProject refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} customers={customers} {...props} /> </div>} />}
+                  {<Route exact path="/editproject" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditProject refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} customers={customers} selectedProject={selectedProject} {...props} /> </div>} />}
+                  {<Route exact path="/editprojects" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditAddProject setCustomers={setCustomers} refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} customers={customers} selectedProject={selectedProject} {...props} /> </div>} />}
                   {<Route exact path="/projectdetails" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProjectDetails refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} setProject={setProject} customers={customers} setSelectedProjectWork={setSelectedProjectWork} {...props} /> </div>} />}
                   {<Route exact path="/updateprojectwork" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <UpdateProjectWork refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} customers={customers} projectWork={selectedProjectWork} {...props} /> </div>} />}
 

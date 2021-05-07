@@ -27,7 +27,7 @@ import Link from '@material-ui/core/Link';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DateFnsUtils from '@date-io/date-fns';
-
+import EditImage from '@material-ui/icons/Edit';
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
@@ -74,7 +74,8 @@ function EnhancedTableHead(props) {
     { id: 'status', numeric: false, disablePadding: false, label: 'Status' },
     { id: 'startdate', numeric: false, disablePadding: false, label: 'Start Date' },
     { id: 'expectedenddate', numeric: false, disablePadding: false, label: 'Expected End Date' },
-    { id: 'remarks', numeric: false, disablePadding: false, label: 'Remarks' }
+    { id: 'remarks', numeric: false, disablePadding: false, label: 'Remarks' },
+    { id: 'action', numeric: false, disablePadding: false, label: 'Action' }
   ];
 
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -390,9 +391,8 @@ export default function Projects(props) {
 
   const handleEdit = (data) => {
     console.log("handleEdit: ", data);
-
-    props.setSelectedSupplyVendor(data);
-    props.history.push("/editproject");
+    props.setProject(data);
+    props.history.push("/editprojects");
   };
 
   const handleAdd = () => {
@@ -516,6 +516,7 @@ export default function Projects(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.startdate_conv.toDateString()}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.exp_enddate_conv.toDateString()}</span></TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{row.data.remark}</span></TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}><div><Button onClick={() => handleEdit(row.data)} color="primary" className={classes.button}><EditImage /></Button></div></TableCell>
                         </TableRow>
                       );
                     })}
