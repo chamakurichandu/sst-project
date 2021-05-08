@@ -353,7 +353,9 @@ export default function MaterialIndents(props) {
   };
 
   const gotoIndentDetails = (row) => {
-      console.log(row);
+    console.log(row);
+    props.setMaterialIndentsDetails(row);
+    props.history.push("/materialIndentsDetails");
   };
 
   const getWarehouseName = (id) => {

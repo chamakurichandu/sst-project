@@ -39,6 +39,10 @@ import SelectItem from './selectItem';
 import SelectProject from './selectProject';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {
   DatePicker,
   TimePicker,
@@ -173,6 +177,7 @@ export default function WarehouseReceive(props) {
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
   const [types, setTypes] = React.useState(["Projects", "Stock Transfer"]);
+  const [materials,setMaterials]=React.useState([props.dc.stocktransfer])
   const [currentType, setCurrentType] = React.useState(-1);
   const [current_type_error, set_current_type_error] = React.useState(null);
 
@@ -241,6 +246,14 @@ export default function WarehouseReceive(props) {
     }
   }
 
+  const getMaterialName = (id) => {
+    for (let i = 0; i < allItems.length; ++i) {
+      if (allItems[i]._id === id) {
+        return allItems[i].name;
+      }
+    }
+    return "Unknown";
+  };
   async function getPCList() {
     try {
       setShowBackDrop(true);
@@ -698,11 +711,39 @@ export default function WarehouseReceive(props) {
             </Select>
           </FormControl>
           {current_type_error && <Alert className={classes.alert} severity="error"> {current_type_error} </Alert>}
-
-          {currentType === 1 &&
-            <TextField size="small" className={classes.inputFields} id="formControl_stocktransfer" value={props.dc.stocktransfer.code}
+        {currentType === 1 && <TextField size="small" className={classes.inputFields} id="formControl_stocktransfer" value={props.dc.stocktransfer.code}
               label="Stock Transfer" variant="outlined" disabled />}
-
+              <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography className={classes.heading}>Materials Details</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <TableContainer component={Paper}>
+      <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          <TableRow >
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Material"} </TableCell>
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Qty"} </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+        {currentType === 1 && props.dc.stocktransfer.items && props.dc.stocktransfer.items.map((item,index)=>{
+          return (
+            <TableRow hover tabIndex={-1} key={"" + index} >
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getMaterialName(item.item)} </TableCell> 
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{item.qty} </TableCell> 
+            </TableRow>
+          )
+            })}      
+        </TableBody>
+      </Table>
+    </TableContainer>
+        </AccordionDetails>
+      </Accordion>
           {currentType === 0 &&
             <TextField size="small" className={classes.inputFields} id="formControl_indent" value={props.dc.indent.code}
               label="Material Indent" variant="outlined" disabled />}

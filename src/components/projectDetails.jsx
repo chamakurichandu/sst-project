@@ -296,7 +296,7 @@ function EnhancedTableHead(props) {
     { id: 'expectedenddate', numeric: false, disablePadding: false, label: 'Expected End Date' },
     { id: 'remarks', numeric: false, disablePadding: false, label: 'Remarks' },
     { id: 'documents', numeric: false, disablePadding: false, label: 'Documents' },
-    { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
+    // { id: 'actions', numeric: false, disablePadding: false, label: 'Actions' }
   ];
 
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -595,7 +595,27 @@ export default function ProjectDetails(props) {
   //     setShowError(true);
   //   }
   // }
-
+  async function getCustomerList() {
+    try {
+      let url = config["baseurl"] + "/api/customer/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+      setCustomers(data.list.docs);
+    }
+    catch (e) {
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
+  useEffect(() => {
+    getCustomerList();
+  }, []);
 
   const getDivisionList = async () => {
     console.log("getDivisionList called");
@@ -1131,9 +1151,9 @@ export default function ProjectDetails(props) {
   };
 
   const getCustomer = (customerId) => {
-    for (let i = 0; i < props.customers.length; ++i) {
-      if (props.customers[i]._id === customerId)
-        return props.customers[i].name;
+    for (let i = 0; i < customers.length; ++i) {
+      if (customers[i]._id === customerId)
+        return customers[i].name;
     }
     return customerId;
   };
@@ -1391,9 +1411,9 @@ export default function ProjectDetails(props) {
                           })}
                         </TableCell>
 
-                        {props.adminRole && <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                        {/* {props.adminRole && <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <div><Button onClick={() => handleProjectEdit()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
-                        </TableCell>}
+                        </TableCell>} */}
 
                       </TableRow>
                     </TableBody>

@@ -143,7 +143,7 @@ export default function ResponsiveDrawer(props) {
     const [accountsModes, setAccountsModes] = React.useState(["DC [eSugam Waiting]", "DC [All]"]);
     const [hrpayrollModes, setHrpayrollModes] = React.useState([]);
     const [analyticsModes, setAnalyticsModes] = React.useState([]);
-    const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Product Category", "UOM", "Materials", "Customers", "Project Utils", "Add Project", "Supply Vendors", "Service Vendors", "Vendor Rate Contracts & Agreement", "Warehouses", "Help"]);
+    const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Product Category", "UOM", "Materials", "Customers", "Project Utils", "Add Project","Projects", "Supply Vendors", "Service Vendors", "Vendor Rate Contracts & Agreement", "Warehouses", "Help"]);
     const [menu, setMenu] = React.useState([]);
 
     //React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Accounts", "HR & Payroll", "Analytics", "Admin Settings"]);
@@ -298,19 +298,22 @@ export default function ResponsiveDrawer(props) {
                 case 6:
                     history.push("/addproject");
                     break;
-                case 7:
+                    case 7:
+                        history.push("/projects");
+                        break;
+                case 8:
                     history.push("/supplyvendors");
                     break;
-                case 8:
+                case 9:
                     history.push("/servicevendors");
                     break;
-                case 9:
+                case 10:
                     history.push("/vendorratecontractsagreements");
                     break;
-                case 10:
+                case 11:
                     history.push("/warehouses");
                     break;
-                case 11:
+                case 12:
                     history.push("/help");
                     break;
             }

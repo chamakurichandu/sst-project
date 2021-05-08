@@ -269,7 +269,7 @@ export default function EditAddProject(props) {
       console.log("4");
       console.log("successfully Saved");
       setShowBackDrop(false);
-      props.history.push("/addproject");
+      props.history.push("/projects");
     }
     catch (e) {
       console.log("5");
