@@ -434,7 +434,10 @@ export default function DwaDocuments(props) {
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
             const response = await axios.get(url);
             console.log(response);
-            setRows(response.data.boq_items ? response.data.boq_items : []);
+            let oldData = response.data.boq_items?.map(item => {
+                return {...item, gst: item.gst.toFixed(2), totalCost: item.totalCost.toFixed(2)};
+            });
+            setRows(oldData ? oldData : []);
         }
         catch (e) {
             console.log(e);
@@ -584,7 +587,7 @@ export default function DwaDocuments(props) {
         // ( Unit Price + (GST Total * Unity Price /100) + Frieght & insurance + other)
         let totalUnitCost = parseFloat(newChange.unitPrice ? newChange.unitPrice : "0") + (parseFloat(gst ? gst : "0") * parseFloat(newChange.unitPrice ? newChange.unitPrice : "0") / 100) + parseFloat(newChange.frieght ? newChange.frieght : "0") + parseFloat(newChange.others ? newChange.others : "0");
         let totalCost = parseFloat(newChange.qty ? newChange.qty : "0") * parseFloat(totalUnitCost ? totalUnitCost : "0");
-        modifyingItem[i] = { ...newChange, gst, totalUnitCost, totalCost }
+        modifyingItem[i] = { ...newChange, gst: gst.toFixed(2), totalUnitCost: totalUnitCost.toFixed(2), totalCost: totalCost.toFixed(2) }
         setRows(modifyingItem);
         set_showSaveBtn(true);
     }

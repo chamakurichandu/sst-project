@@ -713,7 +713,21 @@ export default function WarehouseReceive(props) {
           {current_type_error && <Alert className={classes.alert} severity="error"> {current_type_error} </Alert>}
         {currentType === 1 && <TextField size="small" className={classes.inputFields} id="formControl_stocktransfer" value={props.dc.stocktransfer.code}
               label="Stock Transfer" variant="outlined" disabled />}
-              <Accordion>
+        {currentType === 1 && props.dc.stocktransfer.items && props.dc.stocktransfer.items.map((item,index)=>{
+          return (
+            <div key={index} >
+              <TextField style={{width:"100%"}} size="small" className={classes.inputFields} id="formControl_stocktransfer" value={getMaterialName(item.item)}
+              label="Material" variant="outlined" disabled />
+              <TextField style={{width:"100%"}} size="small" className={classes.inputFields} id="formControl_stocktransfer" value={item.qty}
+              label="Quantity" variant="outlined" disabled />
+            </div>
+            // <TableRow hover tabIndex={-1} key={"" + index} >
+            //  <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getMaterialName(item.item)} </TableCell> 
+            //  <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{item.qty} </TableCell> 
+            // </TableRow>
+          )
+            })}      
+              {/* <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -743,7 +757,7 @@ export default function WarehouseReceive(props) {
       </Table>
     </TableContainer>
         </AccordionDetails>
-      </Accordion>
+      </Accordion> */}
           {currentType === 0 &&
             <TextField size="small" className={classes.inputFields} id="formControl_indent" value={props.dc.indent.code}
               label="Material Indent" variant="outlined" disabled />}
