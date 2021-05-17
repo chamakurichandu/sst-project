@@ -101,9 +101,9 @@ function EnhancedTableHeadSmall2(props) {
         {headCells.map((headCell, index) => (
           <TableCell key={headCell.id} align={!setDir ? 'left' : 'right'} padding='none' sortDirection={false} >
             {headCell.label}
-            {index === 0 && <IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onClick}>
+            {/* {index === 0 && <IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onClick}>
               <AddImage />
-            </IconButton>}
+            </IconButton>} */}
           </TableCell>
         ))}
       </TableRow>

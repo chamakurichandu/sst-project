@@ -180,7 +180,7 @@ export default function MaterialIndentDetails(props) {
                     label="Project Name" variant="outlined" multiline />
                 <TextField size="small" className={classes.inputFields} disabled value={getWarehouseName(indent.warehouse)}
                     label="WH Name" variant="outlined" multiline />
-                    <TextField size="small" className={classes.inputFields} disabled defaultValue={((parseInt(project.status) === 1) ? "Released" : "Pending")}
+                    <TextField size="small" className={classes.inputFields} disabled defaultValue={((parseInt(indent.dispatched) === 1) ? "Released" : "Pending")}
                     label="Status" variant="outlined" multiline />
                 <TextField size="small" className={classes.inputFields} disabled defaultValue={indent.code}
                     label="Code" variant="outlined" multiline />

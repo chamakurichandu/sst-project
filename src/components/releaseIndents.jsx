@@ -331,6 +331,7 @@ export default function ReleaseIndents(props) {
   }
 
   useEffect(()=>{
+    if(props.warehouse)
       getWarehouseList()
   },[])
   const handleClose = (event, reason) => {

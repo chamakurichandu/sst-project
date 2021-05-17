@@ -248,7 +248,7 @@ export default function ReturnIndent(props) {
   async function getMaterialIndentList(numberOfRows, search = "") {
     try {
       setShowBackDrop(true);
-      let url = config["baseurl"] + "/api/materialindent/list?project=" + props.project._id + "&showall=1&count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/returnindent/list?project=" + props.project._id + "&showall=1&count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log(data);
@@ -298,7 +298,7 @@ export default function ReturnIndent(props) {
   }
 
   useEffect(() => {
-
+    if(props.project)
     getWarehouseList();
 
   }, [props.project]);

@@ -392,6 +392,7 @@ export default function WarehouseCreateStockTransfer(props) {
 
 
   useEffect(() => {
+    console.log(props.warehouse)
     if (props.warehouse)
       getAllItemList();
   }, [props.warehouse]);
@@ -867,7 +868,7 @@ export default function WarehouseCreateStockTransfer(props) {
                 onChange={handleWarehouseChange}
                 label="Warehouse *"
               >
-                {warehouses && warehouses.map((row, index) => {
+                {warehouses && warehouses.filter(warehouse=>warehouse._id !== props.warehouse._id).map((row, index) => {
                   return (
                     <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
                   );

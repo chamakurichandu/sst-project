@@ -298,7 +298,7 @@ export default function MaterialIndents(props) {
   }
 
   useEffect(() => {
-
+if(props.project)
     getWarehouseList();
 
   }, [props.project]);

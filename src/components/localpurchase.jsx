@@ -291,7 +291,7 @@ export default function LocalPurchase(props) {
       const { data } = await axios.get(url);
       console.log(data);
       let newRows = [];
-      setTotalCount(data.count);
+      setTotalCount(data.totalDocs);
       const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.length; ++i) {
         data.list[i].createddate_conv = dateFns.date(data.list[i].transaction.createdDate);
