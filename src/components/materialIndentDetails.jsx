@@ -7,6 +7,12 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import axios from 'axios';
 import config from "../config.json";
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 
 export default function MaterialIndentDetails(props) {
 
@@ -137,6 +143,7 @@ export default function MaterialIndentDetails(props) {
     const [showBackDrop, setShowBackDrop] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState(null);
     const [showError, setShowError] = React.useState(false);
+    const [allItems, set_allItems] = React.useState([]);
     const { indent, project, createdDate_conv } = props.materialIndentsDetails;
     const classes = useStyles();
     async function getWarehouseList() {
@@ -164,10 +171,40 @@ export default function MaterialIndentDetails(props) {
         getWarehouseList();
     
       }, [props.project]);
+
+      async function getAllItemList() {
+        try {
+          setShowBackDrop(true);
+          let url = config["baseurl"] + "/api/material/list?count=" + 10000 + "&offset=" + 0 + "&search=";
+          axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+          const { data } = await axios.get(url);
+          console.log(data);
+    
+          set_allItems(data.list.docs);
+          setShowBackDrop(false);
+        }
+        catch (e) {
+          setShowBackDrop(false);
+          console.log("Error in getting all items");
+          setErrorMessage("Error in getting all items");
+          setShowError(true);
+        }
+      }
+      useEffect(()=>{
+        getAllItemList();
+      },[])
     const getWarehouseName = (id) => {
         for (let i = 0; i < warehouses.length; ++i) {
           if (warehouses[i]._id === id) {
             return warehouses[i].name;
+          }
+        }
+        return "Unknown";
+      };
+      const getMaterialName = (id) => {
+        for (let i = 0; i < allItems.length; ++i) {
+          if (allItems[i]._id === id) {
+            return allItems[i].name;
           }
         }
         return "Unknown";
@@ -184,6 +221,28 @@ export default function MaterialIndentDetails(props) {
                     label="Status" variant="outlined" multiline />
                 <TextField size="small" className={classes.inputFields} disabled defaultValue={indent.code}
                     label="Code" variant="outlined" multiline />
+                {/* <TextField size="small" className={classes.inputFields} disabled defaultValue={indent.materials.map(item=>item.item)}
+                    label="Code" variant="outlined" multiline /> */}
+                    <TableContainer component={Paper}>
+      <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          <TableRow >
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Material"} </TableCell>
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Qty"} </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+        {indent.materials.map((item,index)=>{
+          return (
+            <TableRow hover tabIndex={-1} key={"" + index} >
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'} disabled>{getMaterialName(item.item)} </TableCell> 
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{item.qty} </TableCell> 
+            </TableRow>
+          )
+            })}      
+        </TableBody>
+      </Table>
+    </TableContainer>
                     <TextField size="small" className={classes.inputFields} disabled defaultValue={project.remark}
                     label="Remarks " variant="outlined" multiline />
                 <TextField size="small" className={classes.inputFields} disabled defaultValue={createdDate_conv}

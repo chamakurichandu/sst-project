@@ -412,35 +412,7 @@ export default function AddMaterialIndent(props) {
     }
 
     useEffect(() => {
-        // let newItems = [];
-        // const surveyMats = props.workData.work.survey_materials;
-        // for (let i = 0; i < surveyMats.length; ++i) {
-        //     for (let k = 0; k < props.allItems.length; ++k) {
-        //         if (surveyMats[i].item === props.allItems[k]._id) {
-        //             let newCopy = cloneDeep(props.allItems[k]);
-        //             newCopy.qty = surveyMats[i].qty;
-        //             newCopy.qtyOrdered = 0;
-        //             newCopy.qtyToOrder = 0;
-        //             newItems.push(newCopy);
-        //             break;
-        //         }
-        //     }
-        // }
-
-        // console.log("props.materialIndents: ", props.materialIndents);
-        // for (let i = 0; i < props.materialIndents.length; ++i) {
-        //     const mats = props.materialIndents[i].indent.materials;
-        //     for (let k = 0; k < mats.length; ++k) {
-        //         for (let m = 0; m < newItems.length; ++m) {
-        //             if (mats[k].item === newItems[m]._id) {
-        //                 newItems[m].qtyOrdered += mats[k].qty;
-        //             }
-        //         }
-        //     }
-        // }
-
-        // set_items(newItems);
-
+      
         getWarehouseList();
     }, []);
 

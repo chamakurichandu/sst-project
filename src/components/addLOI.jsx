@@ -203,9 +203,9 @@ export default function AddLOI(props) {
   const [extra1, set_extra1] = React.useState('');
   const [extra2, set_extra2] = React.useState('');
   const [extra3, set_extra3] = React.useState('');
-  const [dispatch_instruction, set_dispatch_instruction] = React.useState('dummy data');
-  const [compliance, set_compliance] = React.useState('dammy data');
-  const [guarantee, set_guarantee] = React.useState('dummy data');
+  const [dispatch_instruction, set_dispatch_instruction] = React.useState('');
+  const [compliance, set_compliance] = React.useState('');
+  const [guarantee, set_guarantee] = React.useState('');
 
   const [items, set_items] = React.useState([]);
   const [items_error, set_items_error] = React.useState(null);

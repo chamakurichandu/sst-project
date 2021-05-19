@@ -235,8 +235,8 @@ export default function ReturnIndent(props) {
   const [errorMessage, setErrorMessage] = React.useState(null);
   const [indents, setIndents] = React.useState([]);
   const [showSaved, setShowSaved] = React.useState(false);
-  const [showAddMaterialIndent, setShowAddMaterialIndent] = React.useState(false);
-  const [materialIndents, setMaterialIndents] = React.useState([]);
+  const [showAddReturnIndent, setShowAddReturnIndent] = React.useState(false);
+  const [returnIndents, setReturnIndents] = React.useState([]);
   const [warehouses, setWarehouses] = React.useState([]);
   const [showBackDrop, setShowBackDrop] = React.useState(false);
   const [totalCount, setTotalCount] = React.useState(0);
@@ -245,7 +245,7 @@ export default function ReturnIndent(props) {
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
-  async function getMaterialIndentList(numberOfRows, search = "") {
+  async function getReturnIndentList(numberOfRows, search = "") {
     try {
       setShowBackDrop(true);
       let url = config["baseurl"] + "/api/returnindent/list?project=" + props.project._id + "&showall=1&count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
@@ -261,7 +261,7 @@ export default function ReturnIndent(props) {
       }
 
       setTotalCount(data.totalDocs);
-      setMaterialIndents(newRows);
+      setReturnIndents(newRows);
 
       setShowBackDrop(false);
     }
@@ -287,7 +287,7 @@ export default function ReturnIndent(props) {
 
       setShowBackDrop(false);
 
-      getMaterialIndentList(rowsPerPage);
+      getReturnIndentList(rowsPerPage);
     }
     catch (e) {
       console.log("Error in getting users list");
@@ -324,12 +324,15 @@ export default function ReturnIndent(props) {
   };
 
   const handleAddMaterialIndent = () => {
-    setShowAddMaterialIndent(true);
+    setShowAddReturnIndent(true);
+  };
+  const handleAdd = () => {
+    props.history.push("/addreturnindent");
   };
 
   const closeAddMaterialIndentDialog = () => {
-    setShowAddMaterialIndent(false);
-    getMaterialIndentList(rowsPerPage);
+    setShowAddReturnIndent(false);
+    getReturnIndentList(rowsPerPage);
   };
 
   const handleRequestSort = (event, property) => {
@@ -341,7 +344,7 @@ export default function ReturnIndent(props) {
   const handleChangePage = (event, newPage) => {
     offset = newPage * rowsPerPage;
     setPage(newPage);
-    getMaterialIndentList(rowsPerPage);
+    getReturnIndentList(rowsPerPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -349,7 +352,7 @@ export default function ReturnIndent(props) {
     setRowsPerPage(newRowsPerPage);
     setPage(0);
     offset = 0;
-    getMaterialIndentList(newRowsPerPage);
+    getReturnIndentList(newRowsPerPage);
   };
 
   const gotoIndentDetails = (row) => {
@@ -378,9 +381,9 @@ export default function ReturnIndent(props) {
               <h1 className={classes.h1}>{totalCount}</h1>
               <span>{"Return Indent"}</span>
             </Grid>
-            {/* <Grid item className={classes.addButton}>
-              <Button onClick={() => handleAddMaterialIndent()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Material Indent"}</Button>
-            </Grid> */}
+            <Grid item className={classes.addButton}>
+              <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Create Indent"}</Button>
+            </Grid>
           </Grid>
         </Paper>
 
@@ -398,11 +401,11 @@ export default function ReturnIndent(props) {
                 order={order}
                 orderBy={orderBy}
                 onRequestSort={handleRequestSort}
-                rowCount={materialIndents.length}
+                rowCount={returnIndents.length}
               />
 
               <TableBody size="small">
-                {materialIndents.map((row, index) => {
+                {returnIndents.map((row, index) => {
                   return (
                     <TableRow hover tabIndex={-1} key={"" + index} size="small" >
                       <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + ((page * rowsPerPage) + index + 1)}</TableCell>

@@ -203,9 +203,9 @@ export default function AddPO(props) {
   const [extra1, set_extra1] = React.useState('');
   const [extra2, set_extra2] = React.useState('');
   const [extra3, set_extra3] = React.useState('');
-  const [dispatch_instruction, set_dispatch_instruction] = React.useState('dummy data');
-  const [compliance, set_compliance] = React.useState('dammy data');
-  const [guarantee, set_guarantee] = React.useState('dummy data');
+  const [dispatch_instruction, set_dispatch_instruction] = React.useState('');
+  const [compliance, set_compliance] = React.useState('');
+  const [guarantee, set_guarantee] = React.useState('');
   const [guarantee_error, set_guarantee_error] = React.useState(null);
   const [compliance_error, set_compliance_error] = React.useState(null);
   const [dispatch_instruction_error, set_dispatch_instruction_error] = React.useState(null);
@@ -224,7 +224,8 @@ export default function AddPO(props) {
   const [currentSupplyVendor_error, setCurrentSupplyVendor_error] = React.useState(null);
 
   const [currentProject, setCurrentProject] = React.useState(-1);
-  const [currentWarehouse, setCurrentWarehouse] = React.useState([]);
+  const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
+  const [currentWarehouses, setCurrentWarehouses] = React.useState([]);
 
   const [projects, setProjects] = React.useState([]);
   const [warehouses, setWarehouses] = React.useState([]);
@@ -449,6 +450,18 @@ export default function AddPO(props) {
     checkForLOI();
   }, []);
 
+  useEffect(() => {
+    let ocurrentWarehouses = projects?.[currentProject]?.warehouse?.map(id => {
+      return warehouses?.find(wh => wh._id === id)
+    });
+    if(ocurrentWarehouses) {
+      setCurrentWarehouses(ocurrentWarehouses);
+    } else {
+      setCurrentWarehouses([]);
+    }
+    
+  }, [currentProject])
+
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -667,7 +680,7 @@ export default function AddPO(props) {
       let postObj = {};
       postObj["supply_vendor"] = supplyVendors[currentSupplyVendor]._id;
       postObj["project"] = projects[currentProject]._id;
-      postObj["warehouse"] = warehouses[currentWarehouse]._id;
+      postObj["warehouse"] = currentWarehouses[currentWarehouse]._id;
       postObj["key_remark"] = key_remark.trim();
       postObj["reference_number"] = reference_number.trim();
       postObj["items"] = [];
@@ -855,24 +868,22 @@ export default function AddPO(props) {
           </FormControl>
           {projects_error && <Alert className={classes.alert} severity="error"> {projects_error} </Alert>}
 
-          <FormControl size="small" variant="outlined" className={classes.formControl}>
+          {warehouses && <FormControl size="small" variant="outlined" className={classes.formControl}>
             <InputLabel id="warehouse-select-label">Warehouse *</InputLabel>
             <Select
               labelId="warehouse-select-label"
-              id="warehouse-select-label"
+              id="warehouses-select-label"
               value={currentWarehouse === -1 ? "" : currentWarehouse}
               onChange={handleWarehouseChange}
               label="Warehouse *"
             >
-              {projects[currentProject] && projects[currentProject].warehouse.map(id => {
-                return warehouses.find(wh => wh._id === id)
-              }).map((row, index) => {
+              {projects[currentProject] && currentWarehouses.map((row, index) => {
                 return (
                   <MenuItem key={index} value={index}>{row.name}</MenuItem>
                 );
               })}
             </Select>
-          </FormControl>
+          </FormControl>}
           {warehouses_error && <Alert className={classes.alert} severity="error"> {warehouses_error} </Alert>}
 
           <FormControl size="small" variant="outlined" className={classes.formControl}>

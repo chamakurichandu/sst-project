@@ -182,6 +182,7 @@ export default function WarehouseReceive(props) {
   const [reference_number_error, set_reference_number_error] = React.useState(null);
 
   const [items, set_items] = React.useState([]);
+  const [materials,setMaterials]=React.useState([]);
   const [items_error, set_items_error] = React.useState(null);
 
   const [allItems, set_allItems] = React.useState([]);
@@ -213,6 +214,8 @@ export default function WarehouseReceive(props) {
   const [current_po_error, set_current_po_error] = React.useState(null);
 
   const [localPurchases, setLocalPurchases] = React.useState(null);
+  const [returnIndents,setReturnIndents]=React.useState(null);
+  const [currentRI,setCurrentRI]=React.useState(-1);
   const [currentLP, setCurrentLP] = React.useState(-1);
   const [current_lp_error, set_current_lp_error] = React.useState(null);
 
@@ -303,10 +306,11 @@ export default function WarehouseReceive(props) {
       setSupplyVendors(data.list.docs);
       setShowBackDrop(false);
 
-      getAllItemList(10000);
+      getAllItemList();
     }
     catch (e) {
       setShowBackDrop(false);
+      console.log('supply vendors')
       if (e.response) {
         setErrorMessage(e.response.data.message);
       }
@@ -416,7 +420,7 @@ export default function WarehouseReceive(props) {
       setShowBackDrop(false);
     }
     catch (e) {
-
+console.log('received material')
       if (e.response) {
         setErrorMessage(e.response.data.message);
       }
@@ -427,6 +431,7 @@ export default function WarehouseReceive(props) {
       setShowBackDrop(false);
     }
   }
+  
 
   async function getLocalPurchaseList() {
     try {
@@ -442,7 +447,7 @@ export default function WarehouseReceive(props) {
       setLocalPurchases(data.list);
     }
     catch (e) {
-
+console.log('local purchase')
       if (e.response) {
         setErrorMessage(e.response.data.message);
       }
@@ -452,10 +457,37 @@ export default function WarehouseReceive(props) {
       setShowError(true);
     }
   }
+  let offset = 0;
 
+  async function getReturnIndentList(numberOfRows = 10000, search="") {
+    try {
+      let url = config["baseurl"] + "/api/returnindent/list?warehouse=" + props.warehouse._id + "&showall=1&count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log('Return indents list ===>>> ', data);
+      
+      const dateFns = new DateFnsUtils();
+      for (let i = 0; i < data.list.length; ++i) {
+        data.list[i].createddate_conv = dateFns.date(data.list[i].indent.createdDate);
+      }
+      setReturnIndents(data.list);
+    }
+    catch (e) {
+console.log('return indent list')
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
   useEffect(() => {
     if (props.warehouse)
+    getReturnIndentList()
       getSupplyVendorList();
+      
   }, [props.warehouse]);
 
   const handleClose = (event, reason) => {
@@ -508,6 +540,7 @@ export default function WarehouseReceive(props) {
         handleSaveWarehouseReceiveFromPO();
         break;
       case 1:
+        handleSaveWarehouseReceiveFromRI();
         break;
       case 2:
         handleSaveWarehouseReceiveFromLP();
@@ -534,6 +567,21 @@ export default function WarehouseReceive(props) {
     return "";
   };
 
+  const handleSaveWarehouseReceiveFromRI = async () => {
+    try {
+      let url = config["baseurl"] + "/api/returnindent/complete";
+      let postObj = {};
+      postObj["id"] = returnIndents[currentRI].indent._id;
+      // console.log(returnIndents[currentRI]);
+      // debugger;
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const response = await axios.post(url, postObj);
+      console.log(response);
+    }
+    catch(err) {
+      console.log(err);
+    }
+  }
 
   const handleSaveWarehouseReceiveFromLP = async () => {
     set_current_type_error(null)
@@ -547,7 +595,7 @@ export default function WarehouseReceive(props) {
     const errors = validateData();
 
     let errorOccured = false;
-    if (currentType === -1) {
+    if (currentType === -1 && setCurrentRI===-1) {
 
       set_current_type_error("Type Required");
       errorOccured = true;
@@ -892,7 +940,19 @@ export default function WarehouseReceive(props) {
         break;
     }
   };
-
+  const handleRIChange = (event) => {
+    setCurrentRI(event.target.value);
+    let RIMaterials = returnIndents[event.target.value].indent.materials;
+    let newItems = [];
+    console.log(allItems);
+    for (let k = 0; k < RIMaterials.length; ++k) {
+      let itemInfo = allItems.find(item => item._id === RIMaterials[k].item);
+      if(itemInfo) {
+        newItems.push({name: itemInfo.name, description: itemInfo.description, uomId: itemInfo.uomId, qty: RIMaterials[k].qty})
+      }
+    }
+    setMaterials(newItems);
+  }
   const handleLPChange = (event) => {
     setCurrentLP(event.target.value);
 
@@ -1198,6 +1258,22 @@ export default function WarehouseReceive(props) {
               label="Project" variant="outlined" disabled />}
             {currentType === 1 && <Button variant="contained" color="primary" onClick={() => setShowSelectProject(true)} >Select Project</Button>}
             {currentType === 1 && project_error && <Alert className={classes.alert} severity="error"> {project_error} </Alert>} */}
+            {currentType == 1 && <FormControl size="small" variant="outlined" className={classes.formControl}>
+              <InputLabel id="po-select-label">Return Indents *</InputLabel>
+              <Select
+                labelId="RI-select-label"
+                id="pRI-select-label"
+                value={currentRI === -1 ? "" : currentRI}
+                onChange={handleRIChange}
+                label="Return Indent *"
+              >
+                {returnIndents && returnIndents.map((row, index) => {
+                  return (
+                    <MenuItem key={"" + index} value={index}>{"" + row.indent.code}</MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>}
 
             {currentType == 2 && <FormControl size="small" variant="outlined" className={classes.formControl}>
               <InputLabel id="po-select-label">Local Purchase Indent *</InputLabel>
@@ -1308,6 +1384,24 @@ export default function WarehouseReceive(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                             <Button variant="contained" onClick={() => {deleteAction(index)}}>Remove</Button>
                           </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              }
+              {currentType == 1 && <TableContainer className={classes.container}>
+                <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
+                  <EnhancedTableHeadSmall2 title="Name" onClick={addItem} />
+                  <TableBody>
+                    {materials.map((row, index) => {
+                      return (
+                        <TableRow hover tabIndex={-1} key={"" + index} >
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.description}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.qty}</TableCell>
                         </TableRow>
                       );
                     })}

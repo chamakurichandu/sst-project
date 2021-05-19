@@ -713,7 +713,27 @@ export default function WarehouseReceive(props) {
           {current_type_error && <Alert className={classes.alert} severity="error"> {current_type_error} </Alert>}
         {currentType === 1 && <TextField size="small" className={classes.inputFields} id="formControl_stocktransfer" value={props.dc.stocktransfer.code}
               label="Stock Transfer" variant="outlined" disabled />}
+      <TableContainer component={Paper}>
+      <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          <TableRow >
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Material"} </TableCell>
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Qty"} </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
         {currentType === 1 && props.dc.stocktransfer.items && props.dc.stocktransfer.items.map((item,index)=>{
+          return (
+            <TableRow hover tabIndex={-1} key={"" + index} >
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'} disabled>{getMaterialName(item.item)} </TableCell> 
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{item.qty} </TableCell> 
+            </TableRow>
+          )
+            })}      
+        </TableBody>
+      </Table>
+    </TableContainer>        
+        {/* {currentType === 1 && props.dc.stocktransfer.items && props.dc.stocktransfer.items.map((item,index)=>{
           return (
             <div key={index} >
               <TextField style={{width:"100%"}} size="small" className={classes.inputFields} id="formControl_stocktransfer" value={getMaterialName(item.item)}
@@ -726,7 +746,7 @@ export default function WarehouseReceive(props) {
             //  <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{item.qty} </TableCell> 
             // </TableRow>
           )
-            })}      
+            })}       */}
               {/* <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -736,7 +756,7 @@ export default function WarehouseReceive(props) {
           <Typography className={classes.heading}>Materials Details</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <TableContainer component={Paper}>
+      <TableContainer component={Paper}>
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
           <TableRow >

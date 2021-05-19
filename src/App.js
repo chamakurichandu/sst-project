@@ -99,6 +99,7 @@ import DwaDocuments from "./components/dwaDocuments";
 import ReturnIndent from "./components/returnIndent";
 import LPDetails from "./components/lpDetails";
 import MaterialIndentsDetails from "./components/materialIndentDetails";
+import AddReturnIndent from "./components/addReturnIndent";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -788,6 +789,7 @@ function App(props) {
                   {<Route exact path="/materialindents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <MaterialIndents refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} warehouses={warehouses} {...props} setMaterialIndentsDetails={setMaterialIndentsDetails} /> </div>} />}
                   {<Route exact path="/materialIndentsDetails" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <MaterialIndentsDetails refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} warehouses={warehouses} materialIndentsDetails={materialIndentsDetails} {...props}  /> </div>} />}
                   {<Route exact path="/returnindents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ReturnIndent refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} {...props} /> </div>} />}
+                  {<Route exact path="/addreturnindent" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddReturnIndent refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} projectWork={selectedProjectWork} {...props} /> </div>} />}
                   {<Route exact path="/projects" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Projects refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedProject={setSelectedProject} setCustomers={setCustomers} setProject={setProject}  {...props} /> </div>} />}
                   {<Route exact path="/projects-utils" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProjectUtils refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
                   {<Route exact path="/addproject" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddProject refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole}  {...props} /> </div>} />}
