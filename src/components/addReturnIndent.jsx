@@ -51,6 +51,7 @@ const Joi = require('joi');
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
+
 function EnhancedTableHeadSmall(props) {
     const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
     const setDir = (dir === 'rtl' ? true : false);
@@ -59,9 +60,7 @@ function EnhancedTableHeadSmall(props) {
       { id: 'name', numeric: false, disablePadding: false, label: props.title },
       { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
       { id: 'schedule_date', numeric: true, disablePadding: false, label: "Scheduled Date" },
-    //   { id: 'rate', numeric: true, disablePadding: false, label: "Rate (Rs)" },
-      { id: 'qty', numeric: true, disablePadding: false, label: "Qty" },
-      { id: 'remove_item', numeric: false, disablePadding: false, label: "Remove Item" }
+      { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
     ];
   
     return (
@@ -79,7 +78,6 @@ function EnhancedTableHeadSmall(props) {
       </TableHead>
     );
   }
-
 export default function AddReturnIndent(props) {
 
     const dir = document.getElementsByTagName('html')[0].getAttribute('dir');
@@ -145,8 +143,6 @@ export default function AddReturnIndent(props) {
     const [errorMessage, setErrorMessage] = React.useState(null);
 
     const [name, set_name] = React.useState('');
-    const [name_error, set_name_error] = React.useState(null);
-
     const [warehouses, setWarehouses] = React.useState([]);
     const [currentWarehouse, setCurrentWarehouse] = React.useState([]);
     const [warehouse_error, set_warehouse_error] = React.useState(null);
@@ -156,25 +152,16 @@ export default function AddReturnIndent(props) {
     const [currentCustomer, setCurrentCustomer] = React.useState(-1);
 
     const [remarks, set_remarks] = React.useState('');
-    const [remarks_error, set_remarks_error] = React.useState(null);
-
-    const [startDate, handleStartDateChange] = useState(new Date());
-    const [expEndDate, handleExpEndDateChange] = useState(new Date());
-
     const [files, set_files] = React.useState([]);
 
     const [contactingServer, setContactingServer] = React.useState(false);
     const [uoms, set_uoms] = React.useState([]);
-    const [indexTobeDeleted, set_indexTobeDeleted] = React.useState(null);
-    const [showConfirmationDialog, setShowConfirmationDialog] = React.useState(false);
     const [allItems, set_allItems] = React.useState([]);
-
+    const [showSelectItem, setShowSelectItem] = React.useState(false);
+    const [items_error, set_items_error] = React.useState(null);
 
     const [showBackDrop, setShowBackDrop] = React.useState(false);
-    const [showSelectItem, setShowSelectItem] = React.useState(false);
     const [items, set_items] = React.useState([]);
-    const [items_error, set_items_error] = React.useState(null);
-    const [projects, setProjects] = React.useState([]);
     async function getList() {
         try {
             let url = config["baseurl"] + "/api/warehouse/list";
@@ -205,8 +192,6 @@ export default function AddReturnIndent(props) {
     
           set_allItems(data.list.docs);
           setShowBackDrop(false);
-    
-        //   getPCList();
         }
         catch (e) {
           setShowBackDrop(false);
@@ -223,10 +208,7 @@ export default function AddReturnIndent(props) {
           axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
           const { data } = await axios.get(url);
           set_uoms(data.list);
-    
           setShowBackDrop(false);
-    
-          getProjectList();
         }
         catch (e) {
           console.log("Error in getting UOMs list");
@@ -239,77 +221,20 @@ export default function AddReturnIndent(props) {
         getAllItemList();
         getUOMList();
     }, []);
-      async function getProjectList() {
-        try {
-          setShowBackDrop(true);
-          let url = config["baseurl"] + "/api/project/list?count=" + 1000 + "&offset=" + 0 + "&search=" + "";
-          axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-          const { data } = await axios.get(url);
-          console.log(data);
-          setProjects(data.list.docs);
-          setShowBackDrop(false);    
-        //   getWarehouseList();
-        }
-        catch (e) {
-          setShowBackDrop(false);
-          console.log("getProjectList e: ", e);
-          if (e.response) {
-            setErrorMessage(e.response.data.message);
-          }
-          else {
-            setErrorMessage("Error in getting list");
-          }
-          setShowError(true);
-        }
-      }
-      const handleScheduleDateChange = (value, index) => {
-        let newItems = [...items];
-        newItems[index].scheduled_date = value;
-        set_items(newItems);
-      };
-      const set_item_rate_for = (value, index) => {
-        let newItems = [...items];
-        newItems[index].rate = value;
-        set_items(newItems);
-      };
-      const set_item_qty_for = (value, index) => {
+     
+    const set_item_qty_for = (value, index) => {
         console.log(value + "--" + index);
         let newItems = [...items];
         newItems[index].qty = value;
         set_items(newItems);
       };
-      const deleteAction = (index) => {
-        set_indexTobeDeleted(index);
-        setShowConfirmationDialog(true);
-      };
-      const noConfirmationDialogAction = () => {
-        setShowConfirmationDialog(false);
-      };
     
-      const yesConfirmationDialogAction = () => {
-        console.log(indexTobeDeleted);
-        let newItems = cloneDeep(items); console.log(newItems[indexTobeDeleted]);
-        newItems.splice(indexTobeDeleted, 1);
-        set_items([...newItems]);
-        setShowConfirmationDialog(false);
-      };
-    const addItem = () => {
-        setShowSelectItem(true);
-      };
-      const closeSelectItemDialogAction = () => {
-        setShowSelectItem(false);
-      };
-      const onSelectItem = (newitem) => {
-        setShowSelectItem(false);
-    
-        let newCopy = cloneDeep(newitem);
-        newCopy.scheduled_date = new Date();
-        newCopy.rate = 0;
-        newCopy.qty = 0;
-    
-        let newItems = [...items, newCopy];
+      const set_item_rate_for = (value, index) => {
+        let newItems = [...items];
+        newItems[index].rate = value;
         set_items(newItems);
       };
+    
       const getuomFor = (value) => {
         for (let i = 0; i < uoms.length; ++i) {
           if (value === uoms[i]._id)
@@ -317,6 +242,11 @@ export default function AddReturnIndent(props) {
         }
         return value;
       }
+      const handleScheduleDateChange = (value, index) => {
+        let newItems = [...items];
+        newItems[index].scheduled_date = value;
+        set_items(newItems);
+      };
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -324,10 +254,6 @@ export default function AddReturnIndent(props) {
 
         setShowError(false);
     };
-
-    // const handleBreadCrumClick = () => {
-    //     // props.history.push("/projects");
-    // };
 
     const handleCancel = () => {
         props.history.push("/returnindents");
@@ -351,6 +277,26 @@ export default function AddReturnIndent(props) {
         return allerrors;
     }
 
+    const addItem = () => {
+        setShowSelectItem(true);
+      };
+    
+      const closeSelectItemDialogAction = () => {
+        setShowSelectItem(false);
+      };
+    
+      const onSelectItem = (newitem) => {
+        setShowSelectItem(false);
+    
+        let newCopy = cloneDeep(newitem);
+        newCopy.scheduled_date = new Date();
+        newCopy.rate = 0;
+        newCopy.qty = 0;
+    
+        let newItems = [...items, newCopy];
+        set_items(newItems);
+      };
+    
     const handleSave = async (e) => {
         e.preventDefault();
 
@@ -436,6 +382,7 @@ export default function AddReturnIndent(props) {
                                 })}
                             </Select>
                         </FormControl>
+                        
                         {customer_error && <Alert className={classes.alert} severity="error"> {customer_error} </Alert>}
                         <Paper className={classes.paper} style={{ marginTop: 10 }}>
             <TableContainer className={classes.container}>
@@ -452,16 +399,11 @@ export default function AddReturnIndent(props) {
                             <DatePicker size="small" label="Schedule Date" inputVariant="outlined" format="dd/MM/yyyy" value={row.scheduled_date} onChange={(newDate) => handleScheduleDateChange(newDate, index)} />
                           </MuiPickersUtilsProvider>
                         </TableCell>
-                        {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <TextField size="small" id={"formControl_rate_" + index} type="number" value={row.rate}
-                            variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
-                        </TableCell> */}
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{console.log(row.qty)}
                           <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.qty}
                             variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <Button variant="contained" onClick={() => { deleteAction(index) }}>Remove</Button>
                         </TableCell>
                       </TableRow>
                     );
@@ -470,19 +412,15 @@ export default function AddReturnIndent(props) {
               </Table>
             </TableContainer>
           </Paper>
-          {items_error && <Alert className={classes.alert} severity="error"> {items_error} </Alert>}
-
                         <div className={classes.submit}>
                             <Button variant="contained" color="primary" onClick={handleCancel} disabled={contactingServer}>Cancel</Button>
                             <Button style={{ marginLeft: 10 }} variant="contained" color="primary" onClick={handleSave} disabled={contactingServer}>Save</Button>
                         </div>
 
                     </form>
-                    {/* </Paper> */}
                 </div>
             }
-            { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={allItems} type={"Purchasable Items"} />}           
-            {showConfirmationDialog && <ConfirmDelete noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={lstrings.DeleteItemConfirmationMessage} title={lstrings.DeletingItem} />}
+            { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={allItems} type={"Purchasable Items"} />}
             <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="error">
                     {errorMessage}

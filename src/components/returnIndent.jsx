@@ -298,8 +298,10 @@ export default function ReturnIndent(props) {
   }
 
   useEffect(() => {
-    if(props.project)
+    if(props.project){
     getWarehouseList();
+    getReturnIndentList()
+  }
 
   }, [props.project]);
 

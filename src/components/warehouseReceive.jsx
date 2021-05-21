@@ -489,7 +489,34 @@ console.log('return indent list')
       getSupplyVendorList();
       
   }, [props.warehouse]);
-
+  useEffect(() => {
+    if (props.warehouse)
+    getLocalPurchaseList()
+      getSupplyVendorList();
+      
+  }, [props.warehouse]);
+  useEffect(() => {
+    if (props.warehouse)
+    getPOs()
+      getSupplyVendorList();
+      
+  }, [props.warehouse]);
+  useEffect(() => {
+    if (props.warehouse)
+    getAllItemList();
+      
+  }, [props.warehouse]);
+  useEffect(() => {
+    if (props.warehouse){
+      setPOs([]);
+      setCurrentPO([-1]);
+      set_items([]);
+      setCurrentLP([-1]);
+      setCurrentRI([-1]);
+      setMaterials([]);
+    }
+      
+  }, [props.warehouse]);
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -1238,7 +1265,7 @@ console.log('return indent list')
             </FormControl>}
             {currentType == 0 && current_po_error && <Alert className={classes.alert} severity="error"> {current_po_error} </Alert>}
 
-            {currentType == 0 && pos && (currentPO >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_po_date" value={getDateString(pos[currentPO].createdDate)}
+            {currentType == 0 && pos && (currentPO >= 0) && <TextField size="small" className={classes.inputFields} id="formControl_po_date" value={getDateString(pos[currentPO]?.createdDate)}
               label="PO Date" variant="outlined" disabled />}
             {currentType >= 0 && po_date_error && <Alert className={classes.alert} severity="error"> {po_date_error} </Alert>}
 

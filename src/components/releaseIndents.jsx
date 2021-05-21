@@ -284,7 +284,7 @@ export default function ReleaseIndents(props) {
       let newRows = [];
       const dateFns = new DateFnsUtils();
       for (let i = 0; i < data.list.length; ++i) {
-        data.list[i].project.createddate_conv = dateFns.date(data.list[i].project.createdDate);
+        data.list[i].indent.createddate_conv = dateFns.date(data.list[i].indent.createdDate);
         newRows.push(createData((offset + i + 1),
           data.list[i]
         ));
@@ -514,7 +514,7 @@ export default function ReleaseIndents(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getWarehouseName(row.indent.warehouse)}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.code}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.name}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.project.createddate_conv.toDateString()}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.indent.createddate_conv.toDateString()}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <div><Button onClick={() => handleRelease(row)} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Release"}</Button></div>
                         </TableCell>

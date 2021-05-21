@@ -298,8 +298,10 @@ export default function MaterialIndents(props) {
   }
 
   useEffect(() => {
-if(props.project)
+if(props.project){
     getWarehouseList();
+    getMaterialIndentList();
+  }
 
   }, [props.project]);
 
