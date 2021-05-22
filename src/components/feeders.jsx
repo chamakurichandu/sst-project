@@ -656,7 +656,7 @@ export default function Feeders(props) {
               <span>{"Feeders"}</span>
             </Grid>
             <Grid item className={classes.addButton}>
-              <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Feeder"}</Button>
+              <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Feeder/Location"}</Button>
             </Grid>
           </Grid>
         </Paper>

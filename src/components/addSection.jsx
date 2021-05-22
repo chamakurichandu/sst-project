@@ -158,7 +158,7 @@ export default function AddSection(props) {
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={open}>
-                <DialogTitle id="alert-dialog-title">{"New SubDivision"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"New O&M Section"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
 

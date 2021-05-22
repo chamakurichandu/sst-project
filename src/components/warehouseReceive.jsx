@@ -461,7 +461,7 @@ console.log('local purchase')
 
   async function getReturnIndentList(numberOfRows = 10000, search="") {
     try {
-      let url = config["baseurl"] + "/api/returnindent/list?warehouse=" + props.warehouse._id + "&showall=1&count=" + numberOfRows + "&offset=" + offset + "&search=" + search;
+      let url = config["baseurl"] + "/api/returnindent/list?warehouse=" + props.warehouse._id + "&count=" + numberOfRows + "&offset=" + offset + "&search=" + search + "&completed=2"; // 1 = completed, 2 = incompleted
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const { data } = await axios.get(url);
       console.log('Return indents list ===>>> ', data);
@@ -517,6 +517,9 @@ console.log('return indent list')
     }
       
   }, [props.warehouse]);
+  useEffect(()=>{
+    console.log(materials);
+  },[])
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -596,7 +599,7 @@ console.log('return indent list')
 
   const handleSaveWarehouseReceiveFromRI = async () => {
     try {
-      let url = config["baseurl"] + "/api/returnindent/complete";
+      let url = config["baseurl"] + "/api/returnindent/completed";
       let postObj = {};
       postObj["id"] = returnIndents[currentRI].indent._id;
       // console.log(returnIndents[currentRI]);
@@ -604,6 +607,7 @@ console.log('return indent list')
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const response = await axios.post(url, postObj);
       console.log(response);
+      props.history.push("/warehousehome");
     }
     catch(err) {
       console.log(err);
@@ -971,8 +975,8 @@ console.log('return indent list')
     setCurrentRI(event.target.value);
     let RIMaterials = returnIndents[event.target.value].indent.materials;
     let newItems = [];
-    console.log(allItems);
-    for (let k = 0; k < RIMaterials.length; ++k) {
+    console.log(RIMaterials);
+    for (let k = 0; k < RIMaterials.length; k++) {
       let itemInfo = allItems.find(item => item._id === RIMaterials[k].item);
       if(itemInfo) {
         newItems.push({name: itemInfo.name, description: itemInfo.description, uomId: itemInfo.uomId, qty: RIMaterials[k].qty})

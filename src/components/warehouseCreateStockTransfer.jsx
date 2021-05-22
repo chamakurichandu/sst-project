@@ -39,6 +39,7 @@ import SelectItem from './selectItem';
 import SelectProject from './selectProject';
 import cloneDeep from 'lodash/cloneDeep';
 import DateFnsUtils from '@date-io/date-fns';
+import ConfirmDelete from "./confirmDelete";
 import {
   DatePicker,
   TimePicker,
@@ -62,7 +63,9 @@ function EnhancedTableHeadSmall(props) {
     { id: 'description', numeric: false, disablePadding: false, label: "description" },
     { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
     { id: 'stockqty', numeric: true, disablePadding: false, label: "Qty (Stock)" },
-    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
+    { id: 'qty', numeric: true, disablePadding: false, label: "Qty" },
+    { id: 'remove', numeric: true, disablePadding: false, label: "Remove item" }
+
   ];
 
   return (
@@ -267,6 +270,8 @@ export default function WarehouseCreateStockTransfer(props) {
   const [newItemId, set_newItemId] = React.useState(null);
 
   const [receivedTransactions, set_receivedTransactions] = React.useState(null);
+  const [indexTobeDeleted, set_indexTobeDeleted] = React.useState(null);
+  const [showConfirmationDialog, setShowConfirmationDialog] = React.useState(false);
 
   const dateFns = new DateFnsUtils();
 
@@ -374,7 +379,7 @@ export default function WarehouseCreateStockTransfer(props) {
       const { data } = await axios.get(url);
       console.log(data);
 
-      setWarehouses(data.list);
+      setWarehouses(data.list.filter(warehouse => warehouse._id !== props.warehouse._id));
       setShowBackDrop(false);
     }
     catch (e) {
@@ -390,11 +395,16 @@ export default function WarehouseCreateStockTransfer(props) {
     }
   }
 
+useEffect(()=>{
 
+  getAllItemList();
+
+},[])
   useEffect(() => {
     console.log(props.warehouse)
-    if (props.warehouse)
-      getAllItemList();
+    if (props.warehouse){
+           set_items([]);
+    }
   }, [props.warehouse]);
 
   useEffect(() => {
@@ -841,6 +851,22 @@ export default function WarehouseCreateStockTransfer(props) {
     return total;
   };
 
+  const deleteAction = (index) => {
+    set_indexTobeDeleted(index);
+    setShowConfirmationDialog(true);
+  };
+  const noConfirmationDialogAction = () => {
+    setShowConfirmationDialog(false);
+  };
+
+  const yesConfirmationDialogAction = () => {
+    console.log(indexTobeDeleted);
+    let newItems = cloneDeep(items); console.log(newItems[indexTobeDeleted]);
+    newItems.splice(indexTobeDeleted, 1);
+    set_items([...newItems]);
+    setShowConfirmationDialog(false);
+  };
+
   return (
     <div className={clsx(classes.root)}>
       {props.warehouse &&
@@ -868,7 +894,7 @@ export default function WarehouseCreateStockTransfer(props) {
                 onChange={handleWarehouseChange}
                 label="Warehouse *"
               >
-                {warehouses && warehouses.filter(warehouse=>warehouse._id !== props.warehouse._id).map((row, index) => {
+                {warehouses && warehouses.map((row, index) => {
                   return (
                     <MenuItem key={"" + index} value={index}>{"" + row.name}</MenuItem>
                   );
@@ -909,8 +935,11 @@ export default function WarehouseCreateStockTransfer(props) {
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{row.stockqty}</TableCell>
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                            <TextField size="small" id={"formControl_qty_" + index} type="number" defaultValue={row.qty}
+                            <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.qty}
                               variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
+                          </TableCell>
+                          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                          <Button variant="contained" onClick={() => { deleteAction(index) }}>Remove</Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -936,7 +965,7 @@ export default function WarehouseCreateStockTransfer(props) {
       { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />}
 
       { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects} />}
-
+      {showConfirmationDialog && <ConfirmDelete noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={lstrings.DeleteItemConfirmationMessage} title={lstrings.DeletingItem} />}
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
           {errorMessage}

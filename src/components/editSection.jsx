@@ -169,7 +169,7 @@ export default function EditSection(props) {
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={open}>
-                <DialogTitle id="alert-dialog-title">{"Edit Section"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"Edit O&M Section"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
 

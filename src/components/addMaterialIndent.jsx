@@ -366,8 +366,10 @@ export default function AddMaterialIndent(props) {
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
             const { data } = await axios.get(url);
             console.log(data);
-
-            setWarehouses(data.list);
+            let projectWarehouses = props.project.warehouse.map(id => {
+                return data.list.find(wh => wh._id === id)
+            })
+            setWarehouses(projectWarehouses);
             // let currentWarehouse = data.list.filter(dataItem => dataItem._id === props.project.warehouse)[0];
             // set_warehouse(currentWarehouse);
             setShowBackdrop(false);
@@ -462,9 +464,7 @@ export default function AddMaterialIndent(props) {
                                     onChange={handleWarehouseChange}
                                     label="Warehouse *"
                                 >
-                                    {props.project && props.project.warehouse.map(id => {
-                                        return warehouses.find(wh => wh._id === id)
-                                    }).map((row, index) => {
+                                    {warehouses && warehouses.map((row, index) => {
                                         return (
                                             <MenuItem key={"" + index} value={index}>{row?.name}</MenuItem>
                                         );

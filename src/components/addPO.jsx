@@ -925,9 +925,10 @@ export default function AddPO(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <MuiPickersUtilsProvider utils={DateFnsUtils} >
+                        <TextField size="small" label="Schedule Date" variant="outlined" format="dd/MM/yyyy" value={items[index].scheduled_date} onChange={(e) => handleScheduleDateChange(e.target.value, index)}/>                          
+                          {/* <MuiPickersUtilsProvider utils={DateFnsUtils} >
                             <DatePicker size="small" label="Schedule Date" inputVariant="outlined" format="dd/MM/yyyy" value={row.scheduled_date} onChange={(newDate) => handleScheduleDateChange(newDate, index)} />
-                          </MuiPickersUtilsProvider>
+                          </MuiPickersUtilsProvider> */}
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <TextField size="small" id={"formControl_rate_" + index} type="number" value={row.rate}

@@ -168,7 +168,7 @@ export default function AddFeeder(props) {
     return (
         <div>
             <Dialog fullWidth={true} onClose={props.noConfirmationDialogAction} aria-labelledby="customized-dialog-title" open={open}>
-                <DialogTitle id="alert-dialog-title">{"New Feeder"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"New Feeder/Location"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
 
