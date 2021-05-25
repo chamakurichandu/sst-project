@@ -404,7 +404,11 @@ export default function WorkInstallation(props) {
 
       let postObj = {};
       postObj["step"] = "installation";
-
+      for (let i = 0; i < items.length; ++i) {
+        if(parseInt(items[i].install_qty) !== parseInt(items[i].qty)) {
+          throw { message: "Survey qty and install qty should be same" };
+        }
+      }
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
 
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
@@ -424,7 +428,7 @@ export default function WorkInstallation(props) {
       }
       else {
         console.log("Error in creating");
-        setErrorMessage("Error in creating: ", e.message);
+        setErrorMessage(`Error in creating: ${e.message}`);
       }
       setShowError(true);
       setShowBackDrop(false);

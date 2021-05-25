@@ -349,6 +349,11 @@ export default function WorkCommissioning(props) {
 
       let postObj = {};
       postObj["step"] = "commissioning";
+      for (let i = 0; i < items.length; ++i) {
+        if(parseInt(items[i].install_qty) !== parseInt(items[i].testing_qty)) {
+          throw { message: "Testing qty and install qty should be same" };
+        }
+      }
 
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
 
@@ -369,7 +374,7 @@ export default function WorkCommissioning(props) {
       }
       else {
         console.log("Error in creating");
-        setErrorMessage("Error in creating: ", e.message);
+        setErrorMessage(`Error in creating: ${e.message}`);
       }
       setShowError(true);
       setShowBackDrop(false);

@@ -349,6 +349,11 @@ export default function WorkHandOver(props) {
 
       let postObj = {};
       postObj["step"] = "handover";
+      for (let i = 0; i < items.length; ++i) {
+        if(parseInt(items[i].acceptance_qty) !== parseInt(items[i].handover_qty)) {
+          throw { message: "Acceptance qty and Handover qty should be same" };
+        }
+      }
 
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
 
@@ -369,7 +374,7 @@ export default function WorkHandOver(props) {
       }
       else {
         console.log("Error in creating");
-        setErrorMessage("Error in creating: ", e.message);
+        setErrorMessage(`Error in creating: ${e.message}`);
       }
       setShowError(true);
       setShowBackDrop(false);

@@ -349,6 +349,11 @@ export default function WorkAcceptance(props) {
 
       let postObj = {};
       postObj["step"] = "acceptance";
+      for (let i = 0; i < items.length; ++i) {
+        if(parseInt(items[i].testing_qty) !== parseInt(items[i].acceptance_qty)) {
+          throw { message: "Testing qty and Acceptance qty should be same" };
+        }
+      }
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const response = await axios.patch(url, updateObj);
@@ -365,7 +370,7 @@ export default function WorkAcceptance(props) {
       }
       else {
         console.log("Error in creating");
-        setErrorMessage("Error in creating: ", e.message);
+        setErrorMessage(`Error in creating: ${e.message}`);
       }
       setShowError(true);
       setShowBackDrop(false);
