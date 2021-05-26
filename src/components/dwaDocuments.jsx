@@ -435,7 +435,7 @@ export default function DwaDocuments(props) {
             const response = await axios.get(url);
             console.log(response);
             let oldData = response.data.boq_items?.map(item => {
-                return {...item, gst: item.gst.toFixed(2), totalCost: item.totalCost.toFixed(2)};
+                return {...item, gst: item.gst, totalCost: item.totalCost};
             });
             setRows(oldData ? oldData : []);
         }
@@ -537,18 +537,14 @@ export default function DwaDocuments(props) {
         setShowSelectItem(false);
     };
 
-    useEffect(() => {
-        console.log(rows)
-
-    }, [rows]);
     const onSelectItem = (newitem) => {
         setShowSelectItem(false);
-        let newObj = cloneDeep(newitem);
-        setRows([{ id: newObj._id, uomId: newObj.uomId, productCategoryId: newObj.productCategoryId, install_qty: 0, workOrderQty: 0, igst: 0, sgst: 0, cgst: 0, unitPrice: 0, frieght: 0, qty: 0, invoicedQty: 0, others: 0, gst: 0, totalUnitCost: 0, progress: 0, totalCost: 0, survey_qty: 0, }, ...rows])
+        for(let i = 0; i < newitem.length; i++) {
+            let newObj = cloneDeep(newitem[i]);
+            setRows(pre => [{ id: newObj._id, uomId: newObj.uomId, productCategoryId: newObj.productCategoryId, install_qty: 0, workOrderQty: 0, igst: 0, sgst: 0, cgst: 0, unitPrice: 0, frieght: 0, qty: 0, invoicedQty: 0, others: 0, gst: 0, totalUnitCost: 0, progress: 0, totalCost: 0, survey_qty: 0, }, ...pre])
+        }
         set_showSaveBtn(true);
     };
-
-    const isSelected = (name) => selected.indexOf(name) !== -1;
 
     const BorderLinearProgress = withStyles((theme) => ({
         root: {
@@ -574,10 +570,6 @@ export default function DwaDocuments(props) {
         }
         return val;
     }
-
-    useEffect(() => {
-        console.log(rows);
-    }, [rows]);
 
     const changeItem = (i, k, v) => {
         let modifyingItem = [...rows];

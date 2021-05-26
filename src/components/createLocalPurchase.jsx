@@ -657,22 +657,24 @@ export default function CreateLocalPurchase(props) {
 
   const onSelectItemForLP = (newitem) => {
     setShowSelectItemForLP(false);
-
     for (let i = 0; i < items.length; ++i) {
-      if (items[i]._id == newitem._id && items[i].scheduled_date == newitem.scheduled_date)
-        return;
+      newitem = newitem.filter(ii => ii._id !== items[i]._id);
+    };
+
+    if(newitem.length > 0) {
+      newitem = newitem.map(ii => {
+        let newCopy = cloneDeep(ii);
+        newCopy.rate = 0;
+        newCopy.qty = 0;
+        return newCopy;
+      });
+
+      set_items([...items, ...newitem]);
+    } else {
+      setShowError(true);
+      setErrorMessage('Already existing materials selected');
     }
-
-    console.log(newitem);
-
-    let newCopy = cloneDeep(newitem);
-    newCopy.qty = 0;
-    newCopy.rate = 0;
-
-    let newItems = [...items, newCopy];
-    set_items(newItems);
-
-    set_items_error(null);
+    
   };
 
   const handleItemClick = (event, index) => {

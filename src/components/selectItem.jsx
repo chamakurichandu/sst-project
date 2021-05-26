@@ -30,6 +30,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Snackbar from '@material-ui/core/Snackbar';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
+import Checkbox from '@material-ui/core/Checkbox';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -161,7 +162,7 @@ export default function SelectItem(props) {
     const [showError, setShowError] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState(null);
 
-    const [current, setCurrent] = React.useState(-1);
+    const [current, setCurrent] = React.useState([]);
 
     const [contactingServer, setContactingServer] = React.useState(false);
 
@@ -194,9 +195,15 @@ export default function SelectItem(props) {
         getAllItemList(10000, "");
     }, []);
 
-    const handleSave = async () => {
+    const handleSave = () => {
         // props.onSelect(props.items[current]);
-        props.onSelect(allItems[current]);
+            let items = allItems.filter((item, index) => current.includes(index) );
+            if(items.length > 0) {
+                props.onSelect(items);
+            } else {
+                setShowError(true);
+                setErrorMessage("Please select atleast one item");
+            }
         // try {
         //     setContactingServer(true);
         //     let url = config["baseurl"] + "/api/projectplace/add";
@@ -241,9 +248,12 @@ export default function SelectItem(props) {
     const handleCloseBackDrop = () => {
 
     };
-
-    const handleClick = (event, index) => {
-        setCurrent(index);
+    const handleChange = (event, index) => {
+        if(current.includes(index)){
+            setCurrent(current.filter(el => el !== index));
+        } else {
+            setCurrent([...current, index]);
+        }
     };
 
     const onSearchChange = (event) => {
@@ -285,8 +295,15 @@ export default function SelectItem(props) {
                                 <TableBody>
                                     {allItems.map((row, index) => {
                                         return (
-                                            <TableRow hover tabIndex={-1} key={"" + index} selected={index === current} onClick={(event) => handleClick(event, index)} >
-                                              <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name }</TableCell> 
+                                            <TableRow hover tabIndex={-1} key={"" + index} selected={current.includes(index)} >
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                                                    <Checkbox
+                                                        checked={current.includes(index)}
+                                                        onChange={(event) => handleChange(event, index)}
+                                                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                                                    />
+                                                    {"" + (index + 1) + ". " + row.name}
+                                                </TableCell>
                                                 {/* {!props.editable && <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name }</TableCell>}
                                                 {props.editable && <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.code +"-->" + row.hsncode +"-->" + row.productCategoryId +" -->"+ row.name + "-->" + row.description + "-->"+ row.uomId }</TableCell>} */}
                                             </TableRow>

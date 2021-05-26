@@ -665,17 +665,25 @@ export default function EditPO(props) {
 
   const onSelectItem = (newitem) => {
     setShowSelectItem(false);
+    for (let i = 0; i < items.length; ++i) {
+      newitem = newitem.filter(ii => ii._id !== items[i]._id);
+    };
 
-    let newCopy = cloneDeep(newitem);
-
-    newCopy.scheduledDate = new Date();
-    newCopy.rate = 0;
-    newCopy.qty = 0;
-
-    let newItems = [...items, newCopy];
-    set_items(newItems);
-
-    set_items_error(null);
+    if(newitem.length > 0) {
+      newitem = newitem.map(ii => {
+        let newCopy = cloneDeep(ii);
+        newCopy.scheduled_date = new Date();
+        newCopy.qty=0;
+        newCopy.rate = 0;
+        return newCopy;
+      });
+      set_items([...items, ...newitem]);
+      set_items_error(null);
+    } else {
+      setShowError(true);
+      setErrorMessage('Already existing materials selected');
+    }
+    
   };
 
   const handleItemClick = (event, index) => {
@@ -846,7 +854,7 @@ export default function EditPO(props) {
                           {/* <MuiPickersUtilsProvider utils={DateFnsUtils} >
                             <DatePicker size="small" label="Schedule Date" inputVariant="outlined" format="dd/MM/yyyy" value={items[index].scheduled_date} onChange={(newDate) => handleScheduleDateChange(newDate, index)} />
                           </MuiPickersUtilsProvider> */}
-                          <TextField size="small" label="Schedule Date" variant="outlined" format="dd/MM/yyyy" value={items[index].scheduled_date} onChange={(e) => handleScheduleDateChange(e.target.value, index)}/>
+                          <TextField size="small" label="Schedule Date" variant="outlined" format="dd/MM/yyyy" value={row.scheduled_date} onChange={(e) => handleScheduleDateChange(e.target.value, index)}/>
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <TextField size="small" id={"formControl_rate_" + index} type="number" value={items[index].rate}

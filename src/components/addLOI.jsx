@@ -542,7 +542,7 @@ export default function AddLOI(props) {
     }
 
     for (let i = 0; i < items.length; ++i) {
-      if (parseInt(items[i].rate) === 0) {
+      if (parseInt(items[i].rate) === 0 && parseInt(items[i].qty)) {
         setErrorMessage("rate cannot be zero");
         setShowError(true);
         errorOccured = true;
@@ -629,22 +629,43 @@ export default function AddLOI(props) {
   const closeSelectItemDialogAction = () => {
     setShowSelectItem(false);
   };
-
   const onSelectItem = (newitem) => {
     setShowSelectItem(false);
+    for (let i = 0; i < items.length; ++i) {
+      newitem = newitem.filter(ii => ii._id !== items[i]._id);
+    };
 
-    let newCopy = cloneDeep(newitem);
-
-    let newItemqtys = [...itemqty, 0];
-    set_itemqty(newItemqtys);
-    newCopy.scheduledDate = new Date();
-    newCopy.rate = 0;
-
-    let newItems = [...items, newCopy];
-    set_items(newItems);
-
-    set_items_error(null);
+    if(newitem.length > 0) {
+      newitem = newitem.map(ii => {
+        let newCopy = cloneDeep(ii);
+        newCopy.scheduledDate = new Date();
+        newCopy.qty=0;
+        newCopy.rate = 0;
+        return newCopy;
+      });
+      set_items([...items, ...newitem]);
+      set_items_error(null);
+    } else {
+      setShowError(true);
+      setErrorMessage('Already existing materials selected');
+    }
+    
   };
+  // const onSelectItem = (newitem) => {
+  //   setShowSelectItem(false);
+
+  //   let newCopy = cloneDeep(newitem);
+
+  //   let newItemqtys = [...itemqty, 0];
+  //   set_itemqty(newItemqtys);
+  //   newCopy.scheduledDate = new Date();
+  //   newCopy.rate = 0;
+
+  //   let newItems = [...items, newCopy];
+  //   set_items(newItems);
+
+  //   set_items_error(null);
+  // };
 
   const handleItemClick = (event, index) => {
     // setCurrentDivision(index);
@@ -682,9 +703,9 @@ export default function AddLOI(props) {
   };
 
   const set_item_qty_for = (value, index) => {
-    let newItemqtys = [...itemqty];
-    newItemqtys[index] = value;
-    set_itemqty(newItemqtys);
+    let newItems = [...items];
+    newItems[index].qty = value;
+    set_items(newItems);
   };
 
   const set_item_rate_for = (value, index) => {
@@ -823,7 +844,7 @@ export default function AddLOI(props) {
                             variant="outlined" onChange={(event) => { set_item_rate_for(event.target.value, index) }} />
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                          <TextField size="small" id={"formControl_qty_" + index} type="number" value={itemqty[index]}
+                          <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.qty}
                             variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
                         </TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>

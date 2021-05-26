@@ -1155,7 +1155,7 @@ export default function ProjectDetails(props) {
       if (customers[i]._id === customerId)
         return customers[i].name;
     }
-    return customerId;
+    return "Customer not available";
   };
 
   const handleBreadCrumClick = () => {

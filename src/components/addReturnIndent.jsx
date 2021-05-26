@@ -284,18 +284,38 @@ export default function AddReturnIndent(props) {
       const closeSelectItemDialogAction = () => {
         setShowSelectItem(false);
       };
-    
       const onSelectItem = (newitem) => {
         setShowSelectItem(false);
+        for (let i = 0; i < items.length; ++i) {
+          newitem = newitem.filter(ii => ii._id !== items[i]._id);
+        };
     
-        let newCopy = cloneDeep(newitem);
-        newCopy.scheduled_date = new Date();
-        newCopy.rate = 0;
-        newCopy.qty = 0;
-    
-        let newItems = [...items, newCopy];
-        set_items(newItems);
+        if(newitem.length > 0) {
+          newitem = newitem.map(ii => {
+            let newCopy = cloneDeep(ii);
+            newCopy.scheduled_date = new Date();
+            newCopy.qty=0;
+            return newCopy;
+          });
+          set_items([...items, ...newitem]);
+          set_items_error(null);
+        } else {
+          setShowError(true);
+          setErrorMessage('Already existing materials selected');
+        }
+        
       };
+      // const onSelectItem = (newitem) => {
+      //   setShowSelectItem(false);
+    
+      //   let newCopy = cloneDeep(newitem);
+      //   newCopy.scheduled_date = new Date();
+      //   newCopy.rate = 0;
+      //   newCopy.qty = 0;
+    
+      //   let newItems = [...items, newCopy];
+      //   set_items(newItems);
+      // };
     
     const handleSave = async (e) => {
         e.preventDefault();
