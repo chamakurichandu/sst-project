@@ -434,6 +434,7 @@ export default function DwaDocuments(props) {
             axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
             const response = await axios.get(url);
             console.log(response);
+            setTotalCount(response.data.boq_items.length)
             let oldData = response.data.boq_items?.map(item => {
                 return {...item, gst: item.gst, totalCost: item.totalCost};
             });
