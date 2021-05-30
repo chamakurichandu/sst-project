@@ -9,9 +9,6 @@ import config from "../config.json";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import lstrings from '../lstrings.js';
-import Typography from '@material-ui/core/Typography';
-import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Link from '@material-ui/core/Link';
 import 'date-fns';
 import TextField from '@material-ui/core/TextField';
 import Chip from '@material-ui/core/Chip';
@@ -19,19 +16,15 @@ import { v4 as uuidv4 } from 'uuid';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
-import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
-import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
 import IconButton from '@material-ui/core/IconButton';
 import AddImage from '@material-ui/icons/Add';
 import SelectItem2 from './selectItem2';
@@ -174,28 +167,17 @@ export default function WarehouseCreateStockTransfer(props) {
   const classes = useStyles();
   const [showError, setShowError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
-
-  const [supply_vendor, set_supply_vendor] = React.useState(null);
   const [supply_vendor_error, set_supply_vendor_error] = React.useState(null);
-
-  const [reference_number, set_reference_number] = React.useState('');
-  const [reference_number_error, set_reference_number_error] = React.useState(null);
-
-
   const [items, set_items] = React.useState([]);
   const [items_error, set_items_error] = React.useState(null);
 
   const [allItems, set_allItems] = React.useState([]);
-  const [currentItem, setCurrentItem] = React.useState(-1);
-
   const [prouctCategories, set_prouctCategories] = React.useState([]);
   const [uoms, set_uoms] = React.useState([]);
 
   const [supplyVendors, setSupplyVendors] = React.useState([]);
   const [currentSupplyVendor, setCurrentSupplyVendor] = React.useState(-1);
   const [currentSupplyVendor_error, setCurrentSupplyVendor_error] = React.useState(null);
-
-  const [currentProject, setCurrentProject] = React.useState(-1);
 
   const [projects, setProjects] = React.useState([]);
 
@@ -204,71 +186,24 @@ export default function WarehouseCreateStockTransfer(props) {
   const [showSelectProject, setShowSelectProject] = React.useState(false);
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
-
-  const [types, setTypes] = React.useState(["From PO", "From Other Warehouse", "From Local Purchase", "From Return Indents"]);
   const [currentType, setCurrentType] = React.useState(-1);
-  const [current_type_error, set_current_type_error] = React.useState(null);
-
-  const [pos, setPOs] = React.useState(null);
-  const [currentPO, setCurrentPO] = React.useState(-1);
-  const [current_po_error, set_current_po_error] = React.useState(null);
-
+  
   const [warehouses, setWarehouses] = React.useState([]);
   const [currentWarehouse, setCurrentWarehouse] = React.useState(-1);
   const [current_warehouse_error, set_current_warehouse_error] = React.useState(null);
 
   const [poItems, setPOItems] = React.useState([]);
-
-  const [supplyVendor, setSupplyVendor] = React.useState(null);
-
-  const [po_date, set_po_date] = React.useState('');
-  const [po_date_error, set_po_date_error] = React.useState(null);
-
-  const [supplier_name, set_supplier_name] = React.useState('');
-  const [supplier_name_error, set_supplier_name_error] = React.useState(null);
-
-  const [supplier_address, set_supplier_address] = React.useState('');
-  const [supplier_address_error, set_supplier_address_error] = React.useState(null);
-
-  const [supplier_gst, set_supplier_gst] = React.useState('');
-  const [supplier_gst_error, set_supplier_gst_error] = React.useState(null);
-
   const [project, set_project] = React.useState(null);
-  const [project_error, set_project_error] = React.useState(null);
-
   const [gate_entry_info, set_gate_entry_info] = React.useState('');
-  const [gate_entry_info_error, set_gate_entry_info_error] = React.useState(null);
-
   const [bill_no, set_bill_no] = React.useState('');
-  const [bill_no_error, set_bill_no_error] = React.useState(null);
-
-  const [bill_date, set_bill_date] = React.useState(new Date());
-  const [bill_date_error, set_bill_date_error] = React.useState(null);
-
   const [dc_no, set_dc_no] = React.useState('');
-  const [dc_no_error, set_dc_no_error] = React.useState(null);
-
-  const [dc_date, set_dc_date] = React.useState(new Date());
-  const [dc_date_error, set_dc_date_error] = React.useState(null);
-
   const [lr_no, set_lr_no] = React.useState('');
-  const [lr_no_error, set_lr_no_error] = React.useState(null);
-
-  const [lr_date, set_lr_date] = React.useState(new Date());
-  const [lr_date_error, set_lr_date_error] = React.useState(null);
-
   const [transporter, set_transporter] = React.useState('');
-  const [transporter_error, set_transporter_error] = React.useState(null);
-
   const [vehicle_no, set_vehicle_no] = React.useState('');
-  const [vehicle_no_error, set_vehicle_no_error] = React.useState(null);
-
   const [remark, set_remark] = React.useState('');
-  const [remark_error, set_remark_error] = React.useState(null);
-
+  const [remark_error, set_remark_error] = React.useState(null)
   const [files, set_files] = React.useState([]);
   const [newItemId, set_newItemId] = React.useState(null);
-
   const [receivedTransactions, set_receivedTransactions] = React.useState(null);
   const [indexTobeDeleted, set_indexTobeDeleted] = React.useState(null);
   const [showConfirmationDialog, setShowConfirmationDialog] = React.useState(false);
@@ -307,22 +242,23 @@ export default function WarehouseCreateStockTransfer(props) {
       const { data } = await axios.get(url);
       console.log("getStoredItemDetail 3");
 
-      let newItems = [...items];
-      console.log("newItems 1: ", newItems);
-      for (let i = 0; i < newItems.length; ++i) {
-        if (newItems[i]._id === data.stored.material) {
-          newItems[i].stockqty = data.stored.qty;
-          break;
-        }
-      }
+      // let newItems = [...items];
+      // console.log("newItems 1: ", newItems);
+      // for (let i = 0; i < newItems.length; ++i) {
+      //   if (newItems[i]._id === data.stored.material) {
+      //     newItems[i].stockqty = data.stored.qty;
+      //     break;
+      //   }
+      // }
 
-      console.log("newItems 2: ", newItems);
+      // console.log("newItems 2: ", newItems);
 
-      set_items(newItems);
+      // set_items(newItems);
 
-      console.log("getStoredItemDetail:", data);
+      // console.log("getStoredItemDetail:", data);
 
       setShowBackDrop(false);
+      return data.stored.qty;
     }
     catch (e) {
       setShowBackDrop(false);
@@ -563,7 +499,8 @@ useEffect(()=>{
   };
 
   const addItem = () => {
-    setShowSelectItemForLP(true);
+    // setShowSelectItemForLP(true);
+    setShowSelectItem(true);
   };
 
   const closeSelectItemDialogAction = () => {
@@ -572,28 +509,14 @@ useEffect(()=>{
   };
 
   const onSelectItem = (newitem) => {
+    console.log('selected Items 👉', newitem);
     setShowSelectItem(false);
 
-    for (let i = 0; i < items.length; ++i) {
-      if (items[i]._id === newitem._id)
-        return;
-    }
-
-    console.log(newitem);
-
-    let newCopy = cloneDeep(newitem);
-    newCopy.qty = 0;
-
-    for (let i = 0; i < allItems.length; ++i) {
-      if (allItems[i]._id === newitem._id) {
-        newCopy.stockqty = allItems[i].qty;
-        break;
-      }
-    }
-
-    let newItems = [...items, newCopy];
-    set_items(newItems);
-
+  newitem.forEach(async (i) => {
+    let stockqty = await getStoredItemDetail(i._id);
+    set_items(pre => [...pre, {...i, qty: 0, stockqty}]);
+})
+    console.log(items)
     set_items_error(null);
   };
 
@@ -645,69 +568,6 @@ useEffect(()=>{
     setCurrentWarehouse(event.target.value);
     set_current_warehouse_error(null);
   };
-
-  // const handleTypeChange = (event) => {
-  //   setCurrentType(event.target.value);
-  //   set_current_type_error(null);
-
-  //   set_items([]);
-
-  //   switch (event.target.value) {
-  //     case 0:
-  //       if (!pos) {
-  //         getPOs();
-  //       }
-  //       break;
-  //     case 1:
-  //       if (!pos) {
-  //         getWarehouseList();
-  //       }
-  //       break;
-  //     case 2:
-  //       break;
-  //     case 3:
-  //       break;
-  //   }
-  // };
-
-  // const handlePOChange = (event) => {
-  //   setCurrentPO(event.target.value);
-  //   set_receivedTransactions(null);
-  //   set_current_po_error(null);
-  //   setSupplyVendor(null);
-  //   const vendor = getSupplyVendor(pos[event.target.value].supply_vendor);
-  //   console.log("vendor: ", vendor);
-  //   setSupplyVendor(vendor);
-  //   if (vendor) {
-  //     set_supplier_name_error(null);
-  //     set_supplier_address_error(null);
-  //     set_supplier_gst_error(null);
-  //   }
-
-  //   console.log(pos[event.target.value]);
-
-  //   getReceivedMaterials(pos[event.target.value]._id);
-
-  //   set_items([]);
-
-  //   let newItems = [];
-  //   for (let k = 0; k < pos[event.target.value].items.length; ++k) {
-  //     for (let i = 0; i < allItems.length; ++i) {
-  //       if (pos[event.target.value].items[k].item === allItems[i]._id) {
-  //         let item = cloneDeep(allItems[i]);
-  //         item.rate = pos[event.target.value].items[k].rate;
-  //         item.qty = pos[event.target.value].items[k].qty;
-  //         item.scheduled_date = pos[event.target.value].items[k].scheduled_date;
-  //         item.scheduled_date_conv = dateFns.date(pos[event.target.value].items[k].scheduled_date);
-
-  //         newItems.push(item);
-  //         break;
-  //       }
-  //     }
-  //   }
-  //   setPOItems(newItems);
-  // }
-
   const handleSupplyVendorChange = (event) => {
     setCurrentSupplyVendor(event.target.value);
     setCurrentSupplyVendor_error(null);
@@ -960,9 +820,9 @@ useEffect(()=>{
         </div>
       }
 
-      { showSelectItem && <SelectItem2 closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={(currentType === 0) ? poItems : allItems} selectedItems={items} type={"Receivable Items"} />}
+      { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem}  selectedItems={items} type={"Receivable Items"} items={allItems}/>}
 
-      { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />}
+      {/* { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />} */}
 
       { showSelectProject && <SelectProject closeAction={closeSelectProjectDialogAction} onSelect={onSelectProject} projects={projects} />}
       {showConfirmationDialog && <ConfirmDelete noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={lstrings.DeleteItemConfirmationMessage} title={lstrings.DeletingItem} />}
