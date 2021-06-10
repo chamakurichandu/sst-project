@@ -11,7 +11,6 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import config from "../config.json";
@@ -20,13 +19,8 @@ import MuiAlert from '@material-ui/lab/Alert';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import ProcurementImage from '../assets/svg/ss/commercial-2.svg';
-import IconButton from '@material-ui/core/IconButton';
-import DeleteImage from '@material-ui/icons/Delete';
-import SelectItem from './selectItem';
-import cloneDeep from 'lodash/cloneDeep';
 import TextField from '@material-ui/core/TextField';
 import AddMaterialIndent from './addMaterialIndent';
-import DetailImage from '@material-ui/icons/ArrowForward';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -225,7 +219,6 @@ export default function WorkInstallation(props) {
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
   const [dense] = React.useState(true);
 
   const [showError, setShowError] = React.useState(false);
@@ -238,8 +231,8 @@ export default function WorkInstallation(props) {
   const [uoms, set_uoms] = React.useState([]);
   const [work, set_work] = React.useState(null);
   const [items, set_items] = React.useState([]);
-  const [items_error, set_items_error] = React.useState(null);
   const [editMode, setEditMode] = React.useState(false);
+  const [orderQty,setOrderQty]=React.useState();
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
@@ -310,8 +303,22 @@ export default function WorkInstallation(props) {
   useEffect(() => {
     if (props.allItems.length > 0)
       getWorkDetails();
+      orderMaterial();
   }, [props.allItems]);
 
+    async function orderMaterial() {
+      try{
+        setShowBackDrop(true);
+        let url = config["baseurl"] + "/api/work/orderedmaterials?id="+props.projectWork.work._id;
+        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+        const { data } = await axios.get(url);
+        console.log(data);
+        setOrderQty(data.materials);
+      }
+      catch(e){
+          console.log(e);
+      }
+    }
   // async function getMaterialIndentList() {
   //   try {
   //     setShowBackDrop(true);
@@ -459,10 +466,6 @@ export default function WorkInstallation(props) {
     setOrderBy(property);
   };
 
-  const gotoIndentDetails = () => {
-
-  };
-
   const getWarehouseName = (id) => {
     for (let i = 0; i < warehouses.length; ++i) {
       if (warehouses[i]._id === id) {
@@ -485,7 +488,6 @@ export default function WorkInstallation(props) {
       setEditMode(true);
       return;
     }
-
     let errorOccured = false;
     for (let i = 0; i < items.length; ++i) {
       if (parseInt(items[i].qty) === 0) {
@@ -495,6 +497,7 @@ export default function WorkInstallation(props) {
         break;
       }
     }
+    
 
     if (errorOccured)
       return;
@@ -511,11 +514,27 @@ export default function WorkInstallation(props) {
           setShowError(true);
           return;
         }
-
         postObj["items"].push({ item: items[i]._id, install_qty: parseInt(items[i].install_qty) });
       }
 
+      items.forEach(item => {
+        orderQty.forEach(order =>{
+          if(item._id==order.item){
+            if(item.install_qty > order.qty){
+              setErrorMessage("installation qty cannot be greater than Ordered Material qty");
+              setShowError(true);
+              setShowBackDrop(false);
+              postObj["items"] = [];
+              return;
+            }
+            console.log('Id is present',true);
+          }else{
+            console.log('Id is not present',false);
+          }
+        })
+      })
       console.log("postObj: ", postObj);
+      if(postObj['items'.length>1]){
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const response = await axios.patch(url, updateObj);
@@ -524,7 +543,7 @@ export default function WorkInstallation(props) {
       setShowSaved(true);
       setEditMode(false);
       getWorkDetails();
-    }
+    }}
     catch (e) {
       console.log("5");
       if (e.response) {
@@ -673,7 +692,6 @@ export default function WorkInstallation(props) {
       <Backdrop className={classes.backdrop} open={showBackDrop} onClick={handleCloseBackDrop}>
         <CircularProgress color="inherit" />
       </Backdrop>
-
     </div >
   );
 }
