@@ -513,8 +513,9 @@ export default function WorkInstallation(props) {
           setErrorMessage("installation qty cannot be greater than survey qty");
           setShowError(true);
           return;
-        }
+        }else{
         postObj["items"].push({ item: items[i]._id, install_qty: parseInt(items[i].install_qty) });
+      }
       }
 
       items.forEach(item => {
@@ -534,7 +535,7 @@ export default function WorkInstallation(props) {
         })
       })
       console.log("postObj: ", postObj);
-      if(postObj['items'.length>1]){
+      if(postObj['items'].length>1){
       let updateObj = { _id: props.projectWork.work._id, updateParams: postObj };
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
       const response = await axios.patch(url, updateObj);
@@ -543,7 +544,8 @@ export default function WorkInstallation(props) {
       setShowSaved(true);
       setEditMode(false);
       getWorkDetails();
-    }}
+    }
+  }
     catch (e) {
       console.log("5");
       if (e.response) {
