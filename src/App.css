@@ -6,6 +6,14 @@
   height: 40vmin;
   pointer-events: none;
 }
+.dev-btn{
+  position:fixed !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  background-color: #314293 !important;
+  color: white !important;
+  margin: 0 0.5em 0.5em 0 !important;
+}
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {

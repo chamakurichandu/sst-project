@@ -744,7 +744,6 @@ function App(props) {
   const showNotificationForNewChatMessage = (message) => {
     enqueueSnackbar(message, { anchorOrigin: { vertical: "bottom", horizontal: "right" }, variant: "info" });
   };
-
   console.log("authSuccess: ", authSuccess);
   return (
     <React.Fragment>
@@ -892,6 +891,9 @@ function App(props) {
             }
 
           </div>
+          {(config.baseurl ==='http://someshwara-test.com:3000') &&
+            <Button className="dev-btn">Development</Button>
+          }
         </main>
       </FullScreen>
       {/* <Fab style={{ position: 'absolute', top: '50%', right: 10 }} color="primary" aria-label="add">
