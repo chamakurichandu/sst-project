@@ -137,7 +137,7 @@ export default function ResponsiveDrawer(props) {
     const theme = useTheme();
     const [homeModes, setHomeModes] = React.useState(["Profile", "Office Administration", "Company Policies"]);
     const [procurementModes, setProcurementModes] = React.useState(["Dashboard", "Letter of Intents", "Purchase Orders", "Local Purchase"]);
-    const [warehouseModes, setWarehouseModes] = React.useState(["Dashboard", "Warehouse", "Receive Materials", "Release Materials", "Inward Stock Transfer", "Outward Stock Transfer", "Generate DC"]);
+    const [warehouseModes, setWarehouseModes] = React.useState(["Warehouse", "Receive Materials", "Release Materials", "Inward Stock Transfer", "Outward Stock Transfer", "Generate DC"]);
     const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
     const [outsourcingModes, setOutsourcingModes] = React.useState(["Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report"]);
     const [accountsModes, setAccountsModes] = React.useState(["DC [eSugam Waiting]", "DC [All]"]);
@@ -337,24 +337,21 @@ export default function ResponsiveDrawer(props) {
         else if (props.modes[props.currentMode] === "Warehouse") {
             switch (index) {
                 case 0:
-                    history.push("/warehousesdashboard");
-                    break;
-                case 1:
                     history.push("/warehouseHome");
                     break;
-                case 2:
+                case 1:
                     history.push("/warehousereceive");
                     break;
-                case 3:
+                case 2:
                     history.push("/releaseindents");
                     break;
-                case 4:
+                case 3:
                     history.push("/inwardstocktransfer");
                     break;
-                case 5:
+                case 4:
                     history.push("/outwardstocktransfer");
                     break;
-                case 6:
+                case 5:
                     history.push("/generate-dc");
                     break;
             }

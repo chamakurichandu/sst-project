@@ -116,7 +116,7 @@ function EnhancedTableHead(props) {
     { id: 'managers', numeric: false, disablePadding: false, label: 'Managers' },
     { id: 'city', numeric: false, disablePadding: false, label: 'city' },
     { id: 'address', numeric: false, disablePadding: false, label: 'Address' },
-    { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
+    // { id: 'action', numeric: false, disablePadding: false, label: 'Actions' },
   ];
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
@@ -617,9 +617,9 @@ export default function Warehouses(props) {
                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{managers ? getStringForArray(props.warehouse.managers) : ""}</span></TableCell>
                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.warehouse.city}</span><br></br><span>{props.warehouse.state}</span></TableCell>
                     <TableCell align={dir === 'rtl' ? 'right' : 'left'}><span>{props.warehouse.address}</span></TableCell>
-                    <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                    {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                       <div><Button onClick={() => handleEdit()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{lstrings.Edit}</Button></div>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 </TableBody>
               </Table>

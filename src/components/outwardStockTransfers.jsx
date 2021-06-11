@@ -477,7 +477,7 @@ export default function OutwardStockTransfer(props) {
                 <span>{"Outward Stock Transfers"}</span>
               </Grid>
               <Grid item className={classes.addButton}>
-                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Create Stock Transfer"}</Button>
+                <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Create Outward stock Transfer"}</Button>
               </Grid>
             </Grid>
           </Paper>

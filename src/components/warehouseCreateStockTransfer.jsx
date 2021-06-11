@@ -732,7 +732,7 @@ useEffect(()=>{
       {props.warehouse &&
         <div className={classes.paper}>
 
-          <EnhancedTableToolbar title={props.warehouse.name + ": Receive Material"} />
+          <EnhancedTableToolbar title={props.warehouse.name + ": Outward Stock Transfer"} />
 
           {/* <Breadcrumbs aria-label="breadcrumb">
             <Link color="inherit" onClick={() => handleBreadCrumClick("/warehouses")}>
@@ -820,7 +820,7 @@ useEffect(()=>{
         </div>
       }
 
-      { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem}  selectedItems={items} type={"Receivable Items"} items={allItems}/>}
+      { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem}  selectedItems={items} type={"Items"} items={allItems}/>}
 
       {/* { showSelectItemForLP && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItemForLP} items={allItems} type={"Receivable Items"} />} */}
 
