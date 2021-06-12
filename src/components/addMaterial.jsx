@@ -306,13 +306,13 @@ export default function AddMaterial(props) {
 
         <div className={classes.paper}>
 
-          <EnhancedTableToolbar title={lstrings.AddMaterial} />
+          <EnhancedTableToolbar title={"Add Materials"} />
 
           <Breadcrumbs aria-label="breadcrumb">
             <Link color="inherit" onClick={handleBreadCrumClick}>
               {lstrings.Warehouses}
             </Link>
-            <Typography color="textPrimary">{lstrings.AddMaterial}</Typography>
+            <Typography color="textPrimary">{"Add Materials"}</Typography>
           </Breadcrumbs>
 
           <form className={classes.papernew} autoComplete="off" noValidate>

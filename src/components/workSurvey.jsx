@@ -11,7 +11,6 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import config from "../config.json";
@@ -224,16 +223,11 @@ export default function WorkSurvey(props) {
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
   const [dense] = React.useState(true);
   const [showError, setShowError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
   const [rows, setRows] = React.useState([]);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [supplyVendors, setSupplyVendors] = React.useState([]);
   const [uoms, set_uoms] = React.useState([]);
-  const [projects, setProjects] = React.useState([]);
-  const [warehouses, setWarehouses] = React.useState([]);
 
   const [showSaved, setShowSaved] = React.useState(false);
 
@@ -242,7 +236,6 @@ export default function WorkSurvey(props) {
   const [work, set_work] = React.useState(null);
 
   const [items, set_items] = React.useState([]);
-  const [items_error, set_items_error] = React.useState(null);
 
   const [editMode, setEditMode] = React.useState(false);
 
@@ -519,7 +512,17 @@ export default function WorkSurvey(props) {
   };
 
   const handleCancel = () => {
-    setEditMode(false);
+    for (let i = 0; i < items.length; ++i) {
+      if (parseInt(items[i].qty) === 0) {
+        setErrorMessage("qty cannot be zero");
+        setShowError(true);
+        // errorOccured = true;
+        setEditMode(true);
+        break;
+      }
+      setEditMode(false);
+    }
+    
   };
 
   return (

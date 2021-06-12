@@ -47,10 +47,9 @@ function EnhancedTableHead(props) {
         { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
         { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
         { id: 'qtyinstock', numeric: false, disablePadding: false, label: 'Qty In Stock' },
-        { id: 'qty', numeric: false, disablePadding: false, label: 'Qty' },
         { id: 'qty_for_project', numeric: false, disablePadding: false, label: 'Qty For Project' },
         { id: 'qty_released_for_project', numeric: false, disablePadding: false, label: 'Qty Released For Project' },
-
+        { id: 'qty', numeric: false, disablePadding: false, label: ' Requested Qty' },
     ];
     const { classes, order, orderBy, numSelected, rowCount, onRequestSort } = props;
     const createSortHandler = (property) => (event) => {
@@ -416,9 +415,10 @@ export default function ReleaseMaterialIndent(props) {
                                                         return 0;
                                                     }
                                                 })()}</TableCell>
-                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.qty}</TableCell>
                                                 <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getProjectQty(row.item)}</TableCell>
                                                 <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getReleasedQty(row.item)}</TableCell>
+                                                <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + row.qty}</TableCell>
+                                                
                                             </TableRow>
                                         );
                                     })}
