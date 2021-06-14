@@ -218,6 +218,7 @@ export default function WarehouseReceive(props) {
   const [currentRI,setCurrentRI]=React.useState(-1);
   const [currentLP, setCurrentLP] = React.useState(-1);
   const [current_lp_error, set_current_lp_error] = React.useState(null);
+  const [current_ri_error, set_current_ri_error] = React.useState(null);
 
   const [poItems, setPOItems] = React.useState([]);
   const [lpItems, setLPItems] = React.useState([]);
@@ -598,10 +599,70 @@ console.log('return indent list')
   };
 
   const handleSaveWarehouseReceiveFromRI = async () => {
+    // set_current_type_error(null)
+    // set_current_ri_error(null);
+    // set_gate_entry_info_error(null);
+    // set_lr_no_error(null);
+    // set_transporter_error(null);
+    // set_vehicle_no_error(null);
+    // set_remark_error(null);
+
+    // const errors = validateData();
+
+    // let errorOccured = false;
+    // if (currentType === -1) {
+
+    //   set_current_type_error("Type Required");
+    //   errorOccured = true;
+    // }
+    // if (currentType == 1 && setCurrentRI === -1) {
+    //   set_current_lp_error("Local Purchase Required");
+    //   errorOccured = true;
+    // }
+    // if (errors["remark"]) {
+    //   set_remark_error(errors["remark"]);
+    //   errorOccured = true;
+    // }
+    // if (errors["gate_entry_info"]) {
+    //   set_gate_entry_info_error(errors["gate_entry_info"]);
+    //   errorOccured = true;
+    // }
+    // if (errors["lr_no"]) {
+    //   set_lr_no_error(errors["lr_no"]);
+    //   errorOccured = true;
+    // }
+    // if (errors["transporter"]) {
+    //   set_transporter_error(errors["transporter"]);
+    //   errorOccured = true;
+    // }
+    // if (errors["vehicle_no"]) {
+    //   set_vehicle_no_error(errors["vehicle_no"]);
+    //   errorOccured = true;
+    // }
+
+    // if (items.length === 0) {
+    //   set_items_error("Items required");
+    //   errorOccured = true;
+    // }
+
+    // if (errorOccured)
+    //   return;
+
     try {
       let url = config["baseurl"] + "/api/returnindent/completed";
       let postObj = {};
       postObj["id"] = returnIndents[currentRI].indent._id;
+      // postObj["gate_entry_info"] = gate_entry_info.trim();
+      // postObj["lr_no"] = lr_no.trim();
+      // postObj["lr_date"] = lr_date.toUTCString();
+      // postObj["transporter"] = transporter.trim();
+      // postObj["vehicle_no"] = vehicle_no.trim();
+      // postObj["remark"] = remark.trim();
+
+      // postObj["docs"] = [];
+      // for (let i = 0; i < files.length; ++i) {
+      //   postObj["docs"].push({ name: files[i].name, path: files[i].path });
+      // }
       // console.log(returnIndents[currentRI]);
       // debugger;
       axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
@@ -609,8 +670,18 @@ console.log('return indent list')
       console.log(response);
       props.history.push("/warehousehome");
     }
-    catch(err) {
-      console.log(err);
+    catch (e) {
+      console.log(e);
+      if (e.response) {
+        console.log("Error in creating");
+        setErrorMessage(e.response.data["message"]);
+      }
+      else {
+        console.log("Error in creating");
+        setErrorMessage("Error in creating: " + e);
+      }
+      setShowError(true);
+      setShowBackDrop(false);
     }
   }
 
@@ -626,7 +697,7 @@ console.log('return indent list')
     const errors = validateData();
 
     let errorOccured = false;
-    if (currentType === -1 && setCurrentRI===-1) {
+    if (currentType === -1) {
 
       set_current_type_error("Type Required");
       errorOccured = true;
@@ -977,12 +1048,12 @@ console.log('return indent list')
     let newItems = [];
     console.log(RIMaterials);
     for (let k = 0; k < RIMaterials.length; k++) {
-      let itemInfo = allItems.find(item => item._id === RIMaterials[k].item);
+      let itemInfo = allItems.find(item => item._id === RIMaterials[k].id);
       if(itemInfo) {
         newItems.push({name: itemInfo.name, description: itemInfo.description, uomId: itemInfo.uomId, qty: RIMaterials[k].qty})
       }
     }
-    setMaterials(newItems);
+  set_items(newItems);
   }
   const handleLPChange = (event) => {
     setCurrentLP(event.target.value);
@@ -1305,7 +1376,7 @@ console.log('return indent list')
                 })}
               </Select>
             </FormControl>}
-
+            {currentType == 1 && current_ri_error && <Alert className={classes.alert} severity="error"> {current_ri_error} </Alert>}
             {currentType == 2 && <FormControl size="small" variant="outlined" className={classes.formControl}>
               <InputLabel id="po-select-label">Local Purchase Indent *</InputLabel>
               <Select
@@ -1426,7 +1497,7 @@ console.log('return indent list')
                 <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
                   <EnhancedTableHeadSmall2 title="Name" onClick={addItem} />
                   <TableBody>
-                    {materials.map((row, index) => {
+                    {items.map((row, index) => {
                       return (
                         <TableRow hover tabIndex={-1} key={"" + index} >
                           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>

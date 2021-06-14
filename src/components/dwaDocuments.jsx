@@ -576,11 +576,23 @@ export default function DwaDocuments(props) {
         let modifyingItem = [...rows];
         modifyingItem[i][k] = v;
         let newChange = cloneDeep(modifyingItem[i]);
+        
+        //GST: IGST + CGST + SGST
         let gst = parseFloat(newChange.igst ? newChange.igst : "0") + parseFloat(newChange.cgst ? newChange.cgst : "0") + parseFloat(newChange.sgst ? newChange.sgst : "0");
+
+         //total unit cost: unit price * qty
+         let totalUnitCost=parseFloat(newChange.unitPrice ? newChange.unitPrice : "0") * parseFloat(newChange.qty ? newChange.qty : "0")
+        //GST Total = (total unit cost + frient and insurance) * GST / 100
+
+        let gstTotal=(parseFloat(totalUnitCost ? totalUnitCost : "0") + parseFloat(newChange.frieght ? newChange.frieght : "0")) * parseFloat(gst ? gst : "0") /100
         // ( Unit Price + (GST Total * Unity Price /100) + Frieght & insurance + other)
-        let totalUnitCost = parseFloat(newChange.unitPrice ? newChange.unitPrice : "0") + (parseFloat(gst ? gst : "0") * parseFloat(newChange.unitPrice ? newChange.unitPrice : "0") / 100) + parseFloat(newChange.frieght ? newChange.frieght : "0") + parseFloat(newChange.others ? newChange.others : "0");
-        let totalCost = parseFloat(newChange.qty ? newChange.qty : "0") * parseFloat(totalUnitCost ? totalUnitCost : "0");
-        modifyingItem[i] = { ...newChange, gst: gst.toFixed(2), totalUnitCost: totalUnitCost.toFixed(2), totalCost: totalCost.toFixed(2) }
+        // let totalUnitCost = parseFloat(newChange.unitPrice ? newChange.unitPrice : "0") + (parseFloat(gst ? gst : "0") * parseFloat(newChange.unitPrice ? newChange.unitPrice : "0") / 100) + parseFloat(newChange.frieght ? newChange.frieght : "0") + parseFloat(newChange.others ? newChange.others : "0");
+        
+       
+        //Total cost: Total unit cost + GST Total + Others
+        let totalCost = parseFloat(totalUnitCost ? totalUnitCost : "0") + parseFloat(gstTotal ? gstTotal : "0") + parseFloat(newChange.others ? newChange.others : "0");
+        
+        modifyingItem[i] = { ...newChange, gst: gstTotal.toFixed(2), totalUnitCost: totalUnitCost.toFixed(2), totalCost: totalCost.toFixed(2) }
         setRows(modifyingItem);
         set_showSaveBtn(true);
     }

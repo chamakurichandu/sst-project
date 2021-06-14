@@ -35,6 +35,10 @@ import fileImage from '../assets/svg/ss/file.svg';
 import folderImage from '../assets/svg/ss/folder.svg';
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
@@ -250,6 +254,10 @@ export default function DocumentsFolder(props) {
     backdrop: {
       zIndex: theme.zIndex.drawer + 1,
       color: '#fff',
+    },
+    heading: {
+      fontSize: theme.typography.pxToRem(15),
+      fontWeight: theme.typography.fontWeightRegular,
     },
 
   }));
@@ -609,10 +617,66 @@ export default function DocumentsFolder(props) {
               onChangeRowsPerPage={handleChangeRowsPerPage}
             />
           </Paper>
+          <h2>Activities</h2>
+          <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography className={classes.heading}>{"Activity-1"}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <TableContainer component={Paper}>
+      <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          <TableRow >
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"materials"} </TableCell>
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Qty"} </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+            <TableRow hover tabIndex={-1} >
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"feeders"} </TableCell> 
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"20"} </TableCell> 
+            </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+        </AccordionDetails>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography className={classes.heading}>{"Activity-2"}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <TableContainer component={Paper}>
+      <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          <TableRow >
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"materials"} </TableCell>
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Qty"} </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+            <TableRow hover tabIndex={-1} >
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"feeders"} </TableCell> 
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"20"} </TableCell> 
+            </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+        </AccordionDetails>
+      </Accordion>
         </div>
 
       }
-
+      
+      
       {showAddDocument && <AddDocument closeAction={addDocumentCloseAction} onNewSaved={onNewDocumentSavedAction} parent={currentPath} {...props} />}
       {showAddFolder && <AddFolder closeAction={addDocumentCloseAction} onNewSaved={onNewFolderSavedAction} parent={currentPath} {...props} />}
 
