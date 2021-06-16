@@ -668,7 +668,13 @@ useEffect(()=>{
               onChangeRowsPerPage={handleChangeRowsPerPage}
             />
           </Paper>
-          <h2>Activities</h2>
+        </div>
+
+      }
+      {props.editable &&
+      <div className={clsx(classes.root)}>
+      <div className={classes.paper}>
+      <h2>Activities</h2>
         {activities.map((activity,i)=>(
           <Accordion key={i}>
         <AccordionSummary
@@ -704,11 +710,8 @@ useEffect(()=>{
       </Accordion>
     
         ))}
-        </div>
-
-      }
-      
-      
+      </div>
+      </div>}      
       {showAddDocument && <AddDocument closeAction={addDocumentCloseAction} onNewSaved={onNewDocumentSavedAction} parent={currentPath} {...props} />}
       {showAddFolder && <AddFolder closeAction={addDocumentCloseAction} onNewSaved={onNewFolderSavedAction} parent={currentPath} {...props} />}
 

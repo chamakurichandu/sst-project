@@ -138,12 +138,12 @@ export default function ResponsiveDrawer(props) {
     const [homeModes, setHomeModes] = React.useState(["Profile", "Office Administration", "Company Policies"]);
     const [procurementModes, setProcurementModes] = React.useState(["Dashboard", "Letter of Intents", "Purchase Orders", "Local Purchase"]);
     const [warehouseModes, setWarehouseModes] = React.useState(["Warehouse", "Receive Materials", "Release Materials", "Inward Stock Transfer", "Outward Stock Transfer", "Generate DC"]);
-    const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
+    const [projectModes, setProjectModes] = React.useState(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents","Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report" ,"Issue Tracker", "Billing"]);
     const [outsourcingModes, setOutsourcingModes] = React.useState(["Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report"]);
     const [accountsModes, setAccountsModes] = React.useState(["DC [eSugam Waiting]", "DC [All]"]);
     const [hrpayrollModes, setHrpayrollModes] = React.useState([]);
     const [analyticsModes, setAnalyticsModes] = React.useState([]);
-    const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Product Category", "UOM", "Materials", "Customers", "Project Utils", "Add Project","Projects", "Supply Vendors", "Service Vendors", "Vendor Rate Contracts & Agreement", "Warehouses", "Help"]);
+    const [adminSettingsModes, setAdminSettingsModes] = React.useState(["User Management", "Product Category", "UOM", "Materials", "Customers", "Project Utils", "Add Project", "Projects", "Supply Vendors", "Service Vendors", "Service BOQ", "Vendor Rate Contracts & Agreement", "Warehouses", "Help"]);
     const [menu, setMenu] = React.useState([]);
 
     //React.useState(["Home", "Procurement", "Warehouse", "Projects", "Sub-Contract", "Accounts", "HR & Payroll", "Analytics", "Admin Settings"]);
@@ -185,7 +185,7 @@ export default function ResponsiveDrawer(props) {
         let profileData = JSON.parse(window.localStorage.getItem("profile"));
         console.log("profileData.role: ", profileData.role);
         if (profileData.role.includes("projectManager") || profileData.role.includes("admin")) {
-            setProjectModes(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker", "Billing"]);
+            setProjectModes(["Dashboard", "Approvals", "Letter Corr", "DWA BOQ", "Project Estimates", "Work Orders", "Execution", "Material Indents", "Return Indent", "Project Documents","Service BOQ", "Service Orders", "WCC / Bill Certification", "Reconcillation Report", "Settlement Report" , "Issue Tracker", "Billing"]);
         }
         else if (profileData.role.includes("deputyManager")) {
             setProjectModes(["Execution", "Material Indents", "Return Indent", "Project Documents", "Issue Tracker"]);
@@ -269,10 +269,26 @@ export default function ResponsiveDrawer(props) {
                 case "Project Documents":
                     history.push("/project-documents");
                     break;
+                case "Service BOQ":
+                    history.push("/serviceboq");
+                    break;
+                case "Service Order":
+                    history.push("/serviceorder");
+                    break;
+                case "WCC / Bill Certification":
+                    history.push("/billcertification");
+                    break;
+                case "Reconcillation Report":
+                    history.push("/reconcillationreport");
+                    break;
+                case "Settlement Report":
+                    history.push("/settlementreport");
+                    break;
                 case "Issue Tracker":
                     break;
                 case "Billing":
                     break;
+
             }
         }
         else if (props.modes[props.currentMode] === "Admin Settings") {
@@ -298,9 +314,9 @@ export default function ResponsiveDrawer(props) {
                 case 6:
                     history.push("/addproject");
                     break;
-                    case 7:
-                        history.push("/projects");
-                        break;
+                case 7:
+                    history.push("/projects");
+                    break;
                 case 8:
                     history.push("/supplyvendors");
                     break;
@@ -308,12 +324,15 @@ export default function ResponsiveDrawer(props) {
                     history.push("/servicevendors");
                     break;
                 case 10:
-                    history.push("/vendorratecontractsagreements");
+                    history.push("/serviceboq");
                     break;
                 case 11:
-                    history.push("/warehouses");
+                    history.push("/vendorratecontractsagreements");
                     break;
                 case 12:
+                    history.push("/warehouses");
+                    break;
+                case 13:
                     history.push("/help");
                     break;
             }
