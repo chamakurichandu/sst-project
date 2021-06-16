@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
@@ -280,8 +280,9 @@ export default function DocumentsFolder(props) {
 
   const [currentPath, setCurrentPath] = React.useState("/" + props.type);
   const [currentPathArr, setCurrentPathArr] = React.useState([]);
- 
+ const [allItems,setAllItems]=useState([]);
 
+  const [activities,setActivities]=useState([]);
   const pageLimits = [10, 25, 50];
   let offset = 0;
 
@@ -316,6 +317,49 @@ export default function DocumentsFolder(props) {
     }
   }
 
+  async function getAllItemList() {
+    try {
+      // setShowBackDrop(true);
+      let url = config["baseurl"] + "/api/material/list?count=" + 10000 + "&offset=" + 0 + "&search=";
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data);
+      // debugger;
+      setAllItems(data.list.docs);
+    }
+    catch (e) {
+      // setShowBackDrop(false);
+      console.log("Error in getting all items");
+      setErrorMessage("Error in getting all items");
+      setShowError(true);
+    }
+  }
+  async function getActivityList( ) {
+    try {
+      console.log(props.project);
+      let url = config["baseurl"] + "/api/work/listbyproject?project=" + props.project._id + "&count=100" + "&offset=0";  
+      axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+      const { data } = await axios.get(url);
+      console.log(data.list);
+        setActivities(data.list)
+    }
+    catch (e) {
+
+      if (e.response) {
+        setErrorMessage(e.response.data.message);
+      }
+      else {
+        setErrorMessage("Error in getting list");
+      }
+      setShowError(true);
+    }
+  }
+
+useEffect(()=>{
+  if(props.project)
+  getActivityList();
+  getAllItemList();
+},[props.project])
   async function deleteDocument(index) {
     try {
       setShowBackDrop(true);
@@ -521,7 +565,14 @@ export default function DocumentsFolder(props) {
     setPath(path);
     getList(path, rowsPerPage);
   }
-
+  const getItemNameById = (id) => {
+        let item = allItems.find(item => item._id === id);
+        if(item) {
+          return item.name;
+        } else {
+          return "NA";
+        }
+  };
   return (
     <div className={clsx(classes.root)}>
       {props.refreshUI && props.project &&
@@ -618,60 +669,41 @@ export default function DocumentsFolder(props) {
             />
           </Paper>
           <h2>Activities</h2>
-          <Accordion>
+        {activities.map((activity,i)=>(
+          <Accordion key={i}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
-          <Typography className={classes.heading}>{"Activity-1"}</Typography>
+          
+          <Typography className={classes.heading} >{activity.activity.name}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <TableContainer component={Paper}>
       <Table className={classes.table} aria-label="simple table">
         <TableHead>
           <TableRow >
-          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"materials"} </TableCell>
+          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Survey Materials"} </TableCell>
           <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Qty"} </TableCell>
           </TableRow>
         </TableHead>
+       
         <TableBody>
-            <TableRow hover tabIndex={-1} >
-             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"feeders"} </TableCell> 
-             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"20"} </TableCell> 
-            </TableRow>
+        {activity.work.survey_materials.map((material,index) => (
+            <TableRow hover  key={index}>
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{getItemNameById(material.item)} </TableCell> 
+             <TableCell align={dir === 'rtl' ? 'right' : 'left'} >{material.qty}</TableCell>      
+            </TableRow>  
+             ))}   
         </TableBody>
+        
       </Table>
     </TableContainer>
         </AccordionDetails>
       </Accordion>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-        >
-          <Typography className={classes.heading}>{"Activity-2"}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="simple table">
-        <TableHead>
-          <TableRow >
-          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"materials"} </TableCell>
-          <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"Qty"} </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-            <TableRow hover tabIndex={-1} >
-             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"feeders"} </TableCell> 
-             <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"20"} </TableCell> 
-            </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
-        </AccordionDetails>
-      </Accordion>
+    
+        ))}
         </div>
 
       }
