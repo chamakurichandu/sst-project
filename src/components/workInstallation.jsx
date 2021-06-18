@@ -233,6 +233,7 @@ export default function WorkInstallation(props) {
   const [items, set_items] = React.useState([]);
   const [editMode, setEditMode] = React.useState(false);
   const [orderQty,setOrderQty]=React.useState();
+  const [releaseQty,setReleaseQty]=React.useState([]);
 
   const [showBackDrop, setShowBackDrop] = React.useState(false);
 
@@ -304,6 +305,7 @@ export default function WorkInstallation(props) {
     if (props.allItems.length > 0)
       getWorkDetails();
       orderMaterial();
+      releaseMaterial();
   }, [props.allItems]);
 
     async function orderMaterial() {
@@ -314,6 +316,21 @@ export default function WorkInstallation(props) {
         const { data } = await axios.get(url);
         console.log(data);
         setOrderQty(data.materials);
+      }
+      catch(e){
+          console.log(e);
+      }
+    }
+
+    async function releaseMaterial() {
+      try{
+        setShowBackDrop(true);
+        let url = config["baseurl"] + "/api/releasetransaction/materialsforwork?work=" + props.projectWork.work._id;
+        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+        const { data } = await axios.get(url);
+        console.log(data);
+        setReleaseQty(data.list);
+        // setOrderQty(data.materials);
       }
       catch(e){
           console.log(e);
@@ -411,6 +428,17 @@ export default function WorkInstallation(props) {
 
       let postObj = {};
       postObj["step"] = "installation";
+      //checking each material with released material 
+    items.forEach(item => {
+      releaseQty.forEach(release =>{
+        if(item._id !==release.item){
+          throw { message: "Installation should not be complete unless the material release from warehouse"};
+        } 
+        if(item.install_qty < release.qty){ 
+          throw { message: "Release Qty should not be more than installation Qty"};
+        }
+      })
+    }) 
       for (let i = 0; i < items.length; ++i) {
         if(parseInt(items[i].install_qty) !== parseInt(items[i].qty)) {
           throw { message: "Survey qty and install qty should be same" };
