@@ -327,7 +327,7 @@ export default function ResponsiveDrawer(props) {
                     history.push("/serviceboq");
                     break;
                 case 11:
-                    history.push("/vendorratecontractsagreements");
+                    history.push("/vendorrate");
                     break;
                 case 12:
                     history.push("/warehouses");

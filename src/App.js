@@ -100,6 +100,9 @@ import ReturnIndent from "./components/returnIndent";
 import LPDetails from "./components/lpDetails";
 import MaterialIndentsDetails from "./components/materialIndentDetails";
 import AddReturnIndent from "./components/addReturnIndent";
+import VendorRate from './components/vendorRate';
+import AddVendorRate from "./components/addVendorRate";
+import ProjectEstimates from "./components/projectEstimates";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -180,7 +183,7 @@ function App(props) {
   const [po, setPO] = React.useState(null);
   const [localPurchase, setLocalPurchase] = React.useState(null);
   const [currentLp, setCurrentLp] = React.useState({});
-  const [materialIndentsDetails,setMaterialIndentsDetails]=React.useState({});
+  const [materialIndentsDetails, setMaterialIndentsDetails] = React.useState({});
   const [createFromLoi, setCreateFromLoi] = React.useState(false);
   const [dc, setDC] = React.useState(null);
   const [stockTransferType, setStockTransferType] = React.useState(-1);
@@ -778,17 +781,18 @@ function App(props) {
                 <Switch>
                   {<Route exact path="/project-approvals" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"approvals"} name={"Approvals"} project={project} {...props} /> </div>} />}
                   {<Route exact path="/project-lettercorr" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"lettercorr"} name={"Letter Corr"} project={project} {...props} /> </div>} />}
-                  {(projectManagerRole || adminRole) && <Route exact path="/project-dwaboq" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DwaDocuments refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} name={'DWA BOQ'} warehouseRole={warehouseRole} productCategories={productCategories} setProductCategories={setProductCategories} UOMs={UOMs} setUOMs={setUOMs} project={project} setProject={setProject} setSelectedMaterial={setSelectedMaterial}  {...props} /> </div>} />}
-
+                  {(projectManagerRole || adminRole) && <Route exact path="/project-dwaboq" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DwaDocuments refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} name={'DWA BOQ'} warehouseRole={warehouseRole} productCategories={productCategories} setProductCategories={setProductCategories} UOMs={UOMs} setUOMs={setUOMs} project={project} setProject={setProject}
+                    setSelectedMaterial={setSelectedMaterial}  {...props} /> </div>} />}
+                  {<Route exact path="/project-projectestimates" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ProjectEstimates refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"Project Estimates"} name={"Project Estimates"} project={project} {...props} /> </div>} />}
                   {/* {<Route exact path="/project-dwaboq" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DwaDocuments refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"dwaboq"} name={"DWA BOQ"} project={project} {...props} /> </div>} />} */}
                   {/* {<Route exact path="/project-dwaboq" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"dwaboq"} name={"DWA BOQ"} project={project} {...props} /> </div>} />} */}
-                  {<Route exact path="/project-projectestimates" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"projectestimates"} name={"Project Estimates"} editable={true} project={project} {...props} /> </div>} />}
+                  {/* {<Route exact path="/project-projectestimates" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"projectestimates"} name={"Project Estimates"} editable={true} project={project} {...props} /> </div>} />} */}
                   {<Route exact path="/project-workorders" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"workorders"} name={"Work Orders"} project={project} {...props} /> </div>} />}
                   {<Route exact path="/project-documents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"projectdocuments"} name={"Project Documents"} project={project} {...props} /> </div>} />}
                   {<Route exact path="/reconcillationreport" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"reconcillationreport"} name={"Reconcillation Report"} project={project} {...props} /> </div>} />}
                   {<Route exact path="/settlementreport" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <DocumentsFolder refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} type={"settlementreport"} name={"Settlement Report"} project={project} {...props} /> </div>} />}
                   {<Route exact path="/materialindents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <MaterialIndents refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} warehouses={warehouses} {...props} setMaterialIndentsDetails={setMaterialIndentsDetails} /> </div>} />}
-                  {<Route exact path="/materialIndentsDetails" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <MaterialIndentsDetails refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} warehouses={warehouses} materialIndentsDetails={materialIndentsDetails} {...props}  /> </div>} />}
+                  {<Route exact path="/materialIndentsDetails" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <MaterialIndentsDetails refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} warehouses={warehouses} materialIndentsDetails={materialIndentsDetails} {...props} /> </div>} />}
                   {<Route exact path="/returnindents" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ReturnIndent refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} {...props} /> </div>} />}
                   {<Route exact path="/addreturnindent" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddReturnIndent refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} project={project} projectWork={selectedProjectWork} {...props} /> </div>} />}
                   {<Route exact path="/projects" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <Projects refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedProject={setSelectedProject} setCustomers={setCustomers} setProject={setProject}  {...props} /> </div>} />}
@@ -830,9 +834,11 @@ function App(props) {
                   {<Route exact path="/editcustomer" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditCustomer refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} selectedCustomer={selectedCustomer} {...props} /> </div>} />}
 
                   {<Route exact path="/servicevendors" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <ServiceVendors refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedServiceVendor={setSelectedServiceVendor}  {...props} /> </div>} />}
+
                   {<Route exact path="/addservicevendor" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddServiceVendor refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} {...props} /> </div>} />}
                   {<Route exact path="/editservicevendor" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditServiceVendor refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} selectedServiceVendor={selectedServiceVendor} {...props} /> </div>} />}
-
+                  {<Route exact path="/vendorrate" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <VendorRate refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} {...props} /> </div>} />}
+                  {<Route exact path="/add-vendor-rate" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddVendorRate projects={projects} setProjects={setProjects} warehouses={warehouses} setWarehouses={setWarehouses} {...props} /> </div>} />}
                   {<Route exact path="/supplyvendors" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <SupplyVendors refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} setSelectedSupplyVendor={setSelectedSupplyVendor}  {...props} /> </div>} />}
                   {<Route exact path="/addsupplyvendor" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <AddSupplyVendor refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} {...props} /> </div>} />}
                   {<Route exact path="/editsupplyvendor" render={(props) => <div className={clsx(drawerOpen ? classes.open : classes.close, dir === 'rtl' ? classes.right : classes.left)}> <EditSupplyVendor refreshUI={refreshUI} onAuthFailure={onAuthFailure} adminRole={adminRole} selectedSupplyVendor={selectedSupplyVendor} {...props} /> </div>} />}
@@ -893,7 +899,7 @@ function App(props) {
             }
 
           </div>
-          {(config.baseurl ==='http://someshwara-test.com:3000') &&
+          {(config.baseurl === 'http://someshwara-test.com:3000') &&
             <Button className="dev-btn">Development</Button>
           }
         </main>

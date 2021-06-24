@@ -58,8 +58,8 @@ function EnhancedTableHeadSmall(props) {
   
     const headCells = [
       { id: 'name', numeric: false, disablePadding: false, label: props.title },
+      { id: 'description', numeric: false, disablePadding: false, label: "Description" },
       { id: 'uom', numeric: false, disablePadding: false, label: "UOM" },
-      { id: 'schedule_date', numeric: true, disablePadding: false, label: "Scheduled Date" },
       { id: 'qty', numeric: true, disablePadding: false, label: "Qty" }
     ];
   
@@ -69,9 +69,9 @@ function EnhancedTableHeadSmall(props) {
           {headCells.map((headCell, index) => (
             <TableCell key={headCell.id} align={!setDir ? 'left' : 'right'} padding='none' sortDirection={false} >
               {headCell.label}
-              {index === 0 && <IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onClick}>
+              {/* {index === 0 && <IconButton color="primary" aria-label="upload picture" component="span" onClick={props.onClick}>
                 <AddImage />
-              </IconButton>}
+              </IconButton>} */}
             </TableCell>
           ))}
         </TableRow>
@@ -182,24 +182,24 @@ export default function AddReturnIndent(props) {
     useEffect(() => {
         console.log(items)
     }, [items]);
-    async function getAllItemList(numberOfRows, search = "") {
-        try {
-          setShowBackDrop(true);
-          let url = config["baseurl"] + "/api/material/list?count=" + numberOfRows + "&offset=" + 0 + "&search=" + search;
-          axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
-          const { data } = await axios.get(url);
-          console.log(data);
-    
-          set_allItems(data.list.docs);
-          setShowBackDrop(false);
-        }
-        catch (e) {
-          setShowBackDrop(false);
-          console.log("Error in getting all items");
-          setErrorMessage("Error in getting all items");
-          setShowError(true);
-        }
+    async function getReleaseItemsList() {
+      try {
+        setShowBackDrop(true);
+        let url = config["baseurl"] + "/api/releasetransaction/materialsforproject?project=" + props.project._id;
+        axios.defaults.headers.common['authToken'] = window.localStorage.getItem("authToken");
+        const { data } = await axios.get(url);
+        console.log(data);
+  
+        set_items(data.list);
+        setShowBackDrop(false);
       }
+      catch (e) {
+        setShowBackDrop(false);
+        console.log("Error in getting all items");
+        setErrorMessage("Error in getting all items");
+        setShowError(true);
+      }
+    }
 
     async function getUOMList() {
         try {
@@ -218,9 +218,11 @@ export default function AddReturnIndent(props) {
         }
       }
       useEffect(() => {
-        getAllItemList();
+        if(props.project){
+          getReleaseItemsList();
         getUOMList();
-    }, []);
+      }
+    }, [props.project]);
      
     const set_item_qty_for = (value, index) => {
         console.log(value + "--" + index);
@@ -412,13 +414,14 @@ export default function AddReturnIndent(props) {
                   {items.map((row, index) => {
                     return (
                       <TableRow hover tabIndex={-1} key={"" + index} >
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
-                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.details.name}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.details.description}</TableCell>
+                        <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.details.uomId)}</TableCell>
+                        {/* <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
                           <MuiPickersUtilsProvider utils={DateFnsUtils} >
                             <DatePicker size="small" label="Schedule Date" inputVariant="outlined" format="dd/MM/yyyy" value={row.scheduled_date} onChange={(newDate) => handleScheduleDateChange(newDate, index)} />
                           </MuiPickersUtilsProvider>
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{console.log(row.qty)}
                           <TextField size="small" id={"formControl_qty_" + index} type="number" value={row.qty}
                             variant="outlined" onChange={(event) => { set_item_qty_for(event.target.value, index) }} />
