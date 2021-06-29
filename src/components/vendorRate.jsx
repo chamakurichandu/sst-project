@@ -553,7 +553,7 @@ export default function VendorRate(props) {
               <span>{"Vendor Rate"}</span>
             </Grid>
             <Grid item className={classes.addButton}>
-              <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Rate"}</Button>
+              <Button onClick={() => handleAdd()} style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" className={classes.button}>{"Add Rate Contract"}</Button>
             </Grid>
           </Grid>
         </Paper>

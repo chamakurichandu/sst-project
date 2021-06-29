@@ -27,6 +27,9 @@ import AddImage from '@material-ui/icons/Add';
 import SelectItem from './selectItem';
 import cloneDeep from 'lodash/cloneDeep';
 import ConfirmDelete from "./confirmDelete";
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
 
 const Joi = require('joi');
 
@@ -279,12 +282,12 @@ export default function AddVendorRate(props) {
     let ocurrentWarehouses = projects?.[currentProject]?.warehouse?.map(id => {
       return warehouses?.find(wh => wh._id === id)
     });
-    if(ocurrentWarehouses) {
+    if (ocurrentWarehouses) {
       setCurrentWarehouses(ocurrentWarehouses);
     } else {
       setCurrentWarehouses([]);
     }
-    
+
   }, [currentProject])
 
   const handleClose = (event, reason) => {
@@ -321,11 +324,11 @@ export default function AddVendorRate(props) {
       newitem = newitem.filter(ii => ii._id !== items[i]._id);
     };
 
-    if(newitem.length > 0) {
+    if (newitem.length > 0) {
       newitem = newitem.map(ii => {
         let newCopy = cloneDeep(ii);
         newCopy.scheduled_date = new Date();
-        newCopy.qty=0;
+        newCopy.qty = 0;
         newCopy.rate = 0;
         return newCopy;
       });
@@ -335,7 +338,7 @@ export default function AddVendorRate(props) {
       setShowError(true);
       setErrorMessage('Already existing materials selected');
     }
-    
+
   };
 
   const handleCloseBackDrop = () => {
@@ -385,6 +388,7 @@ export default function AddVendorRate(props) {
     set_items([...newItems]);
     setShowConfirmationDialog(false);
   };
+
   return (
     <div className={clsx(classes.root)}>
       <div className={classes.paper}>
@@ -399,6 +403,39 @@ export default function AddVendorRate(props) {
         </Breadcrumbs>
 
         <form className={classes.papernew} autoComplete="off" noValidate>
+          <FormControl size="small" variant="outlined" className={classes.formControl}>
+            <InputLabel id="warehouse-select-label">Service Vendor *</InputLabel>
+            <Select
+              labelId="warehouse-select-label"
+              id="warehouses-select-label"
+              // value={currentWarehouse === -1 ? "" : currentWarehouse}
+              // onChange={handleWarehouseChange}
+              label="Warehouse *"
+            >
+              {/* {projects[currentProject] && currentWarehouses.map((row, index) => {
+                return (
+                  <MenuItem key={index} value={index}>{row.name}</MenuItem>
+                );
+              })} */}
+            </Select>
+          </FormControl>
+          <TextField size="small" className={classes.inputFields} id="formControl_scope_of_supply"
+            label="Service Code *" variant="outlined" multiline
+          />
+          <TextField size="small" className={classes.inputFields} id="formControl_scope_of_supply"
+            label="Location *" variant="outlined" multiline
+          />
+          <TextField size="small" className={classes.inputFields} id="formControl_scope_of_supply"
+            label="Key Remarks *" variant="outlined" multiline
+          />
+          <div style={{ marginTop: 10 }}>
+            <div style={{ marginTop: 5 }}>
+              <Button style={{ background: "#314293", color: "#FFFFFF" }} variant="contained" component="label">
+                Upload Document
+                <input type="file" hidden />
+              </Button>
+            </div>
+          </div>
           <Paper className={classes.paper} style={{ marginTop: 10 }}>
             <TableContainer className={classes.container}>
               <Table className={classes.smalltable} stickyHeader aria-labelledby="tableTitle" size='small' aria-label="enhanced table" >
@@ -410,7 +447,7 @@ export default function AddVendorRate(props) {
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{"" + (index + 1) + ". " + row.name}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>{getuomFor(row.uomId)}</TableCell>
                         <TableCell align={dir === 'rtl' ? 'right' : 'left'}>
-                        <TextField size="small" label="Schedule Date" variant="outlined" format="dd/MM/yyyy" value={items[index].scheduled_date} onChange={(e) => handleScheduleDateChange(e.target.value, index)}/>                          
+                          <TextField size="small" label="Schedule Date" variant="outlined" format="dd/MM/yyyy" value={items[index].scheduled_date} onChange={(e) => handleScheduleDateChange(e.target.value, index)} />
                           {/* <MuiPickersUtilsProvider utils={DateFnsUtils} >
                             <DatePicker size="small" label="Schedule Date" inputVariant="outlined" format="dd/MM/yyyy" value={row.scheduled_date} onChange={(newDate) => handleScheduleDateChange(newDate, index)} />
                           </MuiPickersUtilsProvider> */}
@@ -442,7 +479,7 @@ export default function AddVendorRate(props) {
         </form>
         {/* </Paper> */}
       </div>
-      { showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={allItems} type={"Purchasable Items"} />}
+      {showSelectItem && <SelectItem closeAction={closeSelectItemDialogAction} onSelect={onSelectItem} items={allItems} type={"Purchasable Items"} />}
       {showConfirmationDialog && <ConfirmDelete noConfirmationDialogAction={noConfirmationDialogAction} yesConfirmationDialogAction={yesConfirmationDialogAction} message={lstrings.DeleteItemConfirmationMessage} title={lstrings.DeletingItem} />}
       <Snackbar open={showError} autoHideDuration={60000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="error">
